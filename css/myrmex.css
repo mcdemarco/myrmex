@@ -1,0 +1,309 @@
+﻿/*
+This file was created by Felbrigg Herriot and remixed by M.C.DeMarco, and is released under a 
+Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
+*/
+
+/* Background pattern from subtlepatterns.com */
+
+/* original card size: 100x150
+   remix card size: 124x174
+   embiggened size: 186x261 (currently has original sizes in it for debugging)
+   card source file size: 372x522 
+*/
+
+* {
+    box-model:border-box;
+}
+
+@font-face {
+    font-family: "Fortune Letters";
+    src: url(../assets/fortune-letters.ttf) format("truetype");
+}
+
+body {
+    background-image:url('../assets/skulls-green.png');
+    font-family: 'Fortune Letters', Futura, Geneva, sans-serif;
+    color: #030;
+    margin:0;
+    padding:0;
+}
+
+button {
+    font-family: 'Fortune Letters', Futura, Geneva, sans-serif;
+}
+
+#settingsPanel div p:first-child {
+    font-family: 'Fortune Letters', Futura, Geneva, sans-serif;
+}
+
+p {
+    font-family: 'Segoe UI', 'Century Gothic', 'Lucida Grande', Tahoma, 'Gill Sans', sans-serif;
+    text-align:justify;
+}
+
+p.callout {
+    padding: 0 5%;
+    font-style:italic;
+}
+
+#gamewrapper {
+    padding:10px;
+    white-space:nowrap;
+    min-height:572px;
+}
+
+.embiggen #gamewrapper {
+    min-height: 500px; /*? 833px;*/
+}
+
+#playarea {
+    min-width:955px;
+    margin:2px;
+}
+
+.embiggen #playarea {
+    min-width:780px;
+}
+
+#deckcolumn {
+    margin:2px;
+    min-width:190px;
+    width:20%;
+    height:550px; 
+    display:inline-block;
+    float:left;
+    text-align:center;   
+}
+
+.embiggen #deckcolumn {
+    min-width:160px;
+    height:500px;
+}
+
+.titlerow
+{
+    height:30px;
+    margin:2px;
+    min-width:100%;
+    text-align:center;
+    vertical-align:middle;
+    color:white;
+    padding:5px;
+    clear:both;
+}
+
+#title {
+    color: #170;
+    font-size:xx-large;
+    font-weight:bold;
+    text-shadow:1px 1px 0px #030;
+}
+
+.button {
+    clear:left;
+    margin-bottom:2px;
+    box-shadow:inset 0px 1px 0px 0px #C3FEB5;
+    background-color:#ACE890;
+    background:linear-gradient(to bottom, #ACE890, #40A728);
+    border-radius:6px;
+    border:1px solid #40A728;
+    display:inline-block;
+    white-space:nowrap;
+    color:#ffffff;
+    font-size:15px;
+    padding:6px 10px;
+    text-decoration:none;
+    text-shadow:1px 1px 0px #030;
+}
+
+.button:hover {
+    background-color:#40A728;
+    background:linear-gradient(to bottom, #40A728, #ACE890);
+    cursor:pointer;
+}
+
+.button:active {
+    position:relative;
+    top:1px;
+}
+
+#startButton {
+    margin-top:10px;
+}
+
+#plusButton {
+    padding: 3px 5px;
+}
+
+.gamerow {
+    margin:4px;
+    float:left;
+    height:187px;
+    width:720px;
+    text-align:center;
+    min-width:680px;
+}
+
+.embiggen .gamerow {
+    margin:2px;
+    height:163px;
+    width:600px;
+    min-width:550px;
+}
+
+.deckrow {
+    margin-top:10px;
+}
+
+#drawDeckLocation.full {
+    background-image:url('../cards/back.png');
+    background-size:124px 174px;
+}
+
+.embiggen #drawDeckLocation.full {
+    background-size:100px 150px;
+}
+
+.cardspace, #deckcolumn .cardspace, .card {
+    width:124px;
+    height:174px;
+    border-radius:6px;
+}
+
+.embiggen .cardspace, .embiggen #deckcolumn .cardspace, .embiggen .card {
+    width:100px;
+    height:150px;
+    border-radius:6px;
+}
+
+.embiggen1 .card {
+    background-size:248px 348px;
+    border-radius:12px 0 0 0;
+}
+
+
+.cardspace, #deckcolumn .cardspace {
+    border:thin solid #170;
+    margin:4px;
+    display:inline-block;
+}
+
+.embiggen .cardspace {
+    margin:2px;
+}
+
+.backgroundtext, .decklabel {
+    font-size:large;
+    font-weight:bold;
+    position:absolute;
+    height:42px;
+    width:120px;
+    white-space:nowrap;
+    margin:66px 0 0 -66px;
+    display:inline-block;
+    -webkit-transform:rotate(270deg);
+    transform:rotate(270deg);
+}
+
+.embiggen .backgroundtext, .embiggen .decklabel {
+    height:30px;
+    width:100px;
+    margin:60px 0 0 -60px;
+}
+
+.backgroundtext {
+    color: #97E684;
+}
+
+.decklabel {
+    color:#030;
+}
+
+.card {
+    position:absolute;
+    background-size:124px 174px;
+}
+
+.face {
+    box-shadow: 6px 8px 4px #030;
+}
+
+.embiggen1 .card.face {
+    box-shadow: -6px -8px 4px #030;
+}
+
+.cardselected {
+    opacity: 0.6;
+}
+
+.hidden {
+    display:none;
+}
+
+.panel {
+    display:none;
+    text-align:center;
+    position:absolute;
+    top:0;
+    left:0;
+    width:auto;
+    height:100%;
+    background-color: rgba(114,169,101,0.90);
+    color:white;
+    font-weight:normal;
+    font-size:12pt;
+    padding: 5%;
+    z-index:51;
+}
+
+#gameovernomoves {
+    text-shadow:1px 1px 0px #030;
+}
+
+#gameOverPalace {
+    text-shadow:1px 1px 0px #030;
+}
+
+#settingsButton {
+    font-size:x-large;
+    vertical-align:middle;
+}
+
+#settingsPanel div {
+    width:100%;
+}
+
+#settingsPanel div p {
+    display:table-cell;
+    text-align:left;
+    padding:10px 5px 30px 5px;
+}
+
+#settingsPanel div {
+    display:table-row;
+}
+
+/*
+#settingsPanel div p:last-child {
+    font-style:italic;
+}
+*/
+
+hr {
+    border:0;
+    height:1px;
+    background: linear-gradient(to right, rgba(119, 68, 0, 0), rgba(119, 68, 0, 0.75), rgba(119, 68, 0, 0));
+}
+
+.linky {
+    cursor:pointer;
+    margin-top:5px;
+}
+
+a:link {
+    color:white;
+}
+
+a:visited {
+    color:#C3FEB5;
+}
