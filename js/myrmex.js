@@ -13,7 +13,7 @@ var discardCount = 0;
 var defaultSettings = {speed: 300,
 					   magnification: false,
 					   blackmoons: true,
-					   difficulty: 'normal'};
+					   level: 'normal'};
 var speed;
 
 //
@@ -51,7 +51,7 @@ function initialise_GamePage() {
 	});
 
 	//Fill in the rest of the settings form
-	$("input[name=difficulty]").val([getSetting('difficulty')]);
+	$("input[name=level]").val([getSetting('level')]);
 	$("input#emblacken").prop("checked",getSetting('blackmoons'));
 	
 	
@@ -163,8 +163,8 @@ function startButtonClick() {
 
     moveDeckBackToDrawDeck();
 	//Set the other two settings here for convenience.
-	if (getSetting('difficulty') != $("input[name=difficulty]:checked").val() || getSetting('blackmoons') != $("input#emblacken").is(":checked")) {
-		setSetting('difficulty', $("input[name=difficulty]:checked").val());
+	if (getSetting('level') != $("input[name=level]:checked").val() || getSetting('blackmoons') != $("input#emblacken").is(":checked")) {
+		setSetting('level', $("input[name=level]:checked").val());
 		setSetting('blackmoons', $("input#emblacken").is(":checked").toString());
 		//If these values have changed since the deck was created, then we need to recreate it.
 		initialiseDeck(true);
@@ -593,16 +593,16 @@ function getCardIndexByID(theID) {
 // create a deck of cards suitable for Adaman
 //
 function adamanCreateDeck() {
-	var difficulty = getSetting('difficulty');
+	var level = getSetting('level');
     var adamanDeck = decktetCreateDeck();
 	//This one can be used but would be complicated to program, so ditch it.
     adamanDeck = decktetRemoveTheExcuse(adamanDeck);
 	//The normal deck.
-	if (difficulty == "normal") {
+	if (level == "normal") {
 		adamanDeck = decktetRemoveCOURT(adamanDeck);
 		adamanDeck = decktetRemovePAWN(adamanDeck);
 		personalityTotal = 11;
-	} else if (difficulty != "easy") {
+	} else if (level != "easy") {
 		//Remove the non-personality pawns and courts.
 		adamanDeck = decktetRemoveCardByName(adamanDeck,'the HARVEST');
 		adamanDeck = decktetRemoveCardByName(adamanDeck,'the BORDERLAND');
@@ -613,11 +613,11 @@ function adamanCreateDeck() {
 		//Pick the random personality.
 		var randam = Math.floor(Math.random()*3);
 		var nameArray = ['the LIGHT KEEPER','the WATCHMAN','the CONSUL'];
-		if (difficulty == "harder") {
+		if (level == "harder") {
 			//remove 1, leave 2
 			adamanDeck = decktetRemoveCardByName(adamanDeck, nameArray[randam]);
 			personalityTotal = 13;
-		} else if (difficulty == "hard") {
+		} else if (level == "hard") {
 			//remove 2, leave 1
 			for (var i=0; i<3; i++) {
 				if (i != randam)
