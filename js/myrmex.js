@@ -5,11 +5,6 @@
 //
 // Global Variables
 //
-var gameOVER = false;       // overall flag to indicate the game is over
-var score = 0;
-var personalityCount = 0;
-var personalityTotal;
-var discardCount = 0;
 var defaultSettings = {speed: 300,
 					   magnification: false,
 					   blackmoons: true,
@@ -71,11 +66,6 @@ function initialise_GamePage() {
 	$('.close.button').click(function () {
 		$('.panel').hide();
 	});
-	$('#gameOverCloseButton').click(function () {
-		//semi clean up
-		moveDeckBackToDrawDeck();
-	});
-
 	
 	// event for the startbuttonclick
 	$('#startButton').click(function () {
@@ -87,14 +77,11 @@ function initialise_GamePage() {
 
 function initialiseDeck(again) {
 
-    // Build a deck of adaman cards
-    deck = adamanCreateDeck();
+    // Build a deck of myrmex cards
+    deck = myrmexCreateDeck();
 
     // create the on screen card image tags
     createOnScreenCards(again);
-
-	//Revise the scores.
-	$("#personalityCount").html(personalityCount + " (" + personalityTotal + ")");
 
 }
 
@@ -152,11 +139,6 @@ function canCardBeBeatenByResources(targetCard, onlyCheckSelectedResourceCards) 
 // Start button click event
 //
 function startButtonClick() {
-    gameOVER = false;
-    score = 0;
-	personalityCount = 0;
-	discardCount = 0;
-
 	$("#runningScore").html(score);
 	$("#personalityCount").html(personalityCount + " (" + personalityTotal + ")");
     $('.panel').hide();
@@ -171,13 +153,7 @@ function startButtonClick() {
 	}
     decktetShuffle(deck);
 	stackDeck();
-    dealToTheCapital();
-    dealToTheResources();
-    var canContinue = isThereAMove();
-    if (!canContinue) {
-		//Delay is for 5 capitol cards + 5 palace cards + up to 5 resource cards.
-        gameIsOver(15);
-    }
+	//Deal to the foundation 4 times plus more for variants
 }
 
 function moveDeckBackToDrawDeck() {
@@ -590,59 +566,41 @@ function getCardIndexByID(theID) {
 }
 
 //
-// create a deck of cards suitable for Adaman
+// create a deck of cards suitable for Myrmex
 //
-function adamanCreateDeck() {
+function myrmexCreateDeck() {
 	var level = getSetting('level');
-    var adamanDeck = decktetCreateDeck();
-	//This one can be used but would be complicated to program, so ditch it.
-    adamanDeck = decktetRemoveTheExcuse(adamanDeck);
-	//The normal deck.
-	if (level == "normal") {
-		adamanDeck = decktetRemoveCOURT(adamanDeck);
-		adamanDeck = decktetRemovePAWN(adamanDeck);
-		personalityTotal = 11;
-	} else if (level != "easy") {
-		//Remove the non-personality pawns and courts.
-		adamanDeck = decktetRemoveCardByName(adamanDeck,'the HARVEST');
-		adamanDeck = decktetRemoveCardByName(adamanDeck,'the BORDERLAND');
-		adamanDeck = decktetRemoveCardByName(adamanDeck,'the WINDOW');
-		adamanDeck = decktetRemoveCardByName(adamanDeck,'the RITE');
-		adamanDeck = decktetRemoveCardByName(adamanDeck,'the ISLAND');
-
-		//Pick the random personality.
-		var randam = Math.floor(Math.random()*3);
-		var nameArray = ['the LIGHT KEEPER','the WATCHMAN','the CONSUL'];
-		if (level == "harder") {
-			//remove 1, leave 2
-			adamanDeck = decktetRemoveCardByName(adamanDeck, nameArray[randam]);
-			personalityTotal = 13;
-		} else if (level == "hard") {
-			//remove 2, leave 1
-			for (var i=0; i<3; i++) {
-				if (i != randam)
-					adamanDeck = decktetRemoveCardByName(adamanDeck, nameArray[i]);	
-			}
-			personalityTotal = 12;
-		} else {
-			//Else keep them all for hardest.
-			personalityTotal = 14;
-		}
+    var myrmexDeck = decktetCreateDeck(2);
+	//myrmexify
+    myrmexDeck = decktetRemoveTheExcuse(myrmexDeck);
+    myrmexDeck = decktetRemoveRankByDeckNo(myrmexDeck,1,2);
+    myrmexDeck = decktetRemoveRankByDeckNo(myrmexDeck,10,2);
+	if (level == "minor" || level == "larval") {
+		//The normal deck.
+		myrmexDeck = decktetRemoveCOURT(myrmexDeck);
+		myrmexDeck = decktetRemovePAWN(myrmexDeck);
 	} else {
-		//Set personality count for easy level.
-		personalityTotal = 14;
+		//Remove the unwanted Pawns.
+		myrmexDeck = decktetRemoveCardByName(myrmexDeck,'the LIGHT KEEPER');
+		if (level == "major" || level == "blindMajor") {
+			//Remove all the Courts.
+			myrmexDeck = decktetRemoveCOURT(myrmexDeck);
+		} else {
+			//Remove the unwanted Courts.
+			myrmexDeck = decktetRemoveCardByName(myrmexDeck,'the RITE');
+		}
 	}
 	
-    adamanDeck = decktetShuffle(adamanDeck);
-    for (var i = 0; i < adamanDeck.length; i++) {
-        adamanDeck[i].Location = 'drawDeckLocation';
-        adamanDeck[i].divID = adamanDeck[i].Name.replace(/\s+/g, '');
-        adamanDeck[i].selector = '#' + adamanDeck[i].divID;
+    myrmexDeck = decktetShuffle(myrmexDeck);
+    for (var i = 0; i < myrmexDeck.length; i++) {
+        myrmexDeck[i].Location = 'drawDeckLocation';
+        myrmexDeck[i].divID = myrmexDeck[i].Name.replace(/\s+/g, '') + myrmexDeck[i].DeckNo;
+        myrmexDeck[i].selector = '#' + myrmexDeck[i].divID;
 		//Tweak values of pawns and courts.
-		if (adamanDeck[i].Rank == "PAWN" || adamanDeck[i].Rank == "COURT")
-			adamanDeck[i].Value = 10;
+		if (myrmexDeck[i].Rank == "PAWN" || myrmexDeck[i].Rank == "COURT")
+			myrmexDeck[i].Value = 10;
     }
-    return adamanDeck;
+    return myrmexDeck;
 }
 
 //
