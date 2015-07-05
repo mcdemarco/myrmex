@@ -112,7 +112,7 @@ function moveDeckBackToDrawDeck() {
     for (var i = 0; i < deck.length; i++) {
         deck[i].Selected = false;
         moveCardToSpace(i, 'drawDeckLocation', 0.1);
-        $(deck[i].selector).removeClass('cardselected').hide();
+        $(deck[i].selector).removeClass('cardselected').addClass('teeny');
     }
 }
 
@@ -132,13 +132,20 @@ function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
     var targetOffset = $('#' + spaceID).offset();
 	if (typeof delayUnits == 'undefined') delayUnits = 1;
 	var delay = delayUnits * speed;
-	if (spaceID != "drawDeckLocation") {//need to switch this to a transition, too.
-		$(deck[indexOfCard].selector).fadeIn(speed);
+	if (spaceID == "drawDeckLocation") {
+		$(deck[indexOfCard].selector).delay(delay).addClass("teeny");
+	} else {
+		var shift = getShift(spaceID);
+		//Need to get the delay/transition onto removeClass.
+		$(deck[indexOfCard].selector).css("z-index",shift).delay(delay).transition({left:targetOffset.left, top:targetOffset.top + 22*shift},speed,"snap").removeClass("teeny");
 	}
-	var shift = getShift(spaceID);
-    $(deck[indexOfCard].selector).css("z-index",shift).delay(delay).transition({left:targetOffset.left, top:targetOffset.top + 22*shift},speed,"snap");
     // reset cards location
     deck[indexOfCard].Location = spaceID;
+	//$(deck[indexOfCard].selector + " img").delay(delay).transition({width:124, height:174});
+	if (deck[indexOfCard].FaceUp && $(deck[indexOfCard].selector + " img").is(":visible"))
+		$(deck[indexOfCard].selector + " img").delay(delay).hide();
+	else if (!deck[indexOfCard].FaceUp && !$(deck[indexOfCard].selector + " img").is(":visible"))
+		$(deck[indexOfCard].selector + " img").delay(delay).show();
 }
 
 function getShift(spaceID) {
@@ -164,28 +171,40 @@ function getIndexOfTopCardOnDrawDeck() {
 // deal cards to the foundation/tableau
 
 function dealTheFoundation() {
-	//Deal the whole foundation at the start.
+	//Create the foundation array.
 	for (var f=0; f<8;f++) foundArray[f] = [];
-	for (var r=1;r<=4;r++) {
-		dealToTheFoundation((r<4 && isBlind()));
+	//Deal the whole foundation at the start.
+	var row;
+	var vari = getVariant();
+	for (row=1;row<=3;row++) {
+		dealToTheFoundation(isBlind(),(row-1)*8);
+	}
+	row = 4;
+	if (vari == 'minor' || vari == 'queen') {
+		dealToTheFoundation(false,(row-1)*8);
+	} else {//major and double, for now
+		for (var p=0;p<6;p++)
+			dealCardToTheFoundation(p,isBlind(),(row-1)*8 + p);
+		row = 5;
+			dealToTheFoundation(false,(row-1)*8);
 	}
 }
 
-function dealToTheFoundation(faceDown) {
+function dealToTheFoundation(faceDown,delayUnits) {
 	//Deal a row of the foundation, optionally face down.
 	for (var f=0;f<8;f++) {
-		dealCardToTheFoundation(f,faceDown);
+		dealCardToTheFoundation(f,faceDown,delayUnits + f);
 	}
 }
 
-function dealCardToTheFoundation(foundationNo,faceDown) {
+function dealCardToTheFoundation(foundationNo,faceDown,delayUnits) {
 	//Deal a card to a foundation location.
 	var c = getIndexOfTopCardOnDrawDeck();
 	if (c >= 0) {
 		foundArray[foundationNo].push(c);
 		deck[c].Location = "foundation" + (foundationNo + 1);
 		deck[c].FaceUp = !faceDown;
-		moveCardToSpace(c, "foundation" + (foundationNo + 1), foundationNo);
+		moveCardToSpace(c, "foundation" + (foundationNo + 1), delayUnits);
 	}
 }
 
@@ -679,7 +698,8 @@ function createOnScreenCards(again) {
     for (var i = deck.length - 1; i >= 0; i--) {
         createOnScreenCard(deck[i],i);
         $(deck[i].selector).offset({ top: p.top, left: p.left });
-        $(deck[i].selector).click(function () { shifter(this.id); });
+        $(deck[i].selector).click(shifter);
+        $(deck[i].selector).hover(shifter, unshifter);
     }
     pleaseWaitOff();
 }
@@ -692,8 +712,10 @@ function createOnScreenCard(card,index) {
 	var cardImage = card.Image;
 	if (emblacken && (card.Suit1 == "Moons" ||card.Suit2 == "Moons" ||card.Suit3 == "Moons"))
 		cardImage = cardImage.split(".png")[0] + "_black.png";
-    var imageLit = '<div id="' + card.divID + '" class="card" style="background-image:url(cards/' + cardImage + ');" title="' + card.Name + '"></div>';
-    $(imageLit).appendTo('#gamewrapper').hide();
+    var imageLit = '<div id="' + card.divID + '" class="teeny card" style="background-image:url(cards/' + cardImage + ');" title="' + card.Name + '"><img class="card" src="cards/back.png" /></div>';
+	$(imageLit).appendTo('#gamewrapper');
+	if (card.FaceUp) 
+		$("#" + card.divID + " img").hide();
 }
 
 //
@@ -740,9 +762,20 @@ function setSetting(setting, value) {
 	}
 }
 
-function shifter(cardID) {
+function getVariant() {
+	//Get a simpler version of the level.
+	var level = getSetting('level');
+	if (level == 'major' || level == 'blindMajor') return 'major';
+	if (level == 'queen' || level == 'blindQueen') return 'queen';
+	if (level == 'double') return 'double';
+	return 'minor';
+}
+
+
+function shifter() {
 	//Shift cards for visibility on hover or click
 	unshifter();
+	var cardID = this.id;
 	var startCard = $("#" + cardID).css("z-index");
 	var foundationNo = parseInt(deck[getCardIndexByID(cardID)].Location.split("foundation")[1],10) - 1;
 	for (var s=startCard;s<foundArray[foundationNo].length; s++)

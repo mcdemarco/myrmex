@@ -32,7 +32,7 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
     height:174px;
 }
 
-.teeny.cardspace, #deckcolumn .teeny.cardspace, .teeny.card {
+.teeny.cardspace, #deckcolumn .teeny.cardspace, .teeny.card, .teeny.card img {
     width:62px;
     height:87px;
 }
@@ -284,10 +284,6 @@ p.callout {
 
 .cardselected {
     opacity: 0.6;
-}
-
-.hidden {
-    display:none;
 }
 
 .panel {
