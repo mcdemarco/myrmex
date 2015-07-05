@@ -92,7 +92,6 @@ function decktetRemoveCardsByName(deck, theName) {
     for (var i = 0; i < deck.length; i++) {
         if (deck[i].Name == theName) {
             deck.splice(i, 1);
-            break;
         }
     }
     return deck;

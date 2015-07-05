@@ -241,7 +241,7 @@ p.callout {
     border-radius:6px;
 }
 
-.cardspace, #deckcolumn .cardspace {
+.card, .cardspace, #deckcolumn .cardspace {
     border:thin solid #170;
     display:inline-block;
 }
@@ -352,3 +352,4 @@ a:link {
 a:visited {
     color:#C3FEB5;
 }
+

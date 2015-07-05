@@ -29,7 +29,7 @@
 	<!-- This file was created by M.C. DeMarco, based on a remix of Adaman by Felbrigg Herriot, and is released under a
 	     Creative Commons Attribution NonCommercial ShareAlike 3.0 License. -->
 	<script type="text/javascript">
-	 $(document).ready(function () {initialise_GamePage();});
+	 $(document).ready(function () {init();});
 	</script>
 
 	<div id="header">
@@ -56,15 +56,15 @@
 
         <div id="playarea">
 
-            <div class="gamerow">
-                <div class="cardspace" id="foundation1"></div>
-                <div class="cardspace" id="foundation2"></div>
-                <div class="cardspace" id="foundation3"></div>
-                <div class="cardspace" id="foundation4"></div>
-                <div class="cardspace" id="foundation5"></div>
-                <div class="cardspace" id="foundation6"></div>
-                <div class="cardspace" id="foundation7"></div>
-                <div class="cardspace" id="foundation8"></div>
+            <div id="foundationRow" class="gamerow">
+                <div class="cardspace" id="foundation1" data-found="0"></div>
+                <div class="cardspace" id="foundation2" data-found="1"></div>
+                <div class="cardspace" id="foundation3" data-found="2"></div>
+                <div class="cardspace" id="foundation4" data-found="3"></div>
+                <div class="cardspace" id="foundation5" data-found="4"></div>
+                <div class="cardspace" id="foundation6" data-found="5"></div>
+                <div class="cardspace" id="foundation7" data-found="6"></div>
+                <div class="cardspace" id="foundation8" data-found="7"></div>
             </div>
 
         </div>
@@ -90,7 +90,6 @@
     <div id="gameOver" class="panel">
         <h2>GAME OVER</h2>
         <p id="endCondition">There are no more possible moves.</p>
-        <p>Final score: <span id="finalScore"></span></p>
         <div id="gameOverCloseButton" class="close button">Close</div>
     </div>
 
@@ -124,11 +123,12 @@
 			<input type="radio" name="level" value="major">Major Worker</input><br/>
 			<input type="radio" name="level" value="queen">Queen</input><br/>
 			<input type="radio" name="level" value="blindMajor">Blind Major Worker</input><br/>
-			<input type="radio" name="level" value="blindQueen">Blind Queen</input>
+			<input type="radio" name="level" value="blindQueen">Blind Queen</input><br/>
+			<input type="radio" name="level" value="double">Double Myrmex (blind)</input>
 		</p>
-		<p>Your next game can be made harder with the addition of six Pawns (the Major Worker level) or six Pawns and six Courts (the Queen level).  The game can be made easier by dealing the foundation face up and visible; this is the default for the Larval Stage, the Major Worker level, and the Queen level.</p>
+		<p>Your next game can be made harder with the addition of six Pawns (the Major Worker level) or six Pawns and six Courts (the Queen level).  The game can be made easier by dealing the foundation face up and visible; this is the default for the Larval Stage, the Major Worker level, and the Queen level.  (Double Myrmex is an experimental version using four decks.)</p>
 	</div>
-        <span id="gameOverCloseButton" class="close button">Close</span>
+	<span class="close button">Close</span>
     </div>
 
     <div id="gameCredits" class="panel">

@@ -8,13 +8,15 @@
 var defaultSettings = {speed: 300,
 					   magnification: false,
 					   blackmoons: true,
-					   level: 'normal'};
+					   level: 'minor'};
 var speed;
+var foundArray = [];
+
 
 //
 // runs when the page first loads
 //
-function initialise_GamePage() {
+function init() {
 
 	//Settings.
 	// need speed first.
@@ -86,6 +88,112 @@ function initialiseDeck(again) {
 }
 
 //
+// Start button click event
+//
+function startButtonClick() {
+    $('.panel').hide();
+
+    moveDeckBackToDrawDeck();
+	//Set the other two settings here for convenience.
+	if (getSetting('level') != $("input[name=level]:checked").val() || getSetting('blackmoons') != $("input#emblacken").is(":checked")) {
+		setSetting('level', $("input[name=level]:checked").val());
+		setSetting('blackmoons', $("input#emblacken").is(":checked").toString());
+		//If these values have changed since the deck was created, then we need to recreate it.
+		initialiseDeck(true);
+	}
+    decktetShuffle(deck);
+	stackDeck();
+	//Deal to the foundation 4 times plus more for variants
+	dealTheFoundation();
+}
+
+function moveDeckBackToDrawDeck() {
+	$("#drawDeckLocation").addClass("full");
+    for (var i = 0; i < deck.length; i++) {
+        deck[i].Selected = false;
+        moveCardToSpace(i, 'drawDeckLocation', 0.1);
+        $(deck[i].selector).removeClass('cardselected').hide();
+    }
+}
+
+function isBlind() {
+	var level = getSetting('level');
+	if (level == "minor" || level == "blindMajor" || level == "blindQueen" || level == "double")
+		return true;
+	else
+		return false;
+}
+
+//
+// move specified card to a new location
+//
+function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
+    // find target details.
+    var targetOffset = $('#' + spaceID).offset();
+	if (typeof delayUnits == 'undefined') delayUnits = 1;
+	var delay = delayUnits * speed;
+	if (spaceID != "drawDeckLocation") {//need to switch this to a transition, too.
+		$(deck[indexOfCard].selector).fadeIn(speed);
+	}
+	var shift = getShift(spaceID);
+    $(deck[indexOfCard].selector).css("z-index",shift).delay(delay).transition({left:targetOffset.left, top:targetOffset.top + 22*shift},speed,"snap");
+    // reset cards location
+    deck[indexOfCard].Location = spaceID;
+}
+
+function getShift(spaceID) {
+	//Calculate the shift needed for the current space.
+	if (spaceID.indexOf("foundation") != 0) return 0;
+	else return foundArray[parseInt(spaceID.split("foundation")[1],10)-1].length - 1;
+}
+
+//
+// get index of the top card in the drawdeck
+//
+function getIndexOfTopCardOnDrawDeck() {
+    var returnValue = -1;
+    for (var i = 0; i < deck.length; i++) {
+        if (deck[i].Location == 'drawDeckLocation') {
+            returnValue = i;
+            break;
+        }
+    }
+    return returnValue;
+}
+
+// deal cards to the foundation/tableau
+
+function dealTheFoundation() {
+	//Deal the whole foundation at the start.
+	for (var f=0; f<8;f++) foundArray[f] = [];
+	for (var r=1;r<=4;r++) {
+		dealToTheFoundation((r<4 && isBlind()));
+	}
+}
+
+function dealToTheFoundation(faceDown) {
+	//Deal a row of the foundation, optionally face down.
+	for (var f=0;f<8;f++) {
+		dealCardToTheFoundation(f,faceDown);
+	}
+}
+
+function dealCardToTheFoundation(foundationNo,faceDown) {
+	//Deal a card to a foundation location.
+	var c = getIndexOfTopCardOnDrawDeck();
+	if (c >= 0) {
+		foundArray[foundationNo].push(c);
+		deck[c].Location = "foundation" + (foundationNo + 1);
+		deck[c].FaceUp = !faceDown;
+		moveCardToSpace(c, "foundation" + (foundationNo + 1), foundationNo);
+	}
+}
+
+
+/* stuff we may not need */
+
+
+//
 // checks to see if it is posible to make a move, returns true if there is
 //
 function isThereAMove() {
@@ -135,40 +243,10 @@ function canCardBeBeatenByResources(targetCard, onlyCheckSelectedResourceCards) 
     return returnValue;
 }
 
-//
-// Start button click event
-//
-function startButtonClick() {
-	$("#runningScore").html(score);
-	$("#personalityCount").html(personalityCount + " (" + personalityTotal + ")");
-    $('.panel').hide();
-
-    moveDeckBackToDrawDeck();
-	//Set the other two settings here for convenience.
-	if (getSetting('level') != $("input[name=level]:checked").val() || getSetting('blackmoons') != $("input#emblacken").is(":checked")) {
-		setSetting('level', $("input[name=level]:checked").val());
-		setSetting('blackmoons', $("input#emblacken").is(":checked").toString());
-		//If these values have changed since the deck was created, then we need to recreate it.
-		initialiseDeck(true);
-	}
-    decktetShuffle(deck);
-	stackDeck();
-	//Deal to the foundation 4 times plus more for variants
-}
-
-function moveDeckBackToDrawDeck() {
-	$("#drawDeckLocation").addClass("full");
-    for (var i = 0; i < deck.length; i++) {
-        deck[i].Selected = false;
-        moveCardToSpace(i, 'drawDeckLocation', 0.1);
-        $(deck[i].selector).removeClass('cardselected').hide();
-    }
-}
 
 
 //
-// deal cards to the resources line
-// Note. any face cards go to the Palace
+// deal cards to the resources
 //
 function dealToTheResources(delayUnits) {
 	for (var r=1 ;r<6; r++)
@@ -270,36 +348,7 @@ function dealToTheCapital(discardCount) {
 	}
 }
 
-//
-// move specified card to a new location
-//
-function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
-    // find target details
-    var targetOffset = $('#' + spaceID).offset();
-	if (typeof delayUnits == 'undefined') delayUnits = 1;
-	var delay = delayUnits * speed;
-	if (spaceID != "drawDeckLocation") {
-		$(deck[indexOfCard].selector).fadeIn(speed);
-	}
-    $(deck[indexOfCard].selector).delay(delay).transition({left:targetOffset.left, top:targetOffset.top},speed,"snap");
-    // reset cards location
-    deck[indexOfCard].Location = spaceID;
-}
 
-
-//
-// get index of the top card in the drawdeck
-//
-function getIndexOfTopCardOnDrawDeck() {
-    var returnValue = -1;
-    for (var i = 0; i < deck.length; i++) {
-        if (deck[i].Location == 'drawDeckLocation') {
-            returnValue = i;
-            break;
-        }
-    }
-    return returnValue;
-}
 
 //
 // check if a card exists in selected space
@@ -315,23 +364,6 @@ function isThereCardInSpace(spaceName) {
     return returnValue;
 }
 
-//
-// create a series of image tags and load up the card images.
-// 
-function createOnScreenCards(again) {
-    pleaseWaitOn();
-	if (again) {
-		//Delete existing cards.
-		$(".card").remove();
-	}
-    var p = $('#drawDeckLocation').offset();
-    for (var i = deck.length - 1; i >= 0; i--) {
-        createOnScreenCard(deck[i],i);
-        $(deck[i].selector).offset({ top: p.top, left: p.left });
-        $(deck[i].selector).click(function () { cardClick(this.id); });
-    }
-    pleaseWaitOff();
-}
 
 //
 // handle a card being clicked on
@@ -380,10 +412,6 @@ function cardClick(theImageID) {
 
 
                 // increment score
-                //score++;
-                if (deck[targetCardIndex].Face) {
-                    score += deck[targetCardIndex].Value;
-                }
 
                 // If target card is not a face card is should be moved to the resource line.
                 if (deck[targetCardIndex].Face == false) {
@@ -469,18 +497,6 @@ function discardCard(cardIndex,delayUnits) {
     $(deck[cardIndex].selector).removeClass('cardselected');
 	$(deck[cardIndex].selector).css("z-index",delayUnits);
     moveCardToSpace(cardIndex, 'discardDeckLocation',1);
-	if (deck[cardIndex].Face)
-		countPersonality(delayUnits);
-}
-
-function countPersonality(delayUnits) {
-	personalityCount++;
-	$("#personalityCount").html(personalityCount + " (" + personalityTotal + ")");
-	//The running score only changes for personalities, so though it was incremented elsewhere, update here.
-	$("#runningScore").html(score);
-	if (personalityCount == personalityTotal) {
-		gameIsOver("victory",delayUnits);
-	}
 }
 
 //
@@ -552,89 +568,8 @@ function deselectAllCardsOnRow(rowName) {
 }
 
 //
-// get card index based on id
-//
-function getCardIndexByID(theID) {
-    var returnValue = -1;
-    for (var i = 0; i < deck.length; i++) {
-        if (deck[i].divID == theID) {
-            returnValue = i;
-            break;
-        }
-    }
-    return returnValue;
-}
-
-//
-// create a deck of cards suitable for Myrmex
-//
-function myrmexCreateDeck() {
-	var level = getSetting('level');
-    var myrmexDeck = decktetCreateDeck(2);
-	//myrmexify
-    myrmexDeck = decktetRemoveTheExcuse(myrmexDeck);
-    myrmexDeck = decktetRemoveRankByDeckNo(myrmexDeck,1,2);
-    myrmexDeck = decktetRemoveRankByDeckNo(myrmexDeck,10,2);
-	if (level == "minor" || level == "larval") {
-		//The normal deck.
-		myrmexDeck = decktetRemoveCOURT(myrmexDeck);
-		myrmexDeck = decktetRemovePAWN(myrmexDeck);
-	} else {
-		//Remove the unwanted Pawns.
-		myrmexDeck = decktetRemoveCardByName(myrmexDeck,'the LIGHT KEEPER');
-		if (level == "major" || level == "blindMajor") {
-			//Remove all the Courts.
-			myrmexDeck = decktetRemoveCOURT(myrmexDeck);
-		} else {
-			//Remove the unwanted Courts.
-			myrmexDeck = decktetRemoveCardByName(myrmexDeck,'the RITE');
-		}
-	}
-	
-    myrmexDeck = decktetShuffle(myrmexDeck);
-    for (var i = 0; i < myrmexDeck.length; i++) {
-        myrmexDeck[i].Location = 'drawDeckLocation';
-        myrmexDeck[i].divID = myrmexDeck[i].Name.replace(/\s+/g, '') + myrmexDeck[i].DeckNo;
-        myrmexDeck[i].selector = '#' + myrmexDeck[i].divID;
-		//Tweak values of pawns and courts.
-		if (myrmexDeck[i].Rank == "PAWN" || myrmexDeck[i].Rank == "COURT")
-			myrmexDeck[i].Value = 10;
-    }
-    return myrmexDeck;
-}
-
-//
-// create an on-screen card element
-//
-function createOnScreenCard(card,index) {
-	var emblacken = getSetting('blackmoons');
-	var cardImage = card.Image;
-	if (emblacken && (card.Suit1 == "Moons" ||card.Suit2 == "Moons" ||card.Suit3 == "Moons"))
-		cardImage = cardImage.split(".png")[0] + "_black.png";
-    var imageLit = '<div id="' + card.divID + '" class="card'  + (card.Face ? ' face' : '') + '" style="background-image:url(cards/' + cardImage + ');" title="' + card.Name + '"></div>';
-    $(imageLit).appendTo('#gamewrapper').hide();
-}
-
-//
-// stack the cards
-//
-function stackDeck() {
-    for (var i = 0; i < deck.length; i++) {
-		$(deck[i].selector).css("z-index",deck.length-i);
-	}
-}
-
-
-//
-// "Please wait" functions
-//
-function pleaseWaitOn() { $('#pleaseWait').show();}
-function pleaseWaitOff() { $('#pleaseWait').hide();}
-
-//
 // The Game is over as there are no available moves
 //
-
 function gameIsOver(endCondition,delayUnits) {
     gameOVER = true;
 	endCondition = typeof endCondition !== 'undefined' ? endCondition : "noMoves";
@@ -657,6 +592,125 @@ function gameIsOver(endCondition,delayUnits) {
 	delayUnits = typeof delayUnits !== 'undefined' ? delayUnits : 0;
     $('#gameOver').delay(delayUnits * speed).show(speed);
 }
+
+
+
+
+
+
+
+
+/* back to useful */
+
+//
+// get card index based on id
+//
+function getCardIndexByID(theID) {
+    var returnValue = -1;
+    for (var i = 0; i < deck.length; i++) {
+        if (deck[i].divID == theID) {
+            returnValue = i;
+            break;
+        }
+    }
+    return returnValue;
+}
+
+//
+// create a deck of cards suitable for Myrmex
+//
+function myrmexCreateDeck() {
+	var level = getSetting('level');
+    var myrmexDeck = decktetCreateDeck((level == "double" ? 4 : 2));
+	//myrmexify
+    myrmexDeck = decktetRemoveTheExcuse(myrmexDeck);
+    myrmexDeck = decktetRemoveRankByDeckNo(myrmexDeck,1,2);
+    myrmexDeck = decktetRemoveRankByDeckNo(myrmexDeck,10,2);
+	if (level == "double") {
+		myrmexDeck = decktetRemoveRankByDeckNo(myrmexDeck,1,4);
+		myrmexDeck = decktetRemoveRankByDeckNo(myrmexDeck,10,4);
+	}
+	if (level == "minor" || level == "larval") {
+		//The normal deck.
+		myrmexDeck = decktetRemoveCOURT(myrmexDeck);
+		myrmexDeck = decktetRemovePAWN(myrmexDeck);
+	} else {
+		//Remove the unwanted Pawns.
+		myrmexDeck = decktetRemoveCardByName(myrmexDeck,'the LIGHT KEEPER');
+		if (level == "major" || level == "blindMajor") {
+			//Remove all the Courts.
+			myrmexDeck = decktetRemoveCOURT(myrmexDeck);
+		} else {
+			//Remove the unwanted Courts.
+			myrmexDeck = decktetRemoveCardByName(myrmexDeck,'the RITE');
+		}
+	}
+	
+    myrmexDeck = decktetShuffle(myrmexDeck);
+    for (var i = 0; i < myrmexDeck.length; i++) {
+        myrmexDeck[i].Location = 'drawDeckLocation';
+        myrmexDeck[i].divID = myrmexDeck[i].Name.replace(/\s+/g, '') + myrmexDeck[i].DeckNo;
+        myrmexDeck[i].selector = '#' + myrmexDeck[i].divID;
+		//Tweak values of pawns and courts.
+		if (myrmexDeck[i].Rank == "PAWN")
+			myrmexDeck[i].Value = 10;
+		if (myrmexDeck[i].Rank == "COURT")
+			myrmexDeck[i].Value = 11;
+		if (myrmexDeck[i].Rank == "CROWN") {
+			if (level == "major" || level == "blindMajor")
+				myrmexDeck[i].Value = 11;
+			if (level == "queen" || level == "blindQueen" || level == "double")
+				myrmexDeck[i].Value = 12;
+		}
+    }
+    return myrmexDeck;
+}
+
+//
+// create a series of image tags and load up the card images.
+// 
+function createOnScreenCards(again) {
+    pleaseWaitOn();
+	if (again) {
+		//Delete existing cards.
+		$(".card").remove();
+	}
+    var p = $('#drawDeckLocation').offset();
+    for (var i = deck.length - 1; i >= 0; i--) {
+        createOnScreenCard(deck[i],i);
+        $(deck[i].selector).offset({ top: p.top, left: p.left });
+        $(deck[i].selector).click(function () { shifter(this.id); });
+    }
+    pleaseWaitOff();
+}
+
+//
+// create an on-screen card element
+//
+function createOnScreenCard(card,index) {
+	var emblacken = getSetting('blackmoons');
+	var cardImage = card.Image;
+	if (emblacken && (card.Suit1 == "Moons" ||card.Suit2 == "Moons" ||card.Suit3 == "Moons"))
+		cardImage = cardImage.split(".png")[0] + "_black.png";
+    var imageLit = '<div id="' + card.divID + '" class="card" style="background-image:url(cards/' + cardImage + ');" title="' + card.Name + '"></div>';
+    $(imageLit).appendTo('#gamewrapper').hide();
+}
+
+//
+// stack the cards
+//
+function stackDeck() {
+    for (var i = 0; i < deck.length; i++) {
+		$(deck[i].selector).css("z-index",deck.length-i);
+	}
+}
+
+
+//
+// "Please wait" functions
+//
+function pleaseWaitOn() { $('#pleaseWait').show();}
+function pleaseWaitOff() { $('#pleaseWait').hide();}
 
 function getSetting(setting) {
 	if (window.localStorage && typeof window.localStorage.getItem(setting) !== 'undefined' && window.localStorage.getItem(setting) !== null) {
@@ -684,4 +738,18 @@ function setSetting(setting, value) {
 	} else {
 		return false;
 	}
+}
+
+function shifter(cardID) {
+	//Shift cards for visibility on hover or click
+	unshifter();
+	var startCard = $("#" + cardID).css("z-index");
+	var foundationNo = parseInt(deck[getCardIndexByID(cardID)].Location.split("foundation")[1],10) - 1;
+	for (var s=startCard;s<foundArray[foundationNo].length; s++)
+		$(deck[foundArray[foundationNo][s]].selector).css("margin-left",22 * (s - startCard));
+}
+
+function unshifter() {
+	//Undo the shift.
+	$(".card").css("margin-left",0);
 }
