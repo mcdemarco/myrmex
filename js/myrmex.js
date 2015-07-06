@@ -131,30 +131,40 @@ function isBlind() {
 // move specified card to a new location
 //
 function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
-	// find target details.
-	var targetOffset = $('#' + spaceID).offset();
 	if (typeof delayUnits == 'undefined') delayUnits = 1;
 	var delay = delayUnits * speed;
 	if (spaceID == "drawDeckLocation") {
 		$(deck[indexOfCard].selector).addClass("teeny",1);
 	} else {
 		$(deck[indexOfCard].selector).removeClass("teeny",1);
-		var foundIndex = getIndexOfFoundation(spaceID);
-		var shift = getShiftOfFoundation(foundIndex);
-		console.log(foundIndex + ", " + (shift + 1) + ": " + indexOfCard);
+		var spaceIndex = getIndexOfFoundation(spaceID);
+		var shift = getShiftOfFoundation(spaceIndex);
+		//console.log(spaceIndex + ", " + (shift + 1) + ": " + indexOfCard);
 		if (shift < 0) {
 			$("#" + spaceID).append($(deck[indexOfCard].selector));
 		} else {
 			//Needs transitions.
-			$(deck[foundArray[foundIndex][shift]].selector).append($(deck[indexOfCard].selector).css("top",22));
+			$(deck[foundArray[spaceIndex][shift]].selector).append($(deck[indexOfCard].selector));
 			//Need to get the delay/transition onto removeClass.
 			//$(deck[indexOfCard].selector).css("z-index",shift).delay(delay).transition({left:targetOffset.left, top:targetOffset.top + 22*shift},speed,"snap").removeClass("teeny",1);
 		}
 		$(deck[indexOfCard].selector).css("z-index",shift+1);
-		//Add to array
-		foundArray[foundIndex].push(indexOfCard);
+		//Add to array, cleaning up any old version.
+		var old = getIndexOfFoundation(deck[indexOfCard].Location);
+		if (old >= 0) {
+			//If it existed, pop from its previous array location.
+			console.log("Popping " + foundArray[old].pop() + " from " + old);
+			//Draggable is messing it up, so unmess (research later).
+			$(deck[indexOfCard].selector).css({"top":22,"left":0});
+		} else if (shift >= 0) {
+			//If it didn't exist, it needs some CSS.
+			$(deck[indexOfCard].selector).css("top",22);
+		}
+		console.log("Pushing " + indexOfCard + " to " + spaceIndex);
+		foundArray[spaceIndex].push(indexOfCard);
 	}
 	// reset cards location
+	console.log("Reset location to " + spaceID);
 	deck[indexOfCard].Location = spaceID;
 	//$(deck[indexOfCard].selector + " img").delay(delay).transition({width:124, height:174});
 	if (deck[indexOfCard].FaceUp && $(deck[indexOfCard].selector + " img").is(":visible"))
@@ -240,7 +250,8 @@ function refreshDragDrop(foundIndex) {
 	var length = foundArray[foundIndex].length;
 	//We always know what happens with the top card.
 	var card = deck[foundArray[foundIndex][length-1]];
-	$(card.selector).draggable({zIndex:100,scope:card.Value,revert:'invalid'}).droppable({scope:(card.Value - 1),drop:function(){foundArray[foundIndex].pop();dropUpdater(this,foundArray[foundIndex][c]);}});
+	$(card.selector).draggable({zIndex:100,scope:card.Value,revert:'invalid'});
+	$(card.selector).droppable({scope:(card.Value - 1),drop:function(event, ui){dropper(foundArray[foundIndex][c],$(ui.draggable).prop("id"));}});
 	//Check the other cards for suit.
 	for (var c=0;c<length-1;c++) {
 		card = deck[foundArray[foundIndex][c]];
@@ -255,10 +266,10 @@ function refreshDragDrop(foundIndex) {
 	}
 }
 
-function dropUpdater(thisDropped,draggedIndex) {
+function dropper(droppedOnMeIndex,dragAndDropMeID) {
 	//Officially move the card.
-												
-	moveCardToSpace(draggedIndex, deck[getIndexOfCardFromID(thisDropped.id)].Location, 0);
+	console.log("drop " + dragAndDropMeID + " on " + deck[droppedOnMeIndex].divID);
+	moveCardToSpace(getIndexOfCardFromID(dragAndDropMeID), deck[droppedOnMeIndex].Location, 0);
 	//Update all the draggability:
 	//1. thisDropped should no longer be draggable in most cases.
 	//1a. thisDropped should definitely not be droppable.
@@ -377,8 +388,9 @@ function createOnScreenCards(again) {
 		createOnScreenCard(deck[i],i);
 //		$(deck[i].selector).css({ top: 0, left: 0 });
 		//For touch?
-		//$(deck[i].selector).click(shifter);
-		$(deck[i].selector).hover(shifter, unshifter);
+		$(deck[i].selector).click(shifter);
+		//Big draggability problems.
+		//$(deck[i].selector).hover(shifter, unshifter);
 	}
 	pleaseWaitOff();
 }
@@ -467,7 +479,16 @@ function shifter() {
 	unshifter();
 	var cardID = this.id;
 	var startCard = $("#" + cardID).css("z-index");
-	var foundationNo = parseInt(deck[getCardIndexByID(cardID)].Location.split("foundation")[1],10) - 1;
+	var foundation = deck[getCardIndexByID(cardID)].Location;
+	if ($("#" + foundation).hasClass("shifted")) {
+		//Toggle.
+		$("#" + foundation).removeClass("shifted");
+		unshifter();
+		return;
+	} else {
+		$("#" + foundation).addClass("shifted");
+	}
+	var foundationNo = parseInt(foundation.split("foundation")[1],10) - 1;
 	for (var s=startCard;s<foundArray[foundationNo].length; s++) {
 		if (s == 0) continue;
 		$(deck[foundArray[foundationNo][s]].selector).css("margin-left",22);// * (s - startCard));
