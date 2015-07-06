@@ -20,6 +20,7 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
 */
 
 #drawDeckLocation.full {
+    position:relative;
     background-size:62px 87px;
 }
 
@@ -27,24 +28,30 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
     background-size:124px 174px;
 }
 
-.cardspace, #deckcolumn .cardspace, .card {
+.cardspace, .card, .card img {
     width:124px;
     height:174px;
 }
 
-.teeny.cardspace, #deckcolumn .teeny.cardspace, .teeny.card, .teeny.card img {
+.teeny.cardspace, .teeny.card, .teeny.card img {
     width:62px;
     height:87px;
 }
 
-
-.embiggen .cardspace, .embiggen #deckcolumn .cardspace, .embiggen .card {
+.embiggen .cardspace, .embiggen .card {
     width:124px;
     height:174px;
 }
 
-.cardspace, #deckcolumn .cardspace {
+.cardspace {
+    position:relative;
     margin:4px;
+}
+
+.card {
+    position:absolute;
+    top:0;
+    left:0;
 }
 
 .embiggen .cardspace {
@@ -150,21 +157,6 @@ p.callout {
     min-width:780px;
 }
 
-#deckcolumn {
-    margin:2px;
-    min-width:190px;
-    width:20%;
-    height:550px; 
-    display:inline-block;
-    float:left;
-    text-align:center;   
-}
-
-.embiggen #deckcolumn {
-    min-width:160px;
-    height:500px;
-}
-
 .titlerow
 {
     height:30px;
@@ -237,11 +229,15 @@ p.callout {
     background-image:url('../cards/back.png');
 }
 
-.cardspace, #deckcolumn .cardspace, .card {
+.cardspace {
+    position:relative;
+}
+
+.cardspace, .card {
     border-radius:6px;
 }
 
-.card, .cardspace, #deckcolumn .cardspace {
+.card, .cardspace {
     border:thin solid #170;
     display:inline-block;
 }
@@ -274,7 +270,6 @@ p.callout {
 }
 
 .card {
-    position:absolute;
     background-size:124px 174px;
 }
 
