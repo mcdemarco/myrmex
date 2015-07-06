@@ -148,23 +148,21 @@ function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
 			//Need to get the delay/transition onto removeClass.
 			//$(deck[indexOfCard].selector).css("z-index",shift).delay(delay).transition({left:targetOffset.left, top:targetOffset.top + 22*shift},speed,"snap").removeClass("teeny",1);
 		}
-		$(deck[indexOfCard].selector).css("z-index",shift+1);
+		$(deck[indexOfCard].selector).css("z-index",(shift+1));
 		//Add to array, cleaning up any old version.
 		var old = getIndexOfFoundation(deck[indexOfCard].Location);
 		if (old >= 0) {
 			//If it existed, pop from its previous array location.
-			console.log("Popping " + foundArray[old].pop() + " from " + old);
-			//Draggable is messing it up, so unmess (research later).
-			$(deck[indexOfCard].selector).css({"top":22,"left":0});
+			foundArray[old].pop();
+			//Draggable is messing up lots of CSS, so unmess (z-index still messed up).
+			$(deck[indexOfCard].selector).css({"top":22,"left":0,"z-index":(shift + 1)});
 		} else if (shift >= 0) {
 			//If it didn't exist, it needs some CSS.
 			$(deck[indexOfCard].selector).css("top",22);
 		}
-		console.log("Pushing " + indexOfCard + " to " + spaceIndex);
 		foundArray[spaceIndex].push(indexOfCard);
 	}
 	// reset cards location
-	console.log("Reset location to " + spaceID);
 	deck[indexOfCard].Location = spaceID;
 	//$(deck[indexOfCard].selector + " img").delay(delay).transition({width:124, height:174});
 	if (deck[indexOfCard].FaceUp && $(deck[indexOfCard].selector + " img").is(":visible"))
@@ -250,7 +248,8 @@ function refreshDragDrop(foundIndex) {
 	var length = foundArray[foundIndex].length;
 	//We always know what happens with the top card.
 	var card = deck[foundArray[foundIndex][length-1]];
-	$(card.selector).draggable({zIndex:100,scope:card.Value,revert:'invalid'});
+	//Stack not working.
+	$(card.selector).draggable({zIndex:100,stack:'.card',scope:card.Value,revert:'invalid'});
 	$(card.selector).droppable({scope:(card.Value - 1),drop:function(event, ui){dropper(foundArray[foundIndex][c],$(ui.draggable).prop("id"));}});
 	//Check the other cards for suit.
 	for (var c=0;c<length-1;c++) {
@@ -473,12 +472,14 @@ function getVariant() {
 }
 
 
-function shifter() {
+function shifter(event) {
+	event.stopPropagation();
 	//Shift cards for visibility on hover or click
 	if (!$(this).hasClass("card") || $(this).find("img").is(":visible")) return;
 	unshifter();
 	var cardID = this.id;
-	var startCard = $("#" + cardID).css("z-index");
+	var startShift = $("#" + cardID).parents(".card").length;
+	console.log(cardID + ": " + startShift);
 	var foundation = deck[getCardIndexByID(cardID)].Location;
 	if ($("#" + foundation).hasClass("shifted")) {
 		//Toggle.
@@ -488,9 +489,8 @@ function shifter() {
 	} else {
 		$("#" + foundation).addClass("shifted");
 	}
-	var foundationNo = parseInt(foundation.split("foundation")[1],10) - 1;
-	for (var s=startCard;s<foundArray[foundationNo].length; s++) {
-		if (s == 0) continue;
+	var foundationNo = getIndexOfFoundation(foundation);
+	for (var s=startShift+1;s<foundArray[foundationNo].length; s++) {
 		$(deck[foundArray[foundationNo][s]].selector).css("margin-left",22);// * (s - startCard));
 	}
 }
