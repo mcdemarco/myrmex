@@ -10,7 +10,7 @@ var defaultSettings = {speed: 300,
 					   blackmoons: true,
 					   level: 'minor'};
 var speed;
-var foundArray = [];
+var tablArray = [];
 
 
 //
@@ -77,6 +77,12 @@ function init() {
 		startButtonClick(true);
 	});
 	
+	//Init dealer.
+	$("#drawDeckLocation").click(function () {
+		dealToTheTableau(false);
+		refreshDragsDrops();
+	});	
+	
 	initializeDeck();
 }
 
@@ -105,21 +111,16 @@ function startButtonClick(replay) {
 	} else {
 		createOnScreenCards(true);
 	}
-	foundArray = [];
-
+	tablArray = [];
+	$("#drawDeckLocation").addClass("full");
 	if (!replay)
 		decktetShuffle(deck);
+	
 	//stackDeck();
 	//Deal to the tableau 4 times plus more for variants
 	dealTheTableau();
 	//Initialize the card motion.
 	refreshDragsDrops();
-
-	//Init dealer.
-	$("#drawDeckLocation").click(function () {
-		dealToTheTableau(false);
-		refreshDragsDrops();
-	});	
 }
 
 function isBeetle() {
@@ -139,16 +140,16 @@ function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
 	var spaceIndex = getIndexOfTableau(spaceID);
 	var shift = getShiftOfTableau(spaceIndex);
 	var card = deck[indexOfCard];
-	//console.log(spaceIndex + ", " + (shift + 1) + ": " + indexOfCard);
+
 	if (shift < 0) {
 		$("#" + spaceID).append($(card.selector));
-		$(card.selector).delay(delay).show();
+		$(card.selector).delay(delay).fadeIn();
 	} else {
 		//Needs transitions.
-		$(deck[foundArray[spaceIndex][shift]].selector).append($(card.selector));
-		$(card.selector).delay(delay).show();
+		$(deck[tablArray[spaceIndex][shift]].selector).append($(card.selector));
+		$(card.selector).delay(delay).fadeIn();
 		//Need to get the delay/transition onto removeClass.
-		//$(card.selector).css("z-index",shift).delay(delay).transition({left:targetOffset.left, top:targetOffset.top + 22*shift},speed,"snap").show();
+		//$(card.selector).css("z-index",shift).delay(delay).transition({left:targetOffset.left, top:targetOffset.top + 22*shift},speed,"snap").fadeIn();
 	}
 	$(card.selector).css("z-index",(shift+1));
 	//Add to array, cleaning up any old version.
@@ -157,19 +158,19 @@ function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
 	if (oldColumn >= 0) {
 		//If it existed, pop it and any children from its previous array location and push onto new location.
 		var pops = $(card.selector).find('.card').length + 1;
-		removed = foundArray[oldColumn].splice(foundArray[oldColumn].length - pops,pops);
-		foundArray[spaceIndex] = foundArray[spaceIndex].concat(removed);
-		console.log("removed " + removed + " from " + foundArray[oldColumn] + " to " + foundArray[spaceIndex]);
+		removed = tablArray[oldColumn].splice(tablArray[oldColumn].length - pops,pops);
+		tablArray[spaceIndex] = tablArray[spaceIndex].concat(removed);
+		console.log("removed " + removed + " from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceIndex + ": " + tablArray[spaceIndex]);
 		
 		//Draggable is messing up lots of CSS, so also unmess (z-index still messed up).
 		$(card.selector).css({"top":22,"left":0,"z-index":(shift + 1)});
 	} else if (shift >= 0) {
 		//If it didn't exist, it needs some CSS and a push.
 		$(card.selector).css("top",22);
-		foundArray[spaceIndex].push(indexOfCard);
+		tablArray[spaceIndex].push(indexOfCard);
 	} else {
 		//Only push?
-		foundArray[spaceIndex].push(indexOfCard);
+		tablArray[spaceIndex].push(indexOfCard);
 	}
 
 	// reset card locations, including fellow-travellers'
@@ -178,22 +179,24 @@ function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
 		deck[r].Location = spaceID;
 	
 	//$(card.selector + " img").delay(delay).transition({width:124, height:174});
+	/* no longer handling bad facing.
 	if (card.FaceUp && $(card.selector + " img").is(":visible"))
 		$(card.selector + " img").hide();
 	else if (!card.FaceUp && !$(card.selector + " img").is(":visible"))
 		$(card.selector + " img").show();
+	 */
 }
 
 function getIndexOfTableau(spaceID) {
 	if (spaceID.indexOf("tableau") != 0)
 		return -1;
 	else
-		return parseInt(spaceID.split("tableau")[1],10)-1;
+		return parseInt(spaceID.split("tableau")[1],10);
 }
 
-function getShiftOfTableau(foundIndex) {
-	//Calculate the foundArray index of the top card in the current space.
-	return foundArray[foundIndex].length - 1;
+function getShiftOfTableau(tablIndex) {
+	//Calculate the tablArray index of the top card in the current space.
+	return tablArray[tablIndex].length - 1;
 }
 
 //
@@ -210,11 +213,11 @@ function getIndexOfTopCardOnDrawDeck() {
 	return returnValue;
 }
 
-// deal cards to the foundation/tableau
+// deal cards to the tableau.
 
 function dealTheTableau() {
 	//Create the tableau array.
-	for (var f=0; f<8;f++) foundArray[f] = [];
+	for (var f=0; f<8;f++) tablArray[f] = [];
 	//Deal the whole tableau at the start.
 	var row;
 	var vari = getVariant();
@@ -234,6 +237,7 @@ function dealTheTableau() {
 
 function dealToTheTableau(faceDown,delayUnits) {
 	//Deal a row of the tableau, optionally face down.
+	if (!delayUnits) delayUnits = 0;
 	for (var f=0;f<8;f++) {
 		dealCardToTheTableau(f,faceDown,delayUnits + f);
 	}
@@ -243,10 +247,12 @@ function dealCardToTheTableau(tableauNo,faceDown,delayUnits) {
 	//Deal a card to a tableau location.
 	var c = getIndexOfTopCardOnDrawDeck();
 	if (c >= 0) {
-		//foundArray[tableauNo].push(c);
-		//deck[c].Location = "tableau" + (tableauNo + 1);
 		deck[c].FaceUp = !faceDown;
-		moveCardToSpace(c, "tableau" + (tableauNo + 1), delayUnits);
+		if (deck[c].FaceUp)
+			$(deck[c].selector + " img").hide();
+		else
+			$(deck[c].selector + " img").show();
+		moveCardToSpace(c, "tableau" + tableauNo, delayUnits);
 	} else {
 		$("#drawDeckLocation").removeClass("full");
 	}
@@ -258,10 +264,18 @@ function refreshDragsDrops() {
 		refreshDragDrop(f);
 }
 
-function refreshDragDrop(foundIndex) {
+function refreshDragDrop(tablIndex) {
 	//Refresh dragging and dropping bindings for a single tableau stack.
-	var length = foundArray[foundIndex].length;
-	var card = deck[foundArray[foundIndex][length-1]];
+	var length = tablArray[tablIndex].length;
+	if (length == 0) {
+		var tableauID = "tableau" + tablIndex;
+		//The special case of an empty tableau column.
+		$("#" + tableauID).droppable({addClasses:false,disabled:false,drop:function(event, ui){dropper(null,$(ui.draggable).prop("id"),tableauID);}});
+		return;
+	} else {
+		$("#" + tableauID).droppable({addClasses:false,disabled:true});
+	}
+	var card = deck[tablArray[tablIndex][length-1]];
 	//Flip if appropriate.
 	if (!card.FaceUp || $(card.selector + " img").is(":visible")) {
 		card.FaceUp = true;
@@ -270,13 +284,13 @@ function refreshDragDrop(foundIndex) {
 
 	//We always know what happens with the top card.  Note: Stack not working.
 	$(card.selector).draggable({addClasses:false,disabled:false,zIndex:100,stack:'.card',scope:card.Value,revert:'invalid'});
-	$(card.selector).droppable({addClasses:false,disabled:false,scope:(card.Value - 1),drop:function(event, ui){dropper(foundArray[foundIndex][length-1],$(ui.draggable).prop("id"));}});
+	$(card.selector).droppable({addClasses:false,disabled:false,scope:(card.Value - 1),drop:function(event, ui){dropper(tablArray[tablIndex][length-1],$(ui.draggable).prop("id"));}});
 	
 	//To check the other cards for suit going upwards/inwards from the top/uppermost card, we cheat with classes.
 	$(card.selector).addClass(card.Suit1 + " " + card.Suit2 + " " + card.Suit3);
 	var prevCard = card;
 	for (var c=length-2;c>=0;c--) {
-		card = deck[foundArray[foundIndex][c]];
+		card = deck[tablArray[tablIndex][c]];
 		if (!card.FaceUp) break;
 		//Can only drop on the top card, so all these are disabled.
 		$(card.selector).droppable({disabled:true});
@@ -304,10 +318,10 @@ function refreshDragDrop(foundIndex) {
 	}
 }
 
-function dropper(droppedOnMeIndex,dragAndDropMeID) {
+function dropper(droppedOnCardIndex,dragAndDropMeID,droppedOnTableauID) {
 	//Officially move the card.
-	console.log("drop " + dragAndDropMeID + " on " + deck[droppedOnMeIndex].divID);
-	var spaceID = deck[droppedOnMeIndex].Location;
+	var spaceID = (droppedOnTableauID ? droppedOnTableauID : deck[droppedOnCardIndex].Location);
+	console.log("drop " + dragAndDropMeID + " on " + spaceID);
 	var cardIndex = getIndexOfCardFromID(dragAndDropMeID);
 	var originalCardLocation = deck[cardIndex].Location;
 	moveCardToSpace(cardIndex, spaceID, 0);
@@ -317,10 +331,8 @@ function dropper(droppedOnMeIndex,dragAndDropMeID) {
 	//0. the drop recipient should no longer be draggable in most cases.
 	//1. the drop recipient definitely should not be droppable.
 	//2. update draggability for the stack it came from
-	//3. possibly flip.
+	//3. possibly flip a card.
 }
-
-
 
 //
 // get card index based on id
@@ -495,7 +507,6 @@ function shifter(event) {
 	var cardID = this.id;
 	/*
 	var startShift = $("#" + cardID).parents(".card").length;
-	console.log(cardID + ": " + startShift);
 	 */
 	var tableau = deck[getCardIndexByID(cardID)].Location;
 	unshifter(tableau);
@@ -510,9 +521,8 @@ function shifter(event) {
 	}
 	/*
 	var tableauNo = getIndexOfTableau(tableau);
-	
-	for (var s=startShift+1;s<foundArray[tableauNo].length; s++) {
-		$(deck[foundArray[tableauNo][s]].selector).css("margin-left",22);// * (s - startCard));
+	for (var s=startShift+1;s<tablArray[tableauNo].length; s++) {
+		$(deck[tablArray[tableauNo][s]].selector).css("margin-left",22);// * (s - startCard));
 	}
 	 */
 }
