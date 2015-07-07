@@ -39,6 +39,21 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
     margin:4px;
 }
 
+/*
+.cardspace.shifted {
+    z-index:100;
+}
+*/
+
+#drawDeckLocation {
+    margin-right:8px;
+}
+
+#drawDeckLocation.full {
+    background-image: url('../cards/back.png');
+    background-size: 62px 87px;
+}
+
 .card {
     position:absolute;
     top:0;
