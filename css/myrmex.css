@@ -222,6 +222,10 @@ p.callout {
     display:inline-block;
 }
 
+.card > img {
+    border:thin solid #432;
+}
+
 .card img {
     border-radius:6px;
     border:thin solid #432;

@@ -246,31 +246,55 @@ function refreshDragDrop(foundIndex) {
 	var length = foundArray[foundIndex].length;
 	//We always know what happens with the top card.
 	var card = deck[foundArray[foundIndex][length-1]];
-	//Stack not working.
+	//Note: Stack not working.
 	$(card.selector).draggable({addClasses:false,zIndex:100,stack:'.card',scope:card.Value,revert:'invalid'});
-	$(card.selector).droppable({addClasses:false,scope:(card.Value - 1),drop:function(event, ui){dropper(foundArray[foundIndex][c],$(ui.draggable).prop("id"));}});
-	//Check the other cards for suit.
-	for (var c=0;c<length-1;c++) {
+	$(card.selector).droppable({addClasses:false,scope:(card.Value - 1),drop:function(event, ui){dropper(foundArray[foundIndex][length-1],$(ui.draggable).prop("id"));}});
+	if (!card.FaceUp) {
+		card.FaceUp = true;
+		$(card.selector + " img").hide();
+	}
+	
+	//To check the other cards for suit going upwards, we cheat with classes.
+	$(card.selector).addClass(card.Suit1 + " " + card.Suit2 + " " + card.Suit3);
+	var prevCard = card;
+	for (var c=length-2;c>=0;c--) {
 		card = deck[foundArray[foundIndex][c]];
-		//Can only drop on the top card.
+		//Can only drop on the top card, so all these are disabled.
 		$(card.selector).droppable({disabled:true});
-		//Check suits...
-		//if (suits satisfactory) {
-		//		$(card.selector).draggable({addClasses:false,zIndex:100,scope:card.Value,revert:'invalid'});
-		//} else {
+		//Remove all suit classes and draggability before readding.
+		$(card.selector).removeClass("Knots Leaves Moons Suns Waves Wyrms");
 		$(card.selector).draggable({disabled:true});
-		//}
+		//Check suits...
+		if ($(prevCard.selector).hasClass(card.Suit1)) {
+			$(card.selector).addClass(card.Suit1);
+			$(card.selector).draggable({addClasses:false,disabled:false,zIndex:100,scope:card.Value,revert:'invalid'});
+		}
+		if (card.Suit2 && $(prevCard.selector).hasClass(card.Suit2)) {
+			$(card.selector).addClass(card.Suit2);
+			$(card.selector).draggable({addClasses:false,disabled:false,zIndex:100,scope:card.Value,revert:'invalid'});
+		}
+		if (card.Suit3 && $(prevCard.selector).hasClass(card.Suit3)) {
+			$(card.selector).addClass(card.Suit3);
+			$(card.selector).draggable({addClasses:false,disabled:false,zIndex:100,scope:card.Value,revert:'invalid'});
+		}
+		prevCard = card;
 	}
 }
 
 function dropper(droppedOnMeIndex,dragAndDropMeID) {
 	//Officially move the card.
 	console.log("drop " + dragAndDropMeID + " on " + deck[droppedOnMeIndex].divID);
-	moveCardToSpace(getIndexOfCardFromID(dragAndDropMeID), deck[droppedOnMeIndex].Location, 0);
+	var spaceID = deck[droppedOnMeIndex].Location;
+	var cardIndex = getIndexOfCardFromID(dragAndDropMeID);
+	var originalCardLocation = deck[cardIndex].Location;
+	moveCardToSpace(cardIndex, spaceID, 0);
+	refreshDragDrop(getIndexOfTableau(originalCardLocation));
+	refreshDragDrop(getIndexOfTableau(spaceID));
 	//Update all the draggability:
-	//1. thisDropped should no longer be draggable in most cases.
-	//1a. thisDropped should definitely not be droppable.
-	//2. update draggability for the stack it came from and possibly flip.
+	//0. the drop recipient should no longer be draggable in most cases.
+	//1. the drop recipient definitely should not be droppable.
+	//2. update draggability for the stack it came from
+	//3. possibly flip.
 }
 
 
