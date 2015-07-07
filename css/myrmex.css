@@ -54,10 +54,6 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
     border-radius:12px 0 0 0;
 }
 
-.magnify .card.face {
-    box-shadow: -6px -8px 4px #030;
-}
-
 /* font */
 
 @font-face {
@@ -222,11 +218,13 @@ p.callout {
 
 .cardspace, .card {
     border-radius:6px;
-}
-
-.card, .cardspace {
     border:thin solid #170;
     display:inline-block;
+}
+
+.card img {
+    border-radius:6px;
+    border:thin solid #432;
 }
 
 .backgroundtext, .decklabel {
@@ -258,10 +256,6 @@ p.callout {
 
 .card {
     background-size:124px 174px;
-}
-
-.face {
-    box-shadow: 6px 8px 4px #030;
 }
 
 .cardselected {

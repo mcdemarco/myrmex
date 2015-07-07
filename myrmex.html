@@ -50,7 +50,7 @@
 			<span id="creditsButton" class="linky">Credits</span> • 
 			<span id="settingsButton" class="linky">Settings</span><br />
 			<button type="button" class="button" id="startButton">New Game</button>
-
+			<button type="button" class="button" id="replayButton">Replay</button>
 		</div>
 	</div>
 
@@ -58,15 +58,15 @@
 
         <div id="playarea">
 
-            <div id="foundationRow" class="gamerow">
-                <div class="cardspace" id="foundation1" data-found="0"></div>
-                <div class="cardspace" id="foundation2" data-found="1"></div>
-                <div class="cardspace" id="foundation3" data-found="2"></div>
-                <div class="cardspace" id="foundation4" data-found="3"></div>
-                <div class="cardspace" id="foundation5" data-found="4"></div>
-                <div class="cardspace" id="foundation6" data-found="5"></div>
-                <div class="cardspace" id="foundation7" data-found="6"></div>
-                <div class="cardspace" id="foundation8" data-found="7"></div>
+            <div id="tableauRow" class="gamerow">
+                <div class="cardspace" id="tableau1" data-found="0"></div>
+                <div class="cardspace" id="tableau2" data-found="1"></div>
+                <div class="cardspace" id="tableau3" data-found="2"></div>
+                <div class="cardspace" id="tableau4" data-found="3"></div>
+                <div class="cardspace" id="tableau5" data-found="4"></div>
+                <div class="cardspace" id="tableau6" data-found="5"></div>
+                <div class="cardspace" id="tableau7" data-found="6"></div>
+                <div class="cardspace" id="tableau8" data-found="7"></div>
             </div>
 
         </div>
@@ -77,8 +77,8 @@
     <div id="whatsthestory" class="panel">
             <p class="callout">An ant colony is a place of feverish activity, where workers endlessly toil for the greater good of the superorganism. You are a worker ant, constantly moving detritus and foodstuffs from chamber to chamber. The problem is that other workers are bringing in more goods faster than you can sort out the old stuff! At the end of the day, the best that you can hope for is a chance to do it all over again tomorrow.</p>
         <H2>How to Play</h2>
-        <p>Cards are ranked Ace, 2. 3, 4, 5, 6, 7, 8, 9, (Pawn, (Court,)) Crown.  (Pawns and Courts are optional and don't appear in the base game.)  You can move any single top card onto a card of the next higher rank or into an empty foundation space.  You can also move any set of cards in descending rank order onto a card of the next higher rank or into an empty foundation space, provided that the cards you are moving all share a common suit.  If you uncover a face-down card in a foundation stack, it will be revealed.  (Some game levels have no face-down cards.)</p>
-	<p>At any time you may deal eight more cards (four on the last deal) to the tops of the eight foundation piles.  When you have assembled a descending sequence from Crown to Ace which share a single suit, you have completed one-sixth of your sorting task!  The sequence is moved to one of the six chambers at the top of the play area.</p>
+        <p>Cards are ranked Ace, 2. 3, 4, 5, 6, 7, 8, 9, (Pawn, (Court,)) Crown.  (Pawns and Courts are optional and don't appear in the base game.)  You can move any single top card onto a card of the next higher rank or into an empty tableau space.  You can also move any set of cards in descending rank order onto a card of the next higher rank or into an empty tableau space, provided that the cards you are moving all share a common suit.  If you uncover a face-down card in a tableau stack, it will be revealed.  (Some game levels have no face-down cards.)</p>
+	<p>At any time you may deal eight more cards (four on the last deal) to the tops of the eight tableau piles.  When you have assembled a descending sequence from Crown to Ace which share a single suit, you have completed one-sixth of your sorting task!  The sequence is moved to one of the six chambers at the top of the play area.</p>
 	<h3>Winning</h3>
 	<p>Filling no chambers is a total loss, filling 1 to 5 chambers is a partial win, and filling all six chambers is a true victory.  An easy victory takes 15 minutes or less, a sweaty victory takes 15 to 25 minutes, and more than 25 minutes is a brain buster.</p>
 	<p>You can switch to an easier or some harder variants in the Settings (click the gear icon).  The rules are also available at <a href="http://decktet.wikidot.com/game:myrmex">the Decktet Wiki</a>.</p>
@@ -121,14 +121,14 @@
 	<div>
 		<p style="white-space:nowrap;">
 			<input type="radio" name="level" value="larval">Larval Stage</input><br/>
-			<input type="radio" name="level" value="minor" checked>Minor Worker (blind)</input><br/>
+			<input type="radio" name="level" value="minor" checked>Minor Worker (Beetle)</input><br/>
 			<input type="radio" name="level" value="major">Major Worker</input><br/>
 			<input type="radio" name="level" value="queen">Queen</input><br/>
-			<input type="radio" name="level" value="blindMajor">Blind Major Worker</input><br/>
-			<input type="radio" name="level" value="blindQueen">Blind Queen</input><br/>
-			<input type="radio" name="level" value="double">Double Myrmex (blind)</input>
+			<input type="radio" name="level" value="beetleMajor">Beetle Major Worker</input><br/>
+			<input type="radio" name="level" value="beetleQueen">Beetle Queen</input><br/>
+			<input type="radio" name="level" value="double">Double Myrmex (Beetle)</input>
 		</p>
-		<p>Your next game can be made harder with the addition of six Pawns (the Major Worker level) or six Pawns and six Courts (the Queen level).  The game can be made easier by dealing the foundation face up and visible; this is the default for the Larval Stage, the Major Worker level, and the Queen level.  (Double Myrmex is an experimental version using four decks.)</p>
+		<p>Your next game can be made harder with the addition of six Pawns (the Major Worker level) or six Pawns and six Courts (the Queen level).  The game can be made easier by dealing the tableau face up and visible as in the Beetle variant of Spider; this is the default for the Larval Stage, the Major Worker level, and the Queen level.  (Double Myrmex is an experimental version using four decks.)</p>
 	</div>
 	<span class="close button">Close</span>
     </div>

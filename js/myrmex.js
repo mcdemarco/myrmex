@@ -33,11 +33,11 @@ function init() {
 	// need magnification to set up the button
 	// This is a little awkward but will be cleaned up later for a third option
 	if (getSetting('magnification') == true) {
-		$('body').addClass('embiggen1');
+		$('body').addClass('magnify');
 		$('#plusButton').html("Normal");
 	}
 	$('#plusButton').click(function () {
-		$('body').toggleClass('embiggen1');
+		$('body').toggleClass('magnify');
 		if ($('#plusButton').html() == "Enlarge") {
 			setSetting('magnification',true);
 			$('#plusButton').html("Normal");
@@ -69,9 +69,13 @@ function init() {
 		$('.panel').hide();
 	});
 	
-	// event for the startbuttonclick
+	// events for the start/replay buttons
 	$('#startButton').click(function () {
 		startButtonClick();
+	});
+	// event for the startbuttonclick
+	$('#replayButton').click(function () {
+		startButtonClick(true);
 	});
 	
 	initializeDeck();
@@ -90,7 +94,7 @@ function initializeDeck(again) {
 //
 // Start button click event
 //
-function startButtonClick() {
+function startButtonClick(replay) {
 	$('.panel').hide();
 
 	//Set the other two settings here for convenience.
@@ -100,29 +104,22 @@ function startButtonClick() {
 		//If these values have changed since the deck was created, then we need to recreate it.
 		initializeDeck(true);
 	} else {
-		//moveDeckBackToDrawDeck();
 		createOnScreenCards(true);
 	}
 	foundArray = [];
 	//Make this optional.
-	decktetShuffle(deck);
+	if (!replay)
+		decktetShuffle(deck);
 	stackDeck();
-	//Deal to the foundation 4 times plus more for variants
-	dealTheFoundation();
+	//Deal to the tableau 4 times plus more for variants
+	dealTheTableau();
 	//Initialize the card motion.
 	refreshDragsDrops();
 }
 
-function moveDeckBackToDrawDeck() {
-	$("#drawDeckLocation");
-	for (var i = 0; i < deck.length; i++) {
-		moveCardToSpace(i, 'drawDeckLocation', 0.1);
-	}
-}
-
-function isBlind() {
+function isBeetle() {
 	var level = getSetting('level');
-	if (level == "minor" || level == "blindMajor" || level == "blindQueen" || level == "double")
+	if (level == "minor" || level == "beetleMajor" || level == "beetleQueen" || level == "double")
 		return true;
 	else
 		return false;
@@ -138,8 +135,8 @@ function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
 		$(deck[indexOfCard].selector).addClass("teeny",1);
 	} else {
 		$(deck[indexOfCard].selector).removeClass("teeny",1);
-		var spaceIndex = getIndexOfFoundation(spaceID);
-		var shift = getShiftOfFoundation(spaceIndex);
+		var spaceIndex = getIndexOfTableau(spaceID);
+		var shift = getShiftOfTableau(spaceIndex);
 		//console.log(spaceIndex + ", " + (shift + 1) + ": " + indexOfCard);
 		if (shift < 0) {
 			$("#" + spaceID).append($(deck[indexOfCard].selector));
@@ -151,7 +148,7 @@ function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
 		}
 		$(deck[indexOfCard].selector).css("z-index",(shift+1));
 		//Add to array, cleaning up any old version.
-		var old = getIndexOfFoundation(deck[indexOfCard].Location);
+		var old = getIndexOfTableau(deck[indexOfCard].Location);
 		if (old >= 0) {
 			//If it existed, pop from its previous array location.
 			foundArray[old].pop();
@@ -172,14 +169,14 @@ function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
 		$(deck[indexOfCard].selector + " img").delay(delay).show();
 }
 
-function getIndexOfFoundation(spaceID) {
-	if (spaceID.indexOf("foundation") != 0)
+function getIndexOfTableau(spaceID) {
+	if (spaceID.indexOf("tableau") != 0)
 		return -1;
 	else
-		return parseInt(spaceID.split("foundation")[1],10)-1;
+		return parseInt(spaceID.split("tableau")[1],10)-1;
 }
 
-function getShiftOfFoundation(foundIndex) {
+function getShiftOfTableau(foundIndex) {
 	//Calculate the foundArray index of the top card in the current space.
 	return foundArray[foundIndex].length - 1;
 }
@@ -200,41 +197,41 @@ function getIndexOfTopCardOnDrawDeck() {
 
 // deal cards to the foundation/tableau
 
-function dealTheFoundation() {
-	//Create the foundation array.
+function dealTheTableau() {
+	//Create the tableau array.
 	for (var f=0; f<8;f++) foundArray[f] = [];
-	//Deal the whole foundation at the start.
+	//Deal the whole tableau at the start.
 	var row;
 	var vari = getVariant();
 	for (row=1;row<=3;row++) {
-		dealToTheFoundation(isBlind(),(row-1)*8);
+		dealToTheTableau(isBeetle(),(row-1)*8);
 	}
 	row = 4;
 	if (vari == 'minor' || vari == 'queen') {
-		dealToTheFoundation(false,(row-1)*8,true);
+		dealToTheTableau(false,(row-1)*8,true);
 	} else {//major and double, for now
 		for (var p=0;p<6;p++)
-			dealCardToTheFoundation(p,isBlind(),(row-1)*8 + p);
+			dealCardToTheTableau(p,isBeetle(),(row-1)*8 + p);
 		row = 5;
-			dealToTheFoundation(false,(row-1)*8,true);
+			dealToTheTableau(false,(row-1)*8,true);
 	}
 }
 
-function dealToTheFoundation(faceDown,delayUnits) {
-	//Deal a row of the foundation, optionally face down.
+function dealToTheTableau(faceDown,delayUnits) {
+	//Deal a row of the tableau, optionally face down.
 	for (var f=0;f<8;f++) {
-		dealCardToTheFoundation(f,faceDown,delayUnits + f);
+		dealCardToTheTableau(f,faceDown,delayUnits + f);
 	}
 }
 
-function dealCardToTheFoundation(foundationNo,faceDown,delayUnits) {
-	//Deal a card to a foundation location.
+function dealCardToTheTableau(tableauNo,faceDown,delayUnits) {
+	//Deal a card to a tableau location.
 	var c = getIndexOfTopCardOnDrawDeck();
 	if (c >= 0) {
-		//foundArray[foundationNo].push(c);
-		//deck[c].Location = "foundation" + (foundationNo + 1);
+		//foundArray[tableauNo].push(c);
+		//deck[c].Location = "tableau" + (tableauNo + 1);
 		deck[c].FaceUp = !faceDown;
-		moveCardToSpace(c, "foundation" + (foundationNo + 1), delayUnits);
+		moveCardToSpace(c, "tableau" + (tableauNo + 1), delayUnits);
 	}
 }
 
@@ -245,7 +242,7 @@ function refreshDragsDrops() {
 }
 
 function refreshDragDrop(foundIndex) {
-	//Refresh dragging and dropping bindings for a single foundation stack.
+	//Refresh dragging and dropping bindings for a single tableau stack.
 	var length = foundArray[foundIndex].length;
 	//We always know what happens with the top card.
 	var card = deck[foundArray[foundIndex][length-1]];
@@ -333,7 +330,7 @@ function myrmexCreateDeck() {
 	} else {
 		//Remove the unwanted Pawns.
 		myrmexDeck = decktetRemoveCardByName(myrmexDeck,'the LIGHT KEEPER');
-		if (level == "major" || level == "blindMajor") {
+		if (level == "major" || level == "beetleMajor") {
 			//Remove all the Courts.
 			myrmexDeck = decktetRemoveCOURT(myrmexDeck);
 		} else {
@@ -353,9 +350,9 @@ function myrmexCreateDeck() {
 		if (myrmexDeck[i].Rank == "COURT")
 			myrmexDeck[i].Value = 11;
 		if (myrmexDeck[i].Rank == "CROWN") {
-			if (level == "major" || level == "blindMajor")
+			if (level == "major" || level == "beetleMajor")
 				myrmexDeck[i].Value = 11;
-			if (level == "queen" || level == "blindQueen" || level == "double")
+			if (level == "queen" || level == "beetleQueen" || level == "double")
 				myrmexDeck[i].Value = 12;
 		}
 	}
@@ -459,8 +456,8 @@ function setSetting(setting, value) {
 function getVariant() {
 	//Get a simpler version of the level.
 	var level = getSetting('level');
-	if (level == 'major' || level == 'blindMajor') return 'major';
-	if (level == 'queen' || level == 'blindQueen') return 'queen';
+	if (level == 'major' || level == 'beetleMajor') return 'major';
+	if (level == 'queen' || level == 'beetleQueen') return 'queen';
 	if (level == 'double') return 'double';
 	return 'minor';
 }
@@ -474,18 +471,18 @@ function shifter(event) {
 	var cardID = this.id;
 	var startShift = $("#" + cardID).parents(".card").length;
 	console.log(cardID + ": " + startShift);
-	var foundation = deck[getCardIndexByID(cardID)].Location;
-	if ($("#" + foundation).hasClass("shifted")) {
+	var tableau = deck[getCardIndexByID(cardID)].Location;
+	if ($("#" + tableau).hasClass("shifted")) {
 		//Toggle.
-		$("#" + foundation).removeClass("shifted");
+		$("#" + tableau).removeClass("shifted");
 		unshifter();
 		return;
 	} else {
-		$("#" + foundation).addClass("shifted");
+		$("#" + tableau).addClass("shifted");
 	}
-	var foundationNo = getIndexOfFoundation(foundation);
-	for (var s=startShift+1;s<foundArray[foundationNo].length; s++) {
-		$(deck[foundArray[foundationNo][s]].selector).css("margin-left",22);// * (s - startCard));
+	var tableauNo = getIndexOfTableau(tableau);
+	for (var s=startShift+1;s<foundArray[tableauNo].length; s++) {
+		$(deck[foundArray[tableauNo][s]].selector).css("margin-left",22);// * (s - startCard));
 	}
 }
 
