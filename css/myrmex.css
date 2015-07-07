@@ -39,11 +39,14 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
     margin:4px;
 }
 
-/*
-.cardspace.shifted {
-    z-index:100;
+.card.shifted .card {
+    margin-left:22px;
 }
-*/
+
+.magnify .card.shifted .card {
+    margin-left:44px;
+}
+
 
 #drawDeckLocation {
     margin-right:8px;
@@ -67,6 +70,14 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
 .magnify .card {
     background-size:248px 348px;
     border-radius:12px 0 0 0;
+}
+
+.magnify .card img {
+    width:248px;
+    height:348px;
+    border-radius:12px 0 0 0;
+    -webkit-clip-path: inset(0px 124px 174px 0px);
+    clip-path: inset(0px 124px 174px 0px);
 }
 
 /* font */

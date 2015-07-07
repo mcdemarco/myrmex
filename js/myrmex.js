@@ -492,26 +492,35 @@ function shifter(event) {
 	event.stopPropagation();
 	//Shift cards for visibility on hover or click
 	if (!$(this).hasClass("card") || $(this).find("img").is(":visible")) return;
-	unshifter();
 	var cardID = this.id;
+	/*
 	var startShift = $("#" + cardID).parents(".card").length;
 	console.log(cardID + ": " + startShift);
+	 */
 	var tableau = deck[getCardIndexByID(cardID)].Location;
+	unshifter(tableau);
 	if ($("#" + tableau).hasClass("shifted")) {
 		//Toggle.
 		$("#" + tableau).removeClass("shifted");
-		unshifter();
+		//We already unshifted to clean up.
 		return;
 	} else {
 		$("#" + tableau).addClass("shifted");
+		$("#" + cardID).addClass("shifted");
 	}
+	/*
 	var tableauNo = getIndexOfTableau(tableau);
+	
 	for (var s=startShift+1;s<foundArray[tableauNo].length; s++) {
 		$(deck[foundArray[tableauNo][s]].selector).css("margin-left",22);// * (s - startCard));
 	}
+	 */
 }
 
-function unshifter() {
+function unshifter(tableau) {
 	//Undo the shift.
-	$(".card").css("margin-left",0);
+	if (tableau)
+		$("#" + tableau + " .card").removeClass("shifted");//css("margin-left",0);
+	else
+		$(".card").removeClass("shifted");//.css("margin-left",0);
 }
