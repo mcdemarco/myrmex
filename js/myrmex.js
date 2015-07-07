@@ -74,10 +74,10 @@ function init() {
 		startButtonClick();
 	});
 	
-	initialiseDeck();
+	initializeDeck();
 }
 
-function initialiseDeck(again) {
+function initializeDeck(again) {
 
 	// Build a deck of myrmex cards
 	deck = myrmexCreateDeck();
@@ -93,14 +93,17 @@ function initialiseDeck(again) {
 function startButtonClick() {
 	$('.panel').hide();
 
-	moveDeckBackToDrawDeck();
 	//Set the other two settings here for convenience.
 	if (getSetting('level') != $("input[name=level]:checked").val() || getSetting('blackmoons') != $("input#emblacken").is(":checked")) {
 		setSetting('level', $("input[name=level]:checked").val());
 		setSetting('blackmoons', $("input#emblacken").is(":checked").toString());
 		//If these values have changed since the deck was created, then we need to recreate it.
-		initialiseDeck(true);
+		initializeDeck(true);
+	} else {
+		//moveDeckBackToDrawDeck();
+		createOnScreenCards(true);
 	}
+	foundArray = [];
 	//Make this optional.
 	decktetShuffle(deck);
 	stackDeck();
@@ -111,11 +114,9 @@ function startButtonClick() {
 }
 
 function moveDeckBackToDrawDeck() {
-	$("#drawDeckLocation").addClass("full");
+	$("#drawDeckLocation");
 	for (var i = 0; i < deck.length; i++) {
-		deck[i].Selected = false;
 		moveCardToSpace(i, 'drawDeckLocation', 0.1);
-		$(deck[i].selector).removeClass('cardselected').addClass('teeny');
 	}
 }
 
@@ -249,8 +250,8 @@ function refreshDragDrop(foundIndex) {
 	//We always know what happens with the top card.
 	var card = deck[foundArray[foundIndex][length-1]];
 	//Stack not working.
-	$(card.selector).draggable({zIndex:100,stack:'.card',scope:card.Value,revert:'invalid'});
-	$(card.selector).droppable({scope:(card.Value - 1),drop:function(event, ui){dropper(foundArray[foundIndex][c],$(ui.draggable).prop("id"));}});
+	$(card.selector).draggable({addClasses:false,zIndex:100,stack:'.card',scope:card.Value,revert:'invalid'});
+	$(card.selector).droppable({addClasses:false,scope:(card.Value - 1),drop:function(event, ui){dropper(foundArray[foundIndex][c],$(ui.draggable).prop("id"));}});
 	//Check the other cards for suit.
 	for (var c=0;c<length-1;c++) {
 		card = deck[foundArray[foundIndex][c]];
@@ -258,7 +259,7 @@ function refreshDragDrop(foundIndex) {
 		$(card.selector).droppable({disabled:true});
 		//Check suits...
 		//if (suits satisfactory) {
-		//		$(card.selector).draggable({zIndex:100,scope:card.Value,revert:'invalid'});
+		//		$(card.selector).draggable({addClasses:false,zIndex:100,scope:card.Value,revert:'invalid'});
 		//} else {
 		$(card.selector).draggable({disabled:true});
 		//}
@@ -277,19 +278,7 @@ function dropper(droppedOnMeIndex,dragAndDropMeID) {
 
 
 /* not useful? */
-//
-// deselect cards on specified row
-//
-function deselectAllCardsOnRow(rowName) {
-	for (var i = 0; i < deck.length; i++) {
-		if (deck[i].Location.substring(0, rowName.length) == rowName) {
-			if (deck[i].Selected == true) {
-				deck[i].Selected = false;
-				$(deck[i].selector).removeClass('cardselected');
-			}
-		}
-	}
-}
+
 
 //
 // The Game is over as there are no available moves
@@ -384,6 +373,11 @@ function createOnScreenCards(again) {
 	}
 //	var p = $('#drawDeckLocation').offset();
 	for (var i = deck.length - 1; i >= 0; i--) {
+		//Not moving back anymore, so set these here.
+		deck[i].Location = 'drawDeckLocation';
+		deck[i].FaceUp = false;
+		
+		//Create.
 		createOnScreenCard(deck[i],i);
 //		$(deck[i].selector).css({ top: 0, left: 0 });
 		//For touch?
