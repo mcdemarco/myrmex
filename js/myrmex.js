@@ -144,12 +144,18 @@ function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
 	if (shift < 0) {
 		$("#" + spaceID).append($(card.selector));
 		$(card.selector).delay(delay).fadeIn();
+		//Draggable is messing up lots of CSS, so also unmess (z-index still messed up).
+		$(card.selector).css({"top":0,"left":0});
+		$(".magnify " + card.selector).css({"top":0,"left":0});
 	} else {
 		//Needs transitions.
 		$(deck[tablArray[spaceIndex][shift]].selector).append($(card.selector));
 		$(card.selector).delay(delay).fadeIn();
 		//Need to get the delay/transition onto removeClass.
 		//$(card.selector).css("z-index",shift).delay(delay).transition({left:targetOffset.left, top:targetOffset.top + 22*shift},speed,"snap").fadeIn();
+		//Draggable is messing up lots of CSS, so also unmess (z-index still messed up).
+		$(card.selector).css({"top":22,"left":0,"z-index":(shift + 1)});
+		$(".magnify " + card.selector).css({"top":44,"left":0,"z-index":(shift + 1)});
 	}
 	$(card.selector).css("z-index",(shift+1));
 	//Add to array, cleaning up any old version.
@@ -160,13 +166,9 @@ function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
 		var pops = $(card.selector).find('.card').length + 1;
 		removed = tablArray[oldColumn].splice(tablArray[oldColumn].length - pops,pops);
 		tablArray[spaceIndex] = tablArray[spaceIndex].concat(removed);
-		console.log("removed " + removed + " from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceIndex + ": " + tablArray[spaceIndex]);
-		
-		//Draggable is messing up lots of CSS, so also unmess (z-index still messed up).
-		$(card.selector).css({"top":22,"left":0,"z-index":(shift + 1)});
+		console.log("removed " + removed + "(" + card.Name + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceIndex + ": " + tablArray[spaceIndex]);
 	} else if (shift >= 0) {
 		//If it didn't exist, it needs some CSS and a push.
-		$(card.selector).css("top",22);
 		tablArray[spaceIndex].push(indexOfCard);
 	} else {
 		//Only push?
@@ -176,7 +178,7 @@ function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
 	// reset card locations, including fellow-travellers'
 	card.Location = spaceID;
 	for (var r=0;r<removed.length;r++)
-		deck[r].Location = spaceID;
+		deck[removed[r]].Location = spaceID;
 	
 	//$(card.selector + " img").delay(delay).transition({width:124, height:174});
 	/* no longer handling bad facing.
@@ -270,7 +272,7 @@ function refreshDragDrop(tablIndex) {
 	if (length == 0) {
 		var tableauID = "tableau" + tablIndex;
 		//The special case of an empty tableau column.
-		$("#" + tableauID).droppable({addClasses:false,disabled:false,drop:function(event, ui){dropper(null,$(ui.draggable).prop("id"),tableauID);}});
+		$("#" + tableauID).droppable({addClasses:false,disabled:false,accept:".card",drop:function(event, ui){dropper(null,$(ui.draggable).prop("id"),tableauID);}});
 		return;
 	} else {
 		$("#" + tableauID).droppable({addClasses:false,disabled:true});
@@ -283,12 +285,13 @@ function refreshDragDrop(tablIndex) {
 	}
 
 	//We always know what happens with the top card.  Note: Stack not working.
-	$(card.selector).draggable({addClasses:false,disabled:false,zIndex:100,stack:'.card',scope:card.Value,revert:'invalid'});
-	$(card.selector).droppable({addClasses:false,disabled:false,scope:(card.Value - 1),drop:function(event, ui){dropper(tablArray[tablIndex][length-1],$(ui.draggable).prop("id"));}});
+	$(card.selector).draggable({addClasses:false,disabled:false,zIndex:100,revert:'invalid'});
+	$(card.selector).droppable({addClasses:false,disabled:false,accept:".value"+(card.Value - 1),drop:function(event, ui){dropper(tablArray[tablIndex][length-1],$(ui.draggable).prop("id"));}});
 	
 	//To check the other cards for suit going upwards/inwards from the top/uppermost card, we cheat with classes.
 	$(card.selector).addClass(card.Suit1 + " " + card.Suit2 + " " + card.Suit3);
 	var prevCard = card;
+	var nuking = false;
 	for (var c=length-2;c>=0;c--) {
 		card = deck[tablArray[tablIndex][c]];
 		if (!card.FaceUp) break;
@@ -297,20 +300,25 @@ function refreshDragDrop(tablIndex) {
 		//Remove all suit classes and draggability before readding.
 		$(card.selector).removeClass("Knots Leaves Moons Suns Waves Wyrms");
 		$(card.selector).draggable({disabled:true});
+		if (nuking) continue;
 		//Check values...
-		if (card.Value != prevCard.Value + 1) break;
+		if (card.Value != prevCard.Value + 1) {
+			//TODO: Disable any more visible ones.
+			nuking = true;
+			continue;
+		}
 		//Check suits...
 		if ($(prevCard.selector).hasClass(card.Suit1)) {
 			$(card.selector).addClass(card.Suit1);
-			$(card.selector).draggable({addClasses:false,disabled:false,zIndex:100,scope:card.Value,revert:'invalid'});
+			$(card.selector).draggable({addClasses:false,disabled:false,zIndex:100,revert:'invalid'});
 		}
 		if (card.Suit2 && $(prevCard.selector).hasClass(card.Suit2)) {
 			$(card.selector).addClass(card.Suit2);
-			$(card.selector).draggable({addClasses:false,disabled:false,zIndex:100,scope:card.Value,revert:'invalid'});
+			$(card.selector).draggable({addClasses:false,disabled:false,zIndex:100,revert:'invalid'});
 		}
 		if (card.Suit3 && $(prevCard.selector).hasClass(card.Suit3)) {
 			$(card.selector).addClass(card.Suit3);
-			$(card.selector).draggable({addClasses:false,disabled:false,zIndex:100,scope:card.Value,revert:'invalid'});
+			$(card.selector).draggable({addClasses:false,disabled:false,zIndex:100,revert:'invalid'});
 		}
 		prevCard = card;
 		//Check for foundation pile, probably also with classes, and remove.
@@ -430,7 +438,7 @@ function createOnScreenCard(card,index) {
 	var cardImage = card.Image;
 	if (emblacken && (card.Suit1 == "Moons" || card.Suit2 == "Moons" || card.Suit3 == "Moons"))
 		cardImage = cardImage.split(".png")[0] + "_black.png";
-	var imageLit = '<div id="' + card.divID + '" class="card" style="background-image:url(cards/' + cardImage + ');"><img src="cards/back.png" /></div>';
+	var imageLit = '<div id="' + card.divID + '" class="card value' + card.Value + '" style="background-image:url(cards/' + cardImage + ');"><img src="cards/back.png" /></div>';
 	$(imageLit).appendTo('#gamewrapper').hide();
 	if (card.FaceUp) 
 		$("#" + card.divID + " img").hide();

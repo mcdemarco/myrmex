@@ -63,6 +63,14 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
     left:0;
 }
 
+.card .card {
+    top:22px;
+}
+
+.magnify .card .card {
+    top:44px;
+}
+
 .embiggen .cardspace {
     margin:2px;
 }
