@@ -79,8 +79,12 @@ function init() {
 	
 	//Init dealer.
 	$("#drawDeckLocation").click(function () {
-		dealToTheTableau(false);
-		refreshDragsDrops();
+		if (areEmptyTableauSpaces()) {
+			alerter("You must fill all tableau spaces before dealing.");
+		} else { 
+			dealToTheTableau(false);
+			refreshDragsDrops();
+		}
 	});	
 	
 	initializeDeck();
@@ -139,6 +143,7 @@ function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
 	var delay = delayUnits * speed;
 	var spaceIndex = getIndexOfTableau(spaceID);
 	var shift = getShiftOfTableau(spaceIndex);
+	
 	var card = deck[indexOfCard];
 
 	if (shift < 0) {
@@ -165,8 +170,13 @@ function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
 		//If it existed, pop it and any children from its previous array location and push onto new location.
 		var pops = $(card.selector).find('.card').length + 1;
 		removed = tablArray[oldColumn].splice(tablArray[oldColumn].length - pops,pops);
-		tablArray[spaceIndex] = tablArray[spaceIndex].concat(removed);
-		console.log("removed " + removed + "(" + card.Name + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceIndex + ": " + tablArray[spaceIndex]);
+		if (spaceIndex > -1) {
+			tablArray[spaceIndex] = tablArray[spaceIndex].concat(removed);
+			console.log("removed " + removed + "(" + card.Name + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceIndex + ": " + tablArray[spaceIndex]);
+		} else {
+			//No push.
+			console.log("removed " + removed + "(" + card.Name + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceID);
+		}
 	} else if (shift >= 0) {
 		//If it didn't exist, it needs some CSS and a push.
 		tablArray[spaceIndex].push(indexOfCard);
@@ -179,6 +189,9 @@ function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
 	card.Location = spaceID;
 	for (var r=0;r<removed.length;r++)
 		deck[removed[r]].Location = spaceID;
+
+	//The removed array is returned for use in foundation moves.
+	return removed;
 	
 	//$(card.selector + " img").delay(delay).transition({width:124, height:174});
 	/* no longer handling bad facing.
@@ -268,6 +281,7 @@ function refreshDragsDrops() {
 
 function refreshDragDrop(tablIndex) {
 	//Refresh dragging and dropping bindings for a single tableau stack.
+	//Also check for a pile to put on the foundation.
 	var length = tablArray[tablIndex].length;
 	if (length == 0) {
 		var tableauID = "tableau" + tablIndex;
@@ -278,6 +292,8 @@ function refreshDragDrop(tablIndex) {
 		$("#" + tableauID).droppable({addClasses:false,disabled:true});
 	}
 	var card = deck[tablArray[tablIndex][length-1]];
+	var hasAce = (card.Rank == "Ace");
+	console.log("Ace: " + hasAce);
 	//Flip if appropriate.
 	if (!card.FaceUp || $(card.selector + " img").is(":visible")) {
 		card.FaceUp = true;
@@ -297,7 +313,7 @@ function refreshDragDrop(tablIndex) {
 		if (!card.FaceUp) break;
 		//Can only drop on the top card, so all these are disabled.
 		$(card.selector).droppable({disabled:true});
-		//Remove all suit classes and draggability before readding.
+		//Remove all suit classes and draggability before re-adding.
 		$(card.selector).removeClass("Knots Leaves Moons Suns Waves Wyrms");
 		$(card.selector).draggable({disabled:true});
 		if (nuking) continue;
@@ -311,6 +327,12 @@ function refreshDragDrop(tablIndex) {
 		if ($(prevCard.selector).hasClass(card.Suit1)) {
 			$(card.selector).addClass(card.Suit1);
 			$(card.selector).draggable({addClasses:false,disabled:false,zIndex:100,revert:'invalid'});
+			//Because a Crown has only one suit, this is the only place where we need to test for it.
+			if (hasAce && card.Rank == "CROWN") {
+				moveToFoundation(tablIndex,c);
+				//Will have to call the whole function again from there, so...
+				return;
+			}
 		}
 		if (card.Suit2 && $(prevCard.selector).hasClass(card.Suit2)) {
 			$(card.selector).addClass(card.Suit2);
@@ -342,6 +364,21 @@ function dropper(droppedOnCardIndex,dragAndDropMeID,droppedOnTableauID) {
 	//3. possibly flip a card.
 }
 
+function moveToFoundation(tablIndex,crownRow) {
+	//Move a completed set to the next available chamber.
+	var spaceID = getNextChamber();
+	var removed = moveCardToSpace(tablArray[tablIndex][crownRow],spaceID); //more delay?
+	//Turn off its draggables.  Turn off all droppables just to be safe, though there should be only one.
+	for (var r=0;r<removed.length;r++) {
+		$(deck[removed[r]].selector).draggable({addClasses:false,disabled:true}).droppable({addClasses:false,disabled:true}).addClass("teeny").css("top",0);
+	}
+	//Re-refresh the source column or win.
+	if (spaceID == "chamber6")
+		win(1);
+	else
+		refreshDragDrop(tablIndex);	
+}
+
 //
 // get card index based on id
 //
@@ -354,6 +391,15 @@ function getCardIndexByID(theID) {
 		}
 	}
 	return returnValue;
+}
+
+function getNextChamber() {
+	for (var ch = 1; ch <= 6; ch++) {
+		var spaceID = "chamber" + ch;
+		if (!$("#" + spaceID).has(".card")) {
+			return spaceID;
+		}
+	}
 }
 
 //
@@ -460,6 +506,18 @@ function stackDeck() {
 function pleaseWaitOn() { $('#pleaseWait').show();}
 function pleaseWaitOff() { $('#pleaseWait').hide();}
 
+function alerter(msg) {
+	//TODO: replace with something nice
+	alert(msg);
+}
+
+function areEmptyTableauSpaces() {
+	for (var t=0;t<8;t++) {
+		if (!$("#tableau" + t).has(".card"))
+			return true;
+	}
+	return false;
+}
 
 function getIndexOfCardFromID(ID) {
 	for (var i = 0; i < deck.length; i++) {
@@ -541,4 +599,8 @@ function unshifter(tableau) {
 		$("#" + tableau + " .card").removeClass("shifted");//css("margin-left",0);
 	else
 		$(".card").removeClass("shifted");//.css("margin-left",0);
+}
+
+function win(delayUnits) {
+	$("#gameOver").fadeIn(delayUnits*speed);
 }
