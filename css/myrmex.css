@@ -140,6 +140,7 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
     background-color: #fffefe;
     width:20px;
     height:20px;
+    opacity:.99;
 }
 
 .suit1, .suit2, suit3 {
@@ -149,6 +150,7 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
     background-color: #fffefe;
     width:20px;
     height:20px;
+    opacity:.99;
 }
 
 .suit1 {
@@ -159,6 +161,16 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
 }
 .suit3 {
     left:60px;
+}
+
+.topmost .suit1, .topmost .suit2, .topmost .suit3 {
+    display:none;
+}
+
+img.realBack {
+    position:absolute;
+    top:0;
+    left:0;
 }
 
 /* font */

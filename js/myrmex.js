@@ -244,7 +244,8 @@ function refreshDragDrop(tablIndex) {
 	//We always know what happens with the top card.  Note: Stack not working.
 	$(card.selector).draggable({addClasses:false,disabled:false,zIndex:100,revert:'invalid'});
 	$(card.selector).droppable({addClasses:false,disabled:false,accept:".value"+(card.Value - 1),drop:function(event, ui){dropper(tablArray[tablIndex][length-1],$(ui.draggable).prop("id"));}});
-	
+	$(card.selector).addClass("topmost");
+
 	//To check the other cards for suit going upwards/inwards from the top/uppermost card, we cheat with classes.
 	$(card.selector).addClass(card.Suit1 + " " + card.Suit2 + " " + card.Suit3);
 	var prevCard = card;
@@ -252,6 +253,7 @@ function refreshDragDrop(tablIndex) {
 	for (var c=length-2;c>=0;c--) {
 		card = deck[tablArray[tablIndex][c]];
 		if (!card.FaceUp) break;
+		$(card.selector).removeClass("topmost");
 		//Can only drop on the top card, so all these are disabled.
 		$(card.selector).droppable({disabled:true});
 		//Remove all suit classes and draggability before re-adding.
@@ -444,6 +446,7 @@ context.cards = (function () {
 			//Big draggability issues for hover.
 			//$(deck[i].selector).hover(shifter, unshifter);
 		}
+		//stackDeck();
 	}	
 
 	function createOnScreenCard(card,index) {
@@ -465,7 +468,7 @@ context.cards = (function () {
 				}
 			}
 		}
-		imageLit += '<img class="realBack" src="cards/back.png" style="z-index:2;" /></div>';
+		imageLit += '<img class="realBack" src="cards/back.png" /></div>';
 		$(imageLit).appendTo('#gamewrapper').hide();
 		if (card.FaceUp) 
 			$("#" + card.divID + " img.realBack").hide();
@@ -474,7 +477,7 @@ context.cards = (function () {
 	function stackDeck() {
 		// stack the cards with z-index - not used atm
 		for (var i = 0; i < deck.length; i++) {
-			$(deck[i].selector).css("z-index",deck.length-i);
+			$(deck[i].selector).css("z-index",i + 3);
 		}
 	}
 	
