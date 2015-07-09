@@ -51,7 +51,7 @@ context.init = (function () {
 		deck = myrmexCreateDeck();
 
 		// create the on screen card image tags
-		createOnScreenCards(again);
+		context.cards.create(again);
 
 	}
 
@@ -63,7 +63,7 @@ context.init = (function () {
 			//If certain values have changed since the deck was created, then we need to recreate it.
 			initializeDeck(true);
 		} else {
-			createOnScreenCards(true);
+			context.cards.create(true);
 		}
 		tablArray = [];
 		context.ui.initDealer();
@@ -204,9 +204,9 @@ function dealCardToTheTableau(tableauNo,faceDown,delayUnits) {
 	if (c >= 0) {
 		deck[c].FaceUp = !faceDown;
 		if (deck[c].FaceUp)
-			$(deck[c].selector + " img").hide();
+			$(deck[c].selector + " img.realBack").hide();
 		else
-			$(deck[c].selector + " img").show();
+			$(deck[c].selector + " img.realBack").show();
 		moveCardToSpace(c, "tableau" + tableauNo, delayUnits);
 		return true;
 	} else {
@@ -236,9 +236,9 @@ function refreshDragDrop(tablIndex) {
 	var hasAce = (card.Rank == "Ace");
 	console.log("Ace: " + hasAce);
 	//Flip if appropriate.
-	if (!card.FaceUp || $(card.selector + " img").is(":visible")) {
+	if (!card.FaceUp || $(card.selector + " img.realBack").is(":visible")) {
 		card.FaceUp = true;
-		$(card.selector + " img").hide();
+		$(card.selector + " img.realBack").hide();
 	}
 
 	//We always know what happens with the top card.  Note: Stack not working.
@@ -398,53 +398,6 @@ function myrmexCreateDeck() {
 	return myrmexDeck;
 }
 
-//
-// create a series of image tags and load up the card images.
-// 
-function createOnScreenCards(again) {
-	if (again) {
-		//Delete existing cards.
-		$(".card").remove();
-	}
-	for (var i = deck.length - 1; i >= 0; i--) {
-		//Not moving back anymore, so set these here.
-		deck[i].Location = 'drawDeckLocation';
-		deck[i].FaceUp = false;
-		
-		//Create.
-		createOnScreenCard(deck[i],i);
-		//For touch?
-		$(deck[i].selector).click(context.ui.shifter);
-		//Big draggability issues for hover.
-		//$(deck[i].selector).hover(shifter, unshifter);
-	}
-}
-
-//
-// create an on-screen card element
-//
-function createOnScreenCard(card,index) {
-	var emblacken = context.settings.get('blackmoons');
-	var cardImage = card.Image;
-	if (emblacken && (card.Suit1 == "Moons" || card.Suit2 == "Moons" || card.Suit3 == "Moons"))
-		cardImage = cardImage.split(".png")[0] + "_black.png";
-	var imageLit = '<div id="' + card.divID + '" class="card value' + card.Value + '" style="background-image:url(cards/' + cardImage + ');"><img src="cards/back.png" /></div>';
-	$(imageLit).appendTo('#gamewrapper').hide();
-	if (card.FaceUp) 
-		$("#" + card.divID + " img").hide();
-}
-
-//
-// stack the cards
-//
-function stackDeck() {
-	for (var i = 0; i < deck.length; i++) {
-		$(deck[i].selector).css("z-index",deck.length-i);
-	}
-}
-
-
-
 
 
 function areEmptyTableauSpaces() {
@@ -464,6 +417,67 @@ function getIndexOfCardFromID(ID) {
 	return -1;
 }
 
+})();
+	
+
+context.cards = (function () {
+
+	return {
+		create: create
+	};
+
+	function create(again) {
+		if (again) {
+			//Delete existing cards.
+			$(".card").remove();
+		}
+		// create a series of image tags and load up the card images.
+		for (var i = deck.length - 1; i >= 0; i--) {
+			//Not moving back anymore, so set these here.
+			deck[i].Location = 'drawDeckLocation';
+			deck[i].FaceUp = false;
+			
+			//Create.
+			createOnScreenCard(deck[i],i);
+			//For touch?
+			$(deck[i].selector).click(context.ui.shifter);
+			//Big draggability issues for hover.
+			//$(deck[i].selector).hover(shifter, unshifter);
+		}
+	}	
+
+	function createOnScreenCard(card,index) {
+		// create an on-screen card element
+		var emblacken = context.settings.get('blackmoons');
+		var cardImage = card.Image;
+		if (emblacken && (card.Suit1 == "Moons" || card.Suit2 == "Moons" || card.Suit3 == "Moons"))
+			cardImage = cardImage.split(".png")[0] + "_black.png";
+		var imageLit = '<div id="' + card.divID + '" class="card value' + card.Value + '" style="background-image:url(cards/' + cardImage + ');">';
+		if (card.Rank == 'Ace') {
+			//Adjust the ace.
+			imageLit += '<img class="aceAdjust" src="cards/' + card.Suit1.toLowerCase() + (card.Suit1 == "Moons" && emblacken ? '_black' : '') + '.png' + '"/>';
+		} else {
+			imageLit += '<img class="suit1" src="cards/' + card.Suit1.toLowerCase() + (card.Suit1 == "Moons" && emblacken ? '_black' : '') + '.png' + '"/>';
+			if (card.Suit2) {
+				imageLit += '<img class="suit2" src="cards/' + card.Suit2.toLowerCase() + (card.Suit2 == "Moons" && emblacken ? '_black' : '') + '.png' + '"/>';
+				if (card.Suit3) {
+					imageLit += '<img class="suit3" src="cards/' + card.Suit3.toLowerCase() + (card.Suit3 == "Moons" && emblacken ? '_black' : '') + '.png' + '"/>';
+				}
+			}
+		}
+		imageLit += '<img class="realBack" src="cards/back.png" style="z-index:2;" /></div>';
+		$(imageLit).appendTo('#gamewrapper').hide();
+		if (card.FaceUp) 
+			$("#" + card.divID + " img.realBack").hide();
+	}
+
+	function stackDeck() {
+		// stack the cards with z-index - not used atm
+		for (var i = 0; i < deck.length; i++) {
+			$(deck[i].selector).css("z-index",deck.length-i);
+		}
+	}
+	
 })();
 	
 
@@ -629,7 +643,7 @@ context.ui = (function () {
 	function shifter(event) {
 		event.stopPropagation();
 		//Shift cards for visibility on hover or click
-		if (!$(this).hasClass("card") || $(this).find("img").is(":visible")) return;
+		if (!$(this).hasClass("card") || $(this).find("img.realBack").is(":visible")) return;
 		var cardID = this.id;
 		var tableau = deck[context.init.getCardIndexByID(cardID)].Location;
 		unshifter(tableau);

@@ -19,12 +19,12 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
    card source file size: 372x522 
 */
 
-.cardspace, .card, .card img {
+.cardspace, .card, .card img.realBack {
     width:124px;
     height:174px;
 }
 
-.teeny.cardspace, .teeny.card, .teeny.card img, .teeny .back {
+.teeny.cardspace, .teeny.card, .teeny.card img.realBack, .teeny .back {
     width:62px;
     height:87px;
 }
@@ -96,7 +96,7 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
     border-radius:12px 0 0 0;
 }
 
-.magnify .card img {
+.magnify .card img.realBack {
     width:248px;
     height:348px;
     border-radius:12px 0 0 0;
@@ -117,11 +117,11 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
     display:inline-block;
 }
 
-.card > img {
+.card > img.realBack {
     border:thin solid #432;
 }
 
-.card img {
+.card img.realBack {
     border-radius:6px;
     border:thin solid #432;
 }
@@ -130,6 +130,36 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
     background-size:124px 174px;
 }
 
+.aceAdjust {
+    position:absolute;
+    top:0;
+    left:0;
+    border-radius:6px;
+    padding-left:2px 0 12px 2px;
+    padding-bottom:12px;
+    background-color: #fffefe;
+    width:20px;
+    height:20px;
+}
+
+.suit1, .suit2, suit3 {
+    position:absolute;
+    top:0;
+    padding-top: 2px;
+    background-color: #fffefe;
+    width:20px;
+    height:20px;
+}
+
+.suit1 {
+    left:20px;
+}
+.suit2 {
+    left:40px;
+}
+.suit3 {
+    left:60px;
+}
 
 /* font */
 
