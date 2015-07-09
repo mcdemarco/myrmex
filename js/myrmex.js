@@ -12,15 +12,14 @@ var myrmex = {};
 						   level: 'minor'};
 	var speed;
 	var tablArray = [];
+	var deck;
 
 
 context.init = (function () {
 
 	return {
-		//		checkLocalStorage: checkLocalStorage,
 		load: load,
 		getCardIndexByID: getCardIndexByID,
-		//		reload: reload,
 		startButtonClick: startButtonClick
 	};
 
@@ -45,44 +44,38 @@ context.init = (function () {
 		initializeDeck();
 
 	}
-		
 
-		
+	function initializeDeck(again) {
 
-function initializeDeck(again) {
+		// Build a deck of myrmex cards
+		deck = myrmexCreateDeck();
 
-	// Build a deck of myrmex cards
-	deck = myrmexCreateDeck();
+		// create the on screen card image tags
+		createOnScreenCards(again);
 
-	// create the on screen card image tags
-	createOnScreenCards(again);
-
-}
-
-//
-// Start button click event
-//
-function startButtonClick(replay) {
-	$('.panel').hide();
-
-	//Set the other two settings here for convenience.
-	if (context.settings.checkForChanges()) {
-		//If certain values have changed since the deck was created, then we need to recreate it.
-		initializeDeck(true);
-	} else {
-		createOnScreenCards(true);
 	}
-	tablArray = [];
-	context.ui.initDealer();
-	if (!replay)
-		decktet.shuffle.deck(deck);
-	
-	//stackDeck();
-	//Deal to the tableau 4 times plus more for variants
-	dealTheTableau();
-	//Initialize the card motion.
-	refreshDragsDrops();
-}
+
+	function startButtonClick(replay) {
+		$('.panel').hide();
+
+		//Set the other two settings here for convenience.
+		if (context.settings.checkForChanges()) {
+			//If certain values have changed since the deck was created, then we need to recreate it.
+			initializeDeck(true);
+		} else {
+			createOnScreenCards(true);
+		}
+		tablArray = [];
+		context.ui.initDealer();
+		if (!replay)
+			decktet.shuffle.deck(deck);
+		
+		//stackDeck();
+		//Deal to the tableau 4 times plus more for variants
+		dealTheTableau();
+		//Initialize the card motion.
+		refreshDragsDrops();
+	}
 
 //
 // move specified card to a new location
@@ -142,13 +135,6 @@ function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
 	//The removed array is returned for use in foundation moves.
 	return removed;
 	
-	//$(card.selector + " img").delay(delay).transition({width:124, height:174});
-	/* no longer handling bad facing.
-	if (card.FaceUp && $(card.selector + " img").is(":visible"))
-		$(card.selector + " img").hide();
-	else if (!card.FaceUp && !$(card.selector + " img").is(":visible"))
-		$(card.selector + " img").show();
-	 */
 }
 
 function getIndexOfTableau(spaceID) {
@@ -459,10 +445,7 @@ function stackDeck() {
 
 
 
-function alerter(msg) {
-	//TODO: replace with something nice
-	alert(msg);
-}
+
 
 function areEmptyTableauSpaces() {
 	for (var t=0;t<8;t++) {
@@ -494,6 +477,11 @@ context.settings = (function () {
 		getVariant: getVariant,
 		isBeetle: isBeetle
 	};
+
+	function alerter(msg) {
+		//TODO: replace with something nice, if we're actually using this.
+		alert(msg);
+	}
 
 	function init() {
 		//Initialize settings during page init.
@@ -606,19 +594,16 @@ context.ui = (function () {
 			
 		// set up the click events for the panels
 		$('#showStoryButton').click(function () {
-			$('.panel').hide();
-			$('#whatsthestory').fadeIn(speed);
+			show('whatsthestory');
 		});
 		$('#settingsButton').click(function () {
-			$('.panel').hide();
-			$('#settingsPanel').fadeIn(speed);
+			show('settingsPanel');
 		});
 		$('#creditsButton').click(function () {
-			$('.panel').hide();
-			$('#gameCredits').fadeIn(speed);
+			show('gameCredits');
 		});
 		$('.close.button').click(function () {
-			$('.panel').hide();
+			show();
 		});
 		
 		// events for the start/replay buttons
@@ -663,7 +648,8 @@ context.ui = (function () {
 		//Hide others.
 		$('.panel').hide();
 		//Show requested panel.
-		$("#" + panelID).fadeIn(speed);
+		if (panelID)
+			$("#" + panelID).fadeIn(speed);
 	}
 	
 	function unshifter(tableau) {
