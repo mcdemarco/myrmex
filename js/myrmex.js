@@ -17,86 +17,37 @@ var myrmex = {};
 context.init = (function () {
 
 	return {
-//		checkLocalStorage: checkLocalStorage,
-		load: load
-//		reload: reload,
+		//		checkLocalStorage: checkLocalStorage,
+		load: load,
+		getCardIndexByID: getCardIndexByID,
+		//		reload: reload,
+		startButtonClick: startButtonClick
 	};
 
 	function load() {
 		//The initialization function called on document ready.
 
-		//Settings.
-		// need speed first.
-		speed = getSetting('speed');
-		$('input#speed').val(speed);
-	
-		//speed monitor
-		$('input#speed').change(function() {
-			if (parseInt($("input#speed").val()) > -1)
-				speed = parseInt($("input#speed").val());
-			setSetting('speed',speed);
-		});
-
-		// need magnification to set up the button
-		// This is a little awkward but will be cleaned up later for a third option
-		if (getSetting('magnification') == true) {
-			$('body').addClass('magnify');
-			$('#plusButton').html("Normal");
-		}
-		$('#plusButton').click(function () {
-			$('body').toggleClass('magnify');
-			if ($('#plusButton').html() == "Enlarge") {
-				setSetting('magnification',true);
-				$('#plusButton').html("Normal");
-			} else {
-				setSetting('magnification',false);
-				$('#plusButton').html("Enlarge");
-			}
-		});
-		
-		//Fill in the rest of the settings form
-		$("input[name=level]").val([getSetting('level')]);
-		$("input#emblacken").prop("checked",getSetting('blackmoons'));
-		
-		
-		// set up the click events for the panels
-		$('#showStoryButton').click(function () {
-			$('.panel').hide();
-			$('#whatsthestory').fadeIn(speed);
-		});
-		$('#settingsButton').click(function () {
-			$('.panel').hide();
-			$('#settingsPanel').fadeIn(speed);
-		});
-		$('#creditsButton').click(function () {
-			$('.panel').hide();
-			$('#gameCredits').fadeIn(speed);
-		});
-		$('.close.button').click(function () {
-			$('.panel').hide();
-		});
-		
-		// events for the start/replay buttons
-		$('#startButton').click(function () {
-			startButtonClick();
-		});
-		$('#replayButton').click(function () {
-			startButtonClick(true);
-		});
+		context.settings.init();
+		context.ui.init();
 		
 		//Init dealer.
 		$("#drawDeckLocation").click(function () {
+			//Add back in later as an option.
 			//		if (areEmptyTableauSpaces()) {
 			//			alerter("You must fill all tableau spaces before dealing.");
 			//		} else { 
-			popDealer();
+			context.ui.popDealer();
 			if (dealToTheTableau(false))
 				refreshDragsDrops();
 			//		}
 		});	
 	
 		initializeDeck();
+
 	}
+		
+
+		
 
 function initializeDeck(again) {
 
@@ -115,16 +66,14 @@ function startButtonClick(replay) {
 	$('.panel').hide();
 
 	//Set the other two settings here for convenience.
-	if (getSetting('level') != $("input[name=level]:checked").val() || getSetting('blackmoons') != $("input#emblacken").is(":checked")) {
-		setSetting('level', $("input[name=level]:checked").val());
-		setSetting('blackmoons', $("input#emblacken").is(":checked").toString());
-		//If these values have changed since the deck was created, then we need to recreate it.
+	if (context.settings.checkForChanges()) {
+		//If certain values have changed since the deck was created, then we need to recreate it.
 		initializeDeck(true);
 	} else {
 		createOnScreenCards(true);
 	}
 	tablArray = [];
-	$("#drawDeckLocation").append("<div class='back'><div class='back'><div class='back'><div class='back'></div></div></div></div>");
+	context.ui.initDealer();
 	if (!replay)
 		decktet.shuffle.deck(deck);
 	
@@ -133,14 +82,6 @@ function startButtonClick(replay) {
 	dealTheTableau();
 	//Initialize the card motion.
 	refreshDragsDrops();
-}
-
-function isBeetle() {
-	var level = getSetting('level');
-	if (level == "minor" || level == "beetleMajor" || level == "beetleQueen" || level == "double")
-		return true;
-	else
-		return false;
 }
 
 //
@@ -246,16 +187,16 @@ function dealTheTableau() {
 	for (var f=0; f<8;f++) tablArray[f] = [];
 	//Deal the whole tableau at the start.
 	var row;
-	var vari = getVariant();
+	var vari = context.settings.getVariant();
 	for (row=1;row<=3;row++) {
-		dealToTheTableau(isBeetle(),(row-1)*8);
+		dealToTheTableau(context.settings.isBeetle(),(row-1)*8);
 	}
 	row = 4;
 	if (vari == 'minor' || vari == 'queen') {
 		dealToTheTableau(false,(row-1)*8,true);
 	} else {//major and double, for now
 		for (var p=0;p<6;p++)
-			dealCardToTheTableau(p,isBeetle(),(row-1)*8 + p);
+			dealCardToTheTableau(p,context.settings.isBeetle(),(row-1)*8 + p);
 		row = 5;
 			dealToTheTableau(false,(row-1)*8,true);
 	}
@@ -393,7 +334,7 @@ function moveToFoundation(tablIndex,crownRow) {
 	}
 	//Re-refresh the source column or win.
 	if (spaceID == "chamber6")
-		win(1);
+		context.ui.win(1);
 	else
 		refreshDragDrop(tablIndex);	
 }
@@ -425,7 +366,7 @@ function getNextChamber() {
 // create a deck of cards suitable for Myrmex
 //
 function myrmexCreateDeck() {
-	var level = getSetting('level');
+	var level = context.settings.get('level');
 	var myrmexDeck = decktet.create.deck((level == "double" ? 4 : 2));
 	//myrmexify
 	myrmexDeck = decktet.remove.theExcuse(myrmexDeck);
@@ -487,7 +428,7 @@ function createOnScreenCards(again) {
 		//Create.
 		createOnScreenCard(deck[i],i);
 		//For touch?
-		$(deck[i].selector).click(shifter);
+		$(deck[i].selector).click(context.ui.shifter);
 		//Big draggability issues for hover.
 		//$(deck[i].selector).hover(shifter, unshifter);
 	}
@@ -497,7 +438,7 @@ function createOnScreenCards(again) {
 // create an on-screen card element
 //
 function createOnScreenCard(card,index) {
-	var emblacken = getSetting('blackmoons');
+	var emblacken = context.settings.get('blackmoons');
 	var cardImage = card.Image;
 	if (emblacken && (card.Suit1 == "Moons" || card.Suit2 == "Moons" || card.Suit3 == "Moons"))
 		cardImage = cardImage.split(".png")[0] + "_black.png";
@@ -517,9 +458,6 @@ function stackDeck() {
 }
 
 
-//
-// "Please wait" functions
-//
 
 function alerter(msg) {
 	//TODO: replace with something nice
@@ -543,92 +481,206 @@ function getIndexOfCardFromID(ID) {
 	return -1;
 }
 
-function getSetting(setting) {
-	if (window.localStorage && typeof window.localStorage.getItem(setting) !== 'undefined' && window.localStorage.getItem(setting) !== null) {
-		var value;
-		try {
-			value = window.localStorage.getItem(setting);
-		} catch (e) {
-			value = defaultSettings[setting];
-		}
-		if (setting == 'blackmoons' || setting == 'magnification')  value = (value.toLowerCase() === "true");
-		return value;
-	} else {
-		return defaultSettings[setting];
-	}
-}
+})();
+	
 
-function setSetting(setting, value) {
-	if (window.localStorage) {
-		try {
-			window.localStorage.setItem(setting, value);
+context.settings = (function () {
+
+	return {
+		init: init,
+		checkForChanges: checkForChanges,
+		get: get,
+		set: set,
+		getVariant: getVariant,
+		isBeetle: isBeetle
+	};
+
+	function init() {
+		//Initialize settings during page init.
+		
+		// need speed first.
+		speed = get('speed');
+		$('input#speed').val(speed);
+	
+		//speed monitor
+		$('input#speed').change(function() {
+			if (parseInt($("input#speed").val()) > -1)
+				speed = parseInt($("input#speed").val());
+			set('speed',speed);
+		});
+
+		// need magnification to set up the button
+		// This is a little awkward but will be cleaned up later for a third option
+		if (get('magnification') == true) {
+			$('body').addClass('magnify');
+			$('#plusButton').html("Normal");
+		}
+		$('#plusButton').click(function () {
+			$('body').toggleClass('magnify');
+			if ($('#plusButton').html() == "Enlarge") {
+				set('magnification',true);
+				$('#plusButton').html("Normal");
+			} else {
+				set('magnification',false);
+				$('#plusButton').html("Enlarge");
+			}
+		});
+		
+		//Fill in the rest of the settings form
+		$("input[name=level]").val([get('level')]);
+		$("input#emblacken").prop("checked",get('blackmoons'));
+
+	}
+
+	function checkForChanges() {
+		if (get('level') != $("input[name=level]:checked").val() || get('blackmoons') != $("input#emblacken").is(":checked")) {
+			set('level', $("input[name=level]:checked").val());
+			set('blackmoons', $("input#emblacken").is(":checked").toString());
 			return true;
-		} catch (e) {
+		} else {
 			return false;
 		}
-	} else {
-		return false;
 	}
-}
 
-function getVariant() {
-	//Get a simpler version of the level.
-	var level = getSetting('level');
-	if (level == 'major' || level == 'beetleMajor') return 'major';
-	if (level == 'queen' || level == 'beetleQueen') return 'queen';
-	if (level == 'double') return 'double';
-	return 'minor';
-}
-
-
-function shifter(event) {
-	event.stopPropagation();
-	//Shift cards for visibility on hover or click
-	if (!$(this).hasClass("card") || $(this).find("img").is(":visible")) return;
-	var cardID = this.id;
-	/*
-	var startShift = $("#" + cardID).parents(".card").length;
-	 */
-	var tableau = deck[getCardIndexByID(cardID)].Location;
-	unshifter(tableau);
-	if ($("#" + tableau).hasClass("shifted")) {
-		//Toggle.
-		$("#" + tableau).removeClass("shifted");
-		//We already unshifted to clean up.
-		return;
-	} else {
-		$("#" + tableau).addClass("shifted");
-		$("#" + cardID).addClass("shifted");
+	function get(setting) {
+		if (window.localStorage && typeof window.localStorage.getItem(setting) !== 'undefined' && window.localStorage.getItem(setting) !== null) {
+			var value;
+			try {
+				value = window.localStorage.getItem(setting);
+			} catch (e) {
+				value = defaultSettings[setting];
+			}
+			if (setting == 'blackmoons' || setting == 'magnification')  value = (value.toLowerCase() === "true");
+			return value;
+		} else {
+			return defaultSettings[setting];
+		}
 	}
-	/*
-	var tableauNo = getIndexOfTableau(tableau);
-	for (var s=startShift+1;s<tablArray[tableauNo].length; s++) {
-		$(deck[tablArray[tableauNo][s]].selector).css("margin-left",22);// * (s - startCard));
+
+	function set(setting, value) {
+		if (window.localStorage) {
+			try {
+				window.localStorage.setItem(setting, value);
+				return true;
+			} catch (e) {
+				return false;
+			}
+		} else {
+			return false;
+		}
 	}
-	 */
-}
+	
+	function getVariant() {
+		//Get a simpler version of the level.
+		var level = get('level');
+		if (level == 'major' || level == 'beetleMajor') return 'major';
+		if (level == 'queen' || level == 'beetleQueen') return 'queen';
+		if (level == 'double') return 'double';
+		return 'minor';
+	}
+	
+	function isBeetle() {
+		var level = get('level');
+		if (level == "minor" || level == "beetleMajor" || level == "beetleQueen" || level == "double")
+			return true;
+		else
+			return false;
+	}
 
-function unshifter(tableau) {
-	//Undo the shift.
-	if (tableau)
-		$("#" + tableau + " .card").removeClass("shifted");//css("margin-left",0);
-	else
-		$(".card").removeClass("shifted");//.css("margin-left",0);
-}
+})();
+	
 
-function win(delayUnits) {
-	$("#gameOver").fadeIn(delayUnits*speed);
-}
+context.ui = (function () {
 
-function popDealer() {
-	//Remove a fake card from the fake deal stack.
-	$("#drawDeckLocation").find(".back:empty").remove();
-}
+	return {
+		init: init,
+		initDealer: initDealer,
+		popDealer: popDealer,
+		shifter: shifter,
+		show: show,
+		win: win
+	};
 
+	function init() {
+		//Init buttons.
+			
+		// set up the click events for the panels
+		$('#showStoryButton').click(function () {
+			$('.panel').hide();
+			$('#whatsthestory').fadeIn(speed);
+		});
+		$('#settingsButton').click(function () {
+			$('.panel').hide();
+			$('#settingsPanel').fadeIn(speed);
+		});
+		$('#creditsButton').click(function () {
+			$('.panel').hide();
+			$('#gameCredits').fadeIn(speed);
+		});
+		$('.close.button').click(function () {
+			$('.panel').hide();
+		});
+		
+		// events for the start/replay buttons
+		$('#startButton').click(function () {
+			context.init.startButtonClick();
+		});
+		$('#replayButton').click(function () {
+			context.init.startButtonClick(true);
+		});
+
+	}
+
+	function initDealer() {
+		//Place the fake cards on the fake deal stack.
+		$("#drawDeckLocation").append("<div class='back'><div class='back'><div class='back'><div class='back'></div></div></div></div>");
+	}
+
+	function popDealer() {
+		//Remove a fake card from the fake deal stack.
+		$("#drawDeckLocation").find(".back:empty").remove();
+	}
+
+	function shifter(event) {
+		event.stopPropagation();
+		//Shift cards for visibility on hover or click
+		if (!$(this).hasClass("card") || $(this).find("img").is(":visible")) return;
+		var cardID = this.id;
+		var tableau = deck[context.init.getCardIndexByID(cardID)].Location;
+		unshifter(tableau);
+		if ($("#" + tableau).hasClass("shifted")) {
+			//Toggle.
+			$("#" + tableau).removeClass("shifted");
+			//We already unshifted to clean up.
+			return;
+		} else {
+			$("#" + tableau).addClass("shifted");
+			$("#" + cardID).addClass("shifted");
+		}
+	}
+
+	function show(panelID) {
+		//Hide others.
+		$('.panel').hide();
+		//Show requested panel.
+		$("#" + panelID).fadeIn(speed);
+	}
+	
+	function unshifter(tableau) {
+		//Undo the shift.
+		if (tableau)
+			$("#" + tableau + " .card").removeClass("shifted");
+		else
+			$(".card").removeClass("shifted");
+	}
+	
+	function win(delayUnits) {
+		$("#gameOver").fadeIn(delayUnits*speed);
+	}
+	
 })();
 
 })(myrmex);
 
 
 /* eof */
-

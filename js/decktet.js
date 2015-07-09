@@ -164,7 +164,6 @@ context.shuffle = (function () {
 		deck: deck
 	};
 
-	
 	function deck(deck) {
 		// shuffle a deck of cards
 		for (var i = 0; i < deck.length; i++) {
