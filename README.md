@@ -1,6 +1,6 @@
 # Myrmex
 
-[Play!]()
+[Play!]() (coming soon!)
 
 ## About
 
@@ -16,4 +16,4 @@ Myrmex is a Decktet version of Spider, which I wanted to be able to play even wh
 
 * [Decktet](http://decktet.com)
 * [Myrmex at the Decktet Wiki](http://decktet.wikidot.com/game:myrmex)
-* [Myrmex at BGG]()
+* [Myrmex at BGG](https://www.boardgamegeek.com/boardgame/105292/myrmex)

@@ -2,94 +2,101 @@
 // This implementation of Myrmex is by M. C. DeMarco, based on an implementation of Adaman by Felbrigg Herriot, released under a Creative Commons Attribution NonCommercial ShareAlike 3.0 License
 //
 
-//
-// Global Variables
-//
-var defaultSettings = {speed: 300,
-                       magnification: false,
-                       blackmoons: true,
-                       level: 'minor'};
-var speed;
-var tablArray = [];
+var myrmex = {};
+
+(function(context) { 
+
+	var defaultSettings = {speed: 300,
+						   magnification: false,
+						   blackmoons: true,
+						   level: 'minor'};
+	var speed;
+	var tablArray = [];
 
 
-//
-// runs when the page first loads
-//
-function init() {
+context.init = (function () {
 
-	//Settings.
-	// need speed first.
-	speed = getSetting('speed');
-	$('input#speed').val(speed);
+	return {
+//		checkLocalStorage: checkLocalStorage,
+		load: load
+//		reload: reload,
+	};
+
+	function load() {
+		//The initialization function called on document ready.
+
+		//Settings.
+		// need speed first.
+		speed = getSetting('speed');
+		$('input#speed').val(speed);
 	
-	//speed monitor
-	$('input#speed').change(function() {
-		if (parseInt($("input#speed").val()) > -1)
-			speed = parseInt($("input#speed").val());
-		setSetting('speed',speed);
-	});
+		//speed monitor
+		$('input#speed').change(function() {
+			if (parseInt($("input#speed").val()) > -1)
+				speed = parseInt($("input#speed").val());
+			setSetting('speed',speed);
+		});
 
-	// need magnification to set up the button
-	// This is a little awkward but will be cleaned up later for a third option
-	if (getSetting('magnification') == true) {
-		$('body').addClass('magnify');
-		$('#plusButton').html("Normal");
-	}
-	$('#plusButton').click(function () {
-		$('body').toggleClass('magnify');
-		if ($('#plusButton').html() == "Enlarge") {
-			setSetting('magnification',true);
+		// need magnification to set up the button
+		// This is a little awkward but will be cleaned up later for a third option
+		if (getSetting('magnification') == true) {
+			$('body').addClass('magnify');
 			$('#plusButton').html("Normal");
-		} else {
-			setSetting('magnification',false);
-			$('#plusButton').html("Enlarge");
 		}
-	});
-
-	//Fill in the rest of the settings form
-	$("input[name=level]").val([getSetting('level')]);
-	$("input#emblacken").prop("checked",getSetting('blackmoons'));
-	
-	
-	// set up the click events for the panels
-	$('#showStoryButton').click(function () {
-		$('.panel').hide();
-		$('#whatsthestory').fadeIn(speed);
-	});
-	$('#settingsButton').click(function () {
-		$('.panel').hide();
-		$('#settingsPanel').fadeIn(speed);
-	});
-	$('#creditsButton').click(function () {
-		$('.panel').hide();
-		$('#gameCredits').fadeIn(speed);
-	});
-	$('.close.button').click(function () {
-		$('.panel').hide();
-	});
-	
-	// events for the start/replay buttons
-	$('#startButton').click(function () {
-		startButtonClick();
-	});
-	$('#replayButton').click(function () {
-		startButtonClick(true);
-	});
-	
-	//Init dealer.
-	$("#drawDeckLocation").click(function () {
-//		if (areEmptyTableauSpaces()) {
-//			alerter("You must fill all tableau spaces before dealing.");
-//		} else { 
+		$('#plusButton').click(function () {
+			$('body').toggleClass('magnify');
+			if ($('#plusButton').html() == "Enlarge") {
+				setSetting('magnification',true);
+				$('#plusButton').html("Normal");
+			} else {
+				setSetting('magnification',false);
+				$('#plusButton').html("Enlarge");
+			}
+		});
+		
+		//Fill in the rest of the settings form
+		$("input[name=level]").val([getSetting('level')]);
+		$("input#emblacken").prop("checked",getSetting('blackmoons'));
+		
+		
+		// set up the click events for the panels
+		$('#showStoryButton').click(function () {
+			$('.panel').hide();
+			$('#whatsthestory').fadeIn(speed);
+		});
+		$('#settingsButton').click(function () {
+			$('.panel').hide();
+			$('#settingsPanel').fadeIn(speed);
+		});
+		$('#creditsButton').click(function () {
+			$('.panel').hide();
+			$('#gameCredits').fadeIn(speed);
+		});
+		$('.close.button').click(function () {
+			$('.panel').hide();
+		});
+		
+		// events for the start/replay buttons
+		$('#startButton').click(function () {
+			startButtonClick();
+		});
+		$('#replayButton').click(function () {
+			startButtonClick(true);
+		});
+		
+		//Init dealer.
+		$("#drawDeckLocation").click(function () {
+			//		if (areEmptyTableauSpaces()) {
+			//			alerter("You must fill all tableau spaces before dealing.");
+			//		} else { 
 			popDealer();
 			if (dealToTheTableau(false))
 				refreshDragsDrops();
-//		}
-	});	
+			//		}
+		});	
 	
-	initializeDeck();
-}
+		initializeDeck();
+	}
 
 function initializeDeck(again) {
 
@@ -119,7 +126,7 @@ function startButtonClick(replay) {
 	tablArray = [];
 	$("#drawDeckLocation").append("<div class='back'><div class='back'><div class='back'><div class='back'></div></div></div></div>");
 	if (!replay)
-		decktetShuffle(deck);
+		decktet.shuffle.deck(deck);
 	
 	//stackDeck();
 	//Deal to the tableau 4 times plus more for variants
@@ -419,32 +426,32 @@ function getNextChamber() {
 //
 function myrmexCreateDeck() {
 	var level = getSetting('level');
-	var myrmexDeck = decktetCreateDeck((level == "double" ? 4 : 2));
+	var myrmexDeck = decktet.create.deck((level == "double" ? 4 : 2));
 	//myrmexify
-	myrmexDeck = decktetRemoveTheExcuse(myrmexDeck);
-	myrmexDeck = decktetRemoveRankByDeckNo(myrmexDeck,'Ace',2);
-	myrmexDeck = decktetRemoveRankByDeckNo(myrmexDeck,'CROWN',2);
+	myrmexDeck = decktet.remove.theExcuse(myrmexDeck);
+	myrmexDeck = decktet.remove.rankByDeck(myrmexDeck,'Ace',2);
+	myrmexDeck = decktet.remove.rankByDeck(myrmexDeck,'CROWN',2);
 	if (level == "double") {
-		myrmexDeck = decktetRemoveRankByDeckNo(myrmexDeck,'Ace',4);
-		myrmexDeck = decktetRemoveRankByDeckNo(myrmexDeck,'CROWN',4);
+		myrmexDeck = decktet.remove.rankByDeck(myrmexDeck,'Ace',4);
+		myrmexDeck = decktet.remove.rankByDeck(myrmexDeck,'CROWN',4);
 	}
 	if (level == "minor" || level == "larval") {
 		//The normal deck.
-		myrmexDeck = decktetRemoveCOURT(myrmexDeck);
-		myrmexDeck = decktetRemovePAWN(myrmexDeck);
+		myrmexDeck = decktet.remove.courts(myrmexDeck);
+		myrmexDeck = decktet.remove.pawns(myrmexDeck);
 	} else {
 		//Remove the unwanted Pawns.
-		myrmexDeck = decktetRemoveCardByName(myrmexDeck,'the LIGHT KEEPER');
+		myrmexDeck = decktet.remove.card(myrmexDeck,'the LIGHT KEEPER');
 		if (level == "major" || level == "beetleMajor") {
 			//Remove all the Courts.
-			myrmexDeck = decktetRemoveCOURT(myrmexDeck);
+			myrmexDeck = decktet.remove.courts(myrmexDeck);
 		} else {
 			//Remove the unwanted Courts.
-			myrmexDeck = decktetRemoveCardByName(myrmexDeck,'the RITE');
+			myrmexDeck = decktet.remove.card(myrmexDeck,'the RITE');
 		}
 	}
 	
-	myrmexDeck = decktetShuffle(myrmexDeck);
+	myrmexDeck = decktet.shuffle.deck(myrmexDeck);
 	for (var i = 0; i < myrmexDeck.length; i++) {
 		myrmexDeck[i].Location = 'drawDeckLocation';
 		myrmexDeck[i].divID = myrmexDeck[i].Name.replace(/\s+/g, '') + myrmexDeck[i].DeckNo;
@@ -617,3 +624,11 @@ function popDealer() {
 	//Remove a fake card from the fake deal stack.
 	$("#drawDeckLocation").find(".back:empty").remove();
 }
+
+})();
+
+})(myrmex);
+
+
+/* eof */
+
