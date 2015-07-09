@@ -11,6 +11,15 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
     box-model:border-box;
 }
 
+::selection {
+    background: transparent;
+}
+
+p::selection {
+    color:black;
+    background:#C3FEB5;
+}
+
 /* Sizing
    original card size: 100x150
    teeny size: 62x87
@@ -47,6 +56,10 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
 
 .back {
     background-image: url('../cards/back.png');
+    background-size: 62px 87px;
+}
+
+.chamber {
     background-size: 62px 87px;
 }
 
@@ -150,7 +163,7 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
     background-color: #fffefe;
     width:20px;
     height:20px;
-    opacity:.99;
+    opacity:.69;
 }
 
 .suit1 {
@@ -171,6 +184,25 @@ img.realBack {
     position:absolute;
     top:0;
     left:0;
+}
+
+.chamber.Knots {
+    background-image: url('../cards/1_ace_knots.png');
+}
+.chamber.Moons {
+    background-image: url('../cards/1_ace_moons_black.png');
+}
+.chamber.Leaves {
+    background-image: url('../cards/1_ace_leaves.png');
+}
+.chamber.Suns {
+    background-image: url('../cards/1_ace_suns.png');
+}
+.chamber.Waves {
+    background-image: url('../cards/1_ace_waves.png');
+}
+.chamber.Wyrms {
+    background-image: url('../cards/1_ace_wyrms.png');
 }
 
 /* font */

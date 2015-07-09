@@ -12,6 +12,7 @@ var myrmex = {};
 						   level: 'minor'};
 	var speed;
 	var tablArray = [];
+	var chamber = 0;
 	var deck;
 
 
@@ -66,6 +67,7 @@ context.init = (function () {
 			context.cards.create(true);
 		}
 		tablArray = [];
+		clearChambers();
 		context.ui.initDealer();
 		if (!replay)
 			decktet.shuffle.deck(deck);
@@ -75,6 +77,11 @@ context.init = (function () {
 		dealTheTableau();
 		//Initialize the card motion.
 		refreshDragsDrops();
+	}
+
+	function clearChambers() {
+		chamber = 0;
+		$(".chamber").removeClass("Knots Leaves Moons Suns Waves Wyrms");
 	}
 
 //
@@ -134,7 +141,6 @@ function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
 
 	//The removed array is returned for use in foundation moves.
 	return removed;
-	
 }
 
 function getIndexOfTableau(spaceID) {
@@ -233,8 +239,9 @@ function refreshDragDrop(tablIndex) {
 		$("#" + tableauID).droppable({addClasses:false,disabled:true});
 	}
 	var card = deck[tablArray[tablIndex][length-1]];
-	var hasAce = (card.Rank == "Ace");
-	console.log("Ace: " + hasAce);
+	//Store the row of the ace here; it serves as a boolean since it can't be at row zero AND a foundation stack.
+	var hasAce = ((card.Rank == "Ace" && length - 1 > 0) ? length-1 : 0);
+
 	//Flip if appropriate.
 	if (!card.FaceUp || $(card.selector + " img.realBack").is(":visible")) {
 		card.FaceUp = true;
@@ -272,7 +279,8 @@ function refreshDragDrop(tablIndex) {
 			$(card.selector).draggable({addClasses:false,disabled:false,zIndex:100,revert:'invalid'});
 			//Because a Crown has only one suit, this is the only place where we need to test for it.
 			if (hasAce && card.Rank == "CROWN") {
-				moveToFoundation(tablIndex,c);
+				event.stopPropagation();
+				moveToFoundation(tablIndex,c,hasAce);
 				//Will have to call the whole function again from there, so...
 				return;
 			}
@@ -308,23 +316,42 @@ function dropper(droppedOnCardIndex,dragAndDropMeID,droppedOnTableauID) {
 	//1. the drop recipient definitely should not be droppable.
 	//2. update draggability for the stack it came from
 	//3. possibly flip a card.
+	console.log("refreshing " + originalCardLocation);
 	refreshDragDrop(getIndexOfTableau(originalCardLocation));
+	console.log("refreshing " + spaceID);
 	refreshDragDrop(getIndexOfTableau(spaceID));
 }
 
-function moveToFoundation(tablIndex,crownRow) {
+function moveToFoundation(tablIndex,crownRow,aceRow) {
 	//Move a completed set to the next available chamber.
 	var spaceID = getNextChamber();
-	var removed = moveCardToSpace(tablArray[tablIndex][crownRow],spaceID); //more delay?
+	//Don't actually move, since that causes some problems.
+	//var removed = moveCardToSpace(tablArray[tablIndex][crownRow],spaceID); //more delay?
+
 	//Turn off its draggables.  Turn off all droppables just to be safe, though there should be only one.
-	for (var r=0;r<removed.length;r++) {
+	/*for (var r=0;r<removed.length;r++) {
 		$(deck[removed[r]].selector).draggable({addClasses:false,disabled:true}).droppable({addClasses:false,disabled:true}).addClass("teeny").css("top",0);
+	 }*/
+	//Put the ace image on the foundation.
+	
+
+	for (var c=aceRow;c>=crownRow;c--) {
+		var cardIndex = tablArray[tablIndex][c];
+		if (c==aceRow) {
+			$("#" + spaceID).addClass(deck[cardIndex].Suit1);
+		}
+		//Kill them all!
+		$(deck[cardIndex].selector).remove();
+		tablArray[tablIndex].pop();
 	}
+	
 	//Re-refresh the source column or win.
-	if (spaceID == "chamber6")
+	if (spaceID == "chamber6") {
 		context.ui.win(1);
-	else
-		refreshDragDrop(tablIndex);	
+	} else {
+		console.log("post-chamber refreshing tableau column " + tablIndex);
+		refreshDragDrop(tablIndex);
+	}
 }
 
 //
@@ -342,12 +369,13 @@ function getCardIndexByID(theID) {
 }
 
 function getNextChamber() {
-	for (var ch = 1; ch <= 6; ch++) {
+/*	for (var ch = 1; ch <= 6; ch++) {
 		var spaceID = "chamber" + ch;
 		if ($("#" + spaceID).has(".card").length == 0) {
 			return spaceID;
 		}
-	}
+ }*/
+	return chamber++;
 }
 
 //
@@ -442,7 +470,7 @@ context.cards = (function () {
 			//Create.
 			createOnScreenCard(deck[i],i);
 			//For touch?
-			$(deck[i].selector).click(context.ui.shifter);
+			//$(deck[i].selector).click(context.ui.shifter);
 			//Big draggability issues for hover.
 			//$(deck[i].selector).hover(shifter, unshifter);
 		}
@@ -644,6 +672,7 @@ context.ui = (function () {
 	}
 
 	function shifter(event) {
+		//Not using this anymore.
 		event.stopPropagation();
 		//Shift cards for visibility on hover or click
 		if (!$(this).hasClass("card") || $(this).find("img.realBack").is(":visible")) return;
