@@ -6,9 +6,9 @@
 // Global Variables
 //
 var defaultSettings = {speed: 300,
-					   magnification: false,
-					   blackmoons: true,
-					   level: 'minor'};
+                       magnification: false,
+                       blackmoons: true,
+                       level: 'minor'};
 var speed;
 var tablArray = [];
 
@@ -82,8 +82,9 @@ function init() {
 		if (areEmptyTableauSpaces()) {
 			alerter("You must fill all tableau spaces before dealing.");
 		} else { 
-			dealToTheTableau(false);
-			refreshDragsDrops();
+			popDealer();
+			if (dealToTheTableau(false))
+				refreshDragsDrops();
 		}
 	});	
 	
@@ -116,7 +117,7 @@ function startButtonClick(replay) {
 		createOnScreenCards(true);
 	}
 	tablArray = [];
-	$("#drawDeckLocation").addClass("full");
+	$("#drawDeckLocation").append("<div class='back'><div class='back'><div class='back'><div class='back'></div></div></div></div>");
 	if (!replay)
 		decktetShuffle(deck);
 	
@@ -147,13 +148,14 @@ function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
 	var card = deck[indexOfCard];
 
 	if (shift < 0) {
+		//Case for spaceIndex < 0 or shift < 0.
 		$("#" + spaceID).append($(card.selector));
 		$(card.selector).delay(delay).fadeIn();
 		//Draggable is messing up lots of CSS, so also unmess (z-index still messed up).
 		$(card.selector).css({"top":0,"left":0});
 		$(".magnify " + card.selector).css({"top":0,"left":0});
 	} else {
-		//Needs transitions.
+		//Case for moving to a tableau space.  Needs transitions.
 		$(deck[tablArray[spaceIndex][shift]].selector).append($(card.selector));
 		$(card.selector).delay(delay).fadeIn();
 		//Need to get the delay/transition onto removeClass.
@@ -177,11 +179,10 @@ function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
 			//No push.
 			console.log("removed " + removed + "(" + card.Name + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceID);
 		}
-	} else if (shift >= 0) {
-		//If it didn't exist, it needs some CSS and a push.
-		tablArray[spaceIndex].push(indexOfCard);
+	} else if (spaceIndex < 0) {
+		//No push.
 	} else {
-		//Only push?
+		//It didn't exist but it does now so it needs some CSS and a push.
 		tablArray[spaceIndex].push(indexOfCard);
 	}
 
@@ -211,7 +212,10 @@ function getIndexOfTableau(spaceID) {
 
 function getShiftOfTableau(tablIndex) {
 	//Calculate the tablArray index of the top card in the current space.
-	return tablArray[tablIndex].length - 1;
+	if (tablIndex < 0) 
+		return -1;
+	else
+		return tablArray[tablIndex].length - 1;
 }
 
 //
@@ -254,8 +258,10 @@ function dealToTheTableau(faceDown,delayUnits) {
 	//Deal a row of the tableau, optionally face down.
 	if (!delayUnits) delayUnits = 0;
 	for (var f=0;f<8;f++) {
-		dealCardToTheTableau(f,faceDown,delayUnits + f);
+		var dealt = dealCardToTheTableau(f,faceDown,delayUnits + f);
+		if (f==0 && !dealt) return false;
 	}
+	return true;
 }
 
 function dealCardToTheTableau(tableauNo,faceDown,delayUnits) {
@@ -268,8 +274,9 @@ function dealCardToTheTableau(tableauNo,faceDown,delayUnits) {
 		else
 			$(deck[c].selector + " img").show();
 		moveCardToSpace(c, "tableau" + tableauNo, delayUnits);
+		return true;
 	} else {
-		$("#drawDeckLocation").removeClass("full");
+		return false;
 	}
 }
 
@@ -354,14 +361,19 @@ function dropper(droppedOnCardIndex,dragAndDropMeID,droppedOnTableauID) {
 	console.log("drop " + dragAndDropMeID + " on " + spaceID);
 	var cardIndex = getIndexOfCardFromID(dragAndDropMeID);
 	var originalCardLocation = deck[cardIndex].Location;
-	moveCardToSpace(cardIndex, spaceID, 0);
-	refreshDragDrop(getIndexOfTableau(originalCardLocation));
-	refreshDragDrop(getIndexOfTableau(spaceID));
+	//Avoid bugs in dropping multiple cards back on their source stack.
+	if (spaceID == originalCardLocation) 
+		return;
+	else
+		moveCardToSpace(cardIndex, spaceID, 0);
+
 	//Update all the draggability:
 	//0. the drop recipient should no longer be draggable in most cases.
 	//1. the drop recipient definitely should not be droppable.
 	//2. update draggability for the stack it came from
 	//3. possibly flip a card.
+	refreshDragDrop(getIndexOfTableau(originalCardLocation));
+	refreshDragDrop(getIndexOfTableau(spaceID));
 }
 
 function moveToFoundation(tablIndex,crownRow) {
@@ -396,7 +408,7 @@ function getCardIndexByID(theID) {
 function getNextChamber() {
 	for (var ch = 1; ch <= 6; ch++) {
 		var spaceID = "chamber" + ch;
-		if (!$("#" + spaceID).has(".card")) {
+		if ($("#" + spaceID).has(".card").length == 0) {
 			return spaceID;
 		}
 	}
@@ -456,7 +468,6 @@ function myrmexCreateDeck() {
 // create a series of image tags and load up the card images.
 // 
 function createOnScreenCards(again) {
-	pleaseWaitOn();
 	if (again) {
 		//Delete existing cards.
 		$(".card").remove();
@@ -473,7 +484,6 @@ function createOnScreenCards(again) {
 		//Big draggability issues for hover.
 		//$(deck[i].selector).hover(shifter, unshifter);
 	}
-	pleaseWaitOff();
 }
 
 //
@@ -503,8 +513,6 @@ function stackDeck() {
 //
 // "Please wait" functions
 //
-function pleaseWaitOn() { $('#pleaseWait').show();}
-function pleaseWaitOff() { $('#pleaseWait').hide();}
 
 function alerter(msg) {
 	//TODO: replace with something nice
@@ -513,7 +521,7 @@ function alerter(msg) {
 
 function areEmptyTableauSpaces() {
 	for (var t=0;t<8;t++) {
-		if (!$("#tableau" + t).has(".card"))
+		if ($("#tableau" + t).has(".card").length == 0)
 			return true;
 	}
 	return false;
@@ -603,4 +611,9 @@ function unshifter(tableau) {
 
 function win(delayUnits) {
 	$("#gameOver").fadeIn(delayUnits*speed);
+}
+
+function popDealer() {
+	//Remove a fake card from the fake deal stack.
+	$("#drawDeckLocation").find(".back:empty").remove();
 }

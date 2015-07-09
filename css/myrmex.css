@@ -24,9 +24,30 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
     height:174px;
 }
 
-.teeny.cardspace, .teeny.card, .teeny.card img {
+.teeny.cardspace, .teeny.card, .teeny.card img, .teeny .back {
     width:62px;
     height:87px;
+}
+
+#drawDeckLocation.teeny.cardspace {
+    width:92px;
+}
+
+#drawDeckLocation.teeny.cardspace .back {
+    position:absolute;
+    top:0;
+    left:0;
+}
+
+#drawDeckLocation.teeny.cardspace .back .back {
+    position:absolute;
+    top:0;
+    left:10px;
+}
+
+.back {
+    background-image: url('../cards/back.png');
+    background-size: 62px 87px;
 }
 
 .embiggen .cardspace, .embiggen .card {
@@ -50,11 +71,6 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
 
 #drawDeckLocation {
     margin-right:8px;
-}
-
-#drawDeckLocation.full {
-    background-image: url('../cards/back.png');
-    background-size: 62px 87px;
 }
 
 .card {
@@ -87,6 +103,33 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
     -webkit-clip-path: inset(0px 124px 174px 0px);
     clip-path: inset(0px 124px 174px 0px);
 }
+
+.cardspace, #drawDeckLocation {
+    position:relative;
+}
+
+.cardspace, .card, .back {
+    border-radius:6px;
+}
+
+.cardspace, .card {
+    border:thin solid #170;
+    display:inline-block;
+}
+
+.card > img {
+    border:thin solid #432;
+}
+
+.card img {
+    border-radius:6px;
+    border:thin solid #432;
+}
+
+.card {
+    background-size:124px 174px;
+}
+
 
 /* font */
 
@@ -246,25 +289,6 @@ p.callout {
     margin-top:10px;
 }
 
-.cardspace {
-    position:relative;
-}
-
-.cardspace, .card {
-    border-radius:6px;
-    border:thin solid #170;
-    display:inline-block;
-}
-
-.card > img {
-    border:thin solid #432;
-}
-
-.card img {
-    border-radius:6px;
-    border:thin solid #432;
-}
-
 .backgroundtext, .decklabel {
     font-size:large;
     font-weight:bold;
@@ -292,14 +316,6 @@ p.callout {
     color:#030;
 }
 
-.card {
-    background-size:124px 174px;
-}
-
-.cardselected {
-    opacity: 0.6;
-}
-
 .panel {
     display:none;
     text-align:center;
@@ -308,20 +324,14 @@ p.callout {
     left:0;
     width:auto;
     height:100%;
+    height:100vh;
+    height:auto;
     background-color: rgba(114,169,101,0.90);
     color:white;
     font-weight:normal;
     font-size:12pt;
     padding: 5%;
     z-index:51;
-}
-
-#gameovernomoves {
-    text-shadow:1px 1px 0px #030;
-}
-
-#gameOverPalace {
-    text-shadow:1px 1px 0px #030;
 }
 
 #settingsPanel div {
