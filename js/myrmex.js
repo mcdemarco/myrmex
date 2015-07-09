@@ -79,13 +79,13 @@ function init() {
 	
 	//Init dealer.
 	$("#drawDeckLocation").click(function () {
-		if (areEmptyTableauSpaces()) {
-			alerter("You must fill all tableau spaces before dealing.");
-		} else { 
+//		if (areEmptyTableauSpaces()) {
+//			alerter("You must fill all tableau spaces before dealing.");
+//		} else { 
 			popDealer();
 			if (dealToTheTableau(false))
 				refreshDragsDrops();
-		}
+//		}
 	});	
 	
 	initializeDeck();
