@@ -148,14 +148,14 @@ function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
 	var card = deck[indexOfCard];
 
 	if (shift < 0) {
-		//Case for spaceIndex < 0 or shift < 0.
+		//Case for spaceIndex < 0 or shift < 0:  moving to unoccupied spaces.
 		$("#" + spaceID).append($(card.selector));
 		$(card.selector).delay(delay).fadeIn();
 		//Draggable is messing up lots of CSS, so also unmess (z-index still messed up).
 		$(card.selector).css({"top":0,"left":0});
 		$(".magnify " + card.selector).css({"top":0,"left":0});
 	} else {
-		//Case for moving to a tableau space.  Needs transitions.
+		//Case for moving to an occupied tableau space.  Needs transitions.
 		$(deck[tablArray[spaceIndex][shift]].selector).append($(card.selector));
 		$(card.selector).delay(delay).fadeIn();
 		//Need to get the delay/transition onto removeClass.
@@ -174,15 +174,15 @@ function moveCardToSpace(indexOfCard, spaceID, delayUnits) {
 		removed = tablArray[oldColumn].splice(tablArray[oldColumn].length - pops,pops);
 		if (spaceIndex > -1) {
 			tablArray[spaceIndex] = tablArray[spaceIndex].concat(removed);
-			console.log("removed " + removed + "(" + card.Name + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceIndex + ": " + tablArray[spaceIndex]);
+			console.log("removed " + removed + " (" + card.Name + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceIndex + ": " + tablArray[spaceIndex]);
 		} else {
 			//No push.
-			console.log("removed " + removed + "(" + card.Name + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceID);
+			console.log("removed " + removed + " (" + card.Name + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceID);
 		}
 	} else if (spaceIndex < 0) {
-		//No push.
+		//No push to weird spaces.
 	} else {
-		//It didn't exist but it does now so it needs some CSS and a push.
+		//It didn't exist but it does now so it's a single card that needs some CSS and a push.
 		tablArray[spaceIndex].push(indexOfCard);
 	}
 
