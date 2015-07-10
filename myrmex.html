@@ -10,7 +10,7 @@
 	<meta name="apple-mobile-web-app-title" content="Myrmex">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black"/><!-- black-translucent"/> -->
 	<!-- no viewport means scale full size to phone viewport (didn't work) -->
-	<meta name="viewport" content="width=1150,initial-scale=1">
+	<meta name="viewport" content="width=1150,user-scalable=no">
 
 	
 	<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-180.png">
@@ -39,7 +39,14 @@
 	</script>
 
 	<div id="header">
-		<div id="title">Myrmex</div>
+		<div id="titleLeft">
+			<div id="title">Myrmex</div>
+			<div>
+				<span id="showStoryButton" class="linky">Rules</span> • 
+				<span id="settingsButton" class="linky">Settings</span> • 
+				<span id="creditsButton" class="linky">Credits</span>
+			</div>
+		</div>
 		<div id="deckrow">
 			<div class="teeny cardspace" id="drawDeckLocation"></div>
 			<div class="teeny cardspace chamber" id="chamber1"></div>			
@@ -49,10 +56,7 @@
 			<div class="teeny cardspace chamber" id="chamber5"></div>			
 			<div class="teeny cardspace chamber" id="chamber6"></div>			
 		</div>
-		<div id="rulesBox"">
-			<span id="showStoryButton" class="linky">Rules</span> • 
-			<span id="creditsButton" class="linky">Credits</span> • 
-			<span id="settingsButton" class="linky">Settings</span><br />
+		<div id="titleRight">
 			<button type="button" class="button" id="startButton">New Game</button>
 			<button type="button" class="button" id="replayButton">Replay</button>
 		</div>
