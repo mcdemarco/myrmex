@@ -286,8 +286,8 @@ p.callout {
     min-height: 500px;
 }
 
-#playarea {
-    min-width:955px;
+body, #playarea {
+    min-width:1150px;
     margin:2px;
 }
 

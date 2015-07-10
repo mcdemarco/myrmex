@@ -339,7 +339,8 @@ context.cards = (function () {
 	
 	function getNextChamber() {
 		//private
-		return chamber++;
+		chamber++;
+		return "chamber" + chamber;
 	}
 
 	function move(indexOfCard, spaceID, delayUnits) {
