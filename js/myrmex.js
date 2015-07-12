@@ -14,6 +14,7 @@ var myrmex = {};
 	var tablArray = [];
 	var chamber = 0;
 	var deck;
+	var debug = false;
 
 
 context.init = (function () {
@@ -308,7 +309,7 @@ context.cards = (function () {
 	function drop(droppedOnCardIndex,dragAndDropMeID,droppedOnTableauID) {
 		//Officially move the card.
 		var spaceID = (droppedOnTableauID ? droppedOnTableauID : deck[droppedOnCardIndex].Location);
-		console.log("drop " + dragAndDropMeID + " on " + spaceID);
+		if (debug) console.log("drop " + dragAndDropMeID + " on " + spaceID);
 		var cardIndex = context.data.getIndexOfCardFromID(dragAndDropMeID);
 		var originalCardLocation = deck[cardIndex].Location;
 		//Avoid bugs in dropping multiple cards back on their source stack.
@@ -331,9 +332,9 @@ context.cards = (function () {
 		//1. the drop recipient definitely should not be droppable.
 		//2. update draggability for the stack it came from
 		//3. possibly flip a card.
-		console.log("refreshing " + originalCardLocation);
+		if (debug) console.log("refreshing " + originalCardLocation);
 		refresh(context.data.getIndexOfTableau(originalCardLocation));
-		console.log("refreshing " + spaceID);
+		if (debug) console.log("refreshing " + spaceID);
 		refresh(context.data.getIndexOfTableau(spaceID));
 	}
 	
@@ -361,13 +362,19 @@ context.cards = (function () {
 			$(".magnify " + card.selector).css({"top":0,"left":0});
 		} else {
 			//Case for moving to an occupied tableau space.  Needs transitions.
-			$(deck[tablArray[spaceIndex][shift]].selector).append($(card.selector));
+			var prevCard = deck[tablArray[spaceIndex][shift]];
+			$(prevCard.selector).append($(card.selector));
 			$(card.selector).delay(delay).fadeIn();
 			//Need to get the delay/transition onto removeClass.
 			//$(card.selector).css("z-index",shift).delay(delay).transition({left:targetOffset.left, top:targetOffset.top + 22*shift},speed,"snap").fadeIn();
 			//Draggable is messing up lots of CSS, so also unmess (z-index still messed up).
-			$(card.selector).css({"top":22,"left":0,"z-index":(shift + 1)});
-			$(".magnify " + card.selector).css({"top":44,"left":0,"z-index":(shift + 1)});
+			if (!prevCard.FaceUp) {
+				$(card.selector).css({"top":11,"left":0});
+				$(".magnify " + card.selector).css({"top":11,"left":0});
+			} else {
+				$(card.selector).css({"top":22,"left":0,"z-index":(shift + 1)});
+				$(".magnify " + card.selector).css({"top":44,"left":0,"z-index":(shift + 1)});
+			}
 		}
 		$(card.selector).css("z-index",(shift+1));
 		//Add to array, cleaning up any old version.
@@ -379,10 +386,10 @@ context.cards = (function () {
 			removed = tablArray[oldColumn].splice(tablArray[oldColumn].length - pops,pops);
 			if (spaceIndex > -1) {
 				tablArray[spaceIndex] = tablArray[spaceIndex].concat(removed);
-				console.log("removed " + removed + " (" + card.Name + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceIndex + ": " + tablArray[spaceIndex]);
+				if (debug) console.log("removed " + removed + " (" + card.Name + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceIndex + ": " + tablArray[spaceIndex]);
 			} else {
 				//No push.
-				console.log("removed " + removed + " (" + card.Name + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceID);
+				if (debug) console.log("removed " + removed + " (" + card.Name + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceID);
 			}
 		} else if (spaceIndex < 0) {
 			//No push to weird spaces.
@@ -427,7 +434,7 @@ context.cards = (function () {
 		if (spaceID == "chamber6") {
 			context.ui.win(1);
 		} else {
-			console.log("post-chamber refreshing tableau column " + tablIndex);
+			if (debug) console.log("post-chamber refreshing tableau column " + tablIndex);
 			refresh(tablIndex);
 		}
 	}

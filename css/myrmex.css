@@ -109,13 +109,13 @@ p::selection {
     border-radius:12px 0 0 0;
 }
 
-.magnify .card img.realBack {
+/*.magnify .card img.realBack {
     width:248px;
     height:348px;
     border-radius:12px 0 0 0;
     -webkit-clip-path: inset(0px 124px 174px 0px);
     clip-path: inset(0px 124px 174px 0px);
-}
+}*/
 
 .cardspace, #drawDeckLocation {
     position:relative;
@@ -190,13 +190,13 @@ p::selection {
 .suit2 {
     left:40px;
 }
-.suit2 {
+.magnify .suit2 {
     left:65px;
 }
 .suit3 {
     left:60px;
 }
-.suit3 {
+.magnify .suit3 {
     left:90px;
 }
 
@@ -314,8 +314,9 @@ p.callout {
     min-height: 500px;
 }
 
-body, #playarea {
+body, #playarea, .panel {
     min-width:1150px;
+    min-height:1000px;
     margin:2px;
 }
 
@@ -424,7 +425,7 @@ body, #playarea {
     position:absolute;
     top:0;
     left:0;
-    width:100%;
+    width:1150px;
     height:100%;
     height:100vh;
     height:auto;
@@ -437,19 +438,21 @@ body, #playarea {
 }
 
 #settingsPanel div {
-    width:100%;
+    margin: 0;
+    width:1000px;
+    display:table-row;
 }
 
 #settingsPanel div p {
     display:table-cell;
     text-align:left;
     padding:10px 5px 30px 5px;
+    width:800px;
 }
 
-#settingsPanel div {
-    display:table-row;
+#settingsPanel div p:first-child {
+    width:200px;
 }
-
 /*
 #settingsButton {
     font-size:x-large;
