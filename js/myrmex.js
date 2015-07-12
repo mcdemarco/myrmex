@@ -315,14 +315,7 @@ context.cards = (function () {
 		//Avoid bugs in dropping multiple cards back on their source stack.
 		if (spaceID == originalCardLocation) {
 			//Still needs snapping to place.
-			if ($(deck[cardIndex].selector).parent(".cardspace").length == 1) {
-				//Could also check the tableau length here.
-				$(deck[cardIndex].selector).css({"top":0,"left":0});
-				$(".magnify " + deck[cardIndex].selector).css({"top":0,"left":0});
-			} else {
-				$(deck[cardIndex].selector).css({"top":22,"left":0});
-				$(".magnify " + deck[cardIndex].selector).css({"top":44,"left":0});
-			}
+			stackCard(deck[cardIndex]);
 			return;
 		} else {
 			move(cardIndex, spaceID, 0);
@@ -368,13 +361,7 @@ context.cards = (function () {
 			//Need to get the delay/transition onto removeClass.
 			//$(card.selector).css("z-index",shift).delay(delay).transition({left:targetOffset.left, top:targetOffset.top + 22*shift},speed,"snap").fadeIn();
 			//Draggable is messing up lots of CSS, so also unmess (z-index still messed up).
-			if (!prevCard.FaceUp) {
-				$(card.selector).css({"top":11,"left":0});
-				$(".magnify " + card.selector).css({"top":11,"left":0});
-			} else {
-				$(card.selector).css({"top":22,"left":0,"z-index":(shift + 1)});
-				$(".magnify " + card.selector).css({"top":44,"left":0,"z-index":(shift + 1)});
-			}
+			stackCard(card,prevCard);
 		}
 		$(card.selector).css("z-index",(shift+1));
 		//Add to array, cleaning up any old version.
@@ -440,15 +427,17 @@ context.cards = (function () {
 	}
 	
 	function refresh(tablIndex) {
+		if (debug) console.log("refreshing: " + tablIndex);
 		//Refresh dragging and dropping bindings for a single tableau stack.
 		//Also check for a pile to put on the foundation.
 		var length = tablArray[tablIndex].length;
+		var tableauID = "tableau" + tablIndex;
 		if (length == 0) {
-			var tableauID = "tableau" + tablIndex;
 			//The special case of an empty tableau column.
 			$("#" + tableauID).droppable({addClasses:false,disabled:false,accept:".card",drop:function(event, ui){context.cards.drop(null,$(ui.draggable).prop("id"),tableauID);}});
 			return;
 		} else {
+			if (debug) console.log("turning off drop on: " + tableauID);
 			$("#" + tableauID).droppable({addClasses:false,disabled:true});
 		}
 		var card = deck[tablArray[tablIndex][length-1]];
@@ -516,6 +505,21 @@ context.cards = (function () {
 		//Refresh all dragging and dropping bindings in the tableau.
 		for (var f=0;f<8;f++)
 			refresh(f);
+	}
+
+	function stackCard(card,prevCard) {
+		//Stack or correct stacking based on whether the previous card was face up or down.
+		if (prevCard && !prevCard.FaceUp) {
+			$(card.selector).css({"top":11,"left":0});
+			$(".magnify " + card.selector).css({"top":11,"left":0});
+		} else if ($(card.selector).parent(".cardspace").length == 1) {
+			//Could also check the tableau length here.
+			$(card.selector).css({"top":0,"left":0});
+			$(".magnify " + card.selector).css({"top":0,"left":0});
+		} else {
+			$(card.selector).css({"top":22,"left":0});
+			$(".magnify " + card.selector).css({"top":44,"left":0});
+		}
 	}
 
 	function stackDeck() {
