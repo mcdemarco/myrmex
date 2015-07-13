@@ -14,7 +14,7 @@ var myrmex = {};
 	var tablArray = [];
 	var chamber = 0;
 	var deck;
-	var debug = true;//false;
+	var debug = false;
 
 
 context.init = (function () {
@@ -73,6 +73,8 @@ context.init = (function () {
 		context.deal.tableau();
 		//Initialize the card motion.
 		context.cards.refreshAll();
+		
+		context.ui.initTimer();
 	}
 
 })();
@@ -659,15 +661,43 @@ context.ui = (function () {
 		clearChambers: clearChambers,
 		init: init,
 		initDealer: initDealer,
+		initTimer: initTimer,
 		popDealer: popDealer,
 		shifter: shifter,
 		show: show,
 		win: win
 	};
 
+	var timer;
+
 	function clearChambers() {
 		chamber = 0;
 		$(".chamber").removeClass("Knots Leaves Moons Suns Waves Wyrms");
+	}
+
+	function displayTimer(total_seconds) {
+		//Code from http://stackoverflow.com/a/2605236/4965965
+		function pretty_time_string(num) {
+			return ( num < 10 ? "0" : "" ) + num;
+		}
+
+		var hours = Math.floor(total_seconds / 3600);
+		total_seconds = total_seconds % 3600;
+		
+		var minutes = Math.floor(total_seconds / 60);
+		total_seconds = total_seconds % 60;
+		
+		var seconds = Math.floor(total_seconds);
+		
+		// Pad the minutes and seconds with leading zeros, if required
+		hours = pretty_time_string(hours);
+		minutes = pretty_time_string(minutes);
+		seconds = pretty_time_string(seconds);
+		
+		// Compose the string for display
+		var currentTimeString = hours + ":" + minutes + ":" + seconds;
+		
+		return currentTimeString;
 	}
 
 	function init() {
@@ -700,7 +730,18 @@ context.ui = (function () {
 
 	function initDealer() {
 		//Place the fake cards on the fake deal stack.
-		$("#drawDeckLocation").append("<div class='back'><div class='back'><div class='back'><div class='back'></div></div></div></div>");
+		$("#drawDeckLocation").append("<div class='back'><div class='back'><div class='back'><div class='back'>" + (context.settings.getVariant()=="queen" ? "<div class='back'></div>" : "") + "</div></div></div></div>");
+	}
+
+	function initTimer() {
+		//Code from http://stackoverflow.com/a/2605236/4965965
+		if (timer)
+			clearInterval(timer);
+		var elapsed_seconds = 0;
+		timer = setInterval(function() {
+			elapsed_seconds = elapsed_seconds + 1;
+			$('#timer').text(displayTimer(elapsed_seconds));
+		}, 1000);
 	}
 
 	function popDealer() {
@@ -744,6 +785,15 @@ context.ui = (function () {
 	}
 	
 	function win(delayUnits) {
+		clearInterval(timer);
+		//Add time and meaning.
+		var yourTime = $("#timer").text().split(":")[1];
+		var yourSpeed;
+		if (yourTime < 15) yourSpeed = "an easy win";
+		else if (yourTime < 25) yourSpeed = "a sweaty victory";
+		else yourSpeed = "a brain buster";
+		$("#minutes").html(yourTime);
+		$("#meaning").html(yourSpeed);
 		$("#gameOver").fadeIn(delayUnits*speed);
 	}
 	

@@ -58,7 +58,8 @@
 		</div>
 		<div id="titleRight">
 			<button type="button" class="button" id="startButton">New Game</button>
-			<button type="button" class="button" id="replayButton">Replay</button>
+			<button type="button" class="button" id="replayButton">Replay</button><br />
+			<div id="timer">00:00</div>
 		</div>
 	</div>
 
@@ -98,6 +99,7 @@
 
     <div id="gameOver" class="panel">
         <h2>Victory!</h2>
+	<p>You filled all the chambers in <span id="minutes"></span> minutes, <span id="meaning"></span>.</p>
         <p>You may now enter the Queen’s chamber and start mucking it out.</p>
         <div id="gameOverCloseButton" class="close button">Close</div>
     </div>

@@ -282,13 +282,13 @@ div#header {
     -webkit-flex-direction:row;
     flex-direction:row;
     padding:10px 20px;
+    line-height:2;
 }
 
 div#titleLeft {
     -webkit-flex: 1 0 0;
     flex: 1 0 0;
     text-align:center;
-    line-height:2;
     color: #251;
 }
 
@@ -309,7 +309,7 @@ div#titleRight {
     -webkit-flex: 1 0 0;
     flex: 1 0 0;
     text-align:center;
-    padding:25px;
+    padding:15px;
     height:100%;
 }
 
