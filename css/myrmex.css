@@ -125,18 +125,27 @@ p::selection {
     border-radius:6px;
 }
 
-.cardspace, .card {
+.cardspace {
     border:thin solid #170;
-    display:inline-block;
 }
 
+.cardspace, .card {
+     display:inline-block;
+}
+
+.card, .card > img.realBack {
+    box-shadow: 0 1px 0 #432, 1px 1px 0 #432, -1px 1px 0 #432, 1px -1px 0 #432;
+}
+
+/*
 .card > img.realBack {
     border:thin solid #432;
 }
+*/
 
 .card img.realBack {
     border-radius:6px;
-    border:thin solid #432;
+/*    border:thin solid #432; */
 }
 
 .card {
