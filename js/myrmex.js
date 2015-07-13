@@ -685,6 +685,7 @@ context.ui = (function () {
 		});
 		$('.close.button').click(function () {
 			show();
+			$('html,body').animate({scrollTop:0},speed);
 		});
 		
 		// events for the start/replay buttons
