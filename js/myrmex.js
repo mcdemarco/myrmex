@@ -14,7 +14,7 @@ var myrmex = {};
 	var tablArray = [];
 	var chamber = 0;
 	var deck;
-	var debug = false;
+	var debug = true;//false;
 
 
 context.init = (function () {
@@ -69,7 +69,6 @@ context.init = (function () {
 		if (!replay)
 			decktet.shuffle.deck(deck);
 		
-		//stackDeck();
 		//Deal to the tableau 4 times plus more for variants
 		context.deal.tableau();
 		//Initialize the card motion.
@@ -110,7 +109,7 @@ context.data = (function () {
 			myrmexDeck = decktet.remove.card(myrmexDeck,'the LIGHT KEEPER');
 			if (level == "major" || level == "beetleMajor") {
 				//Remove all the Courts.
-			myrmexDeck = decktet.remove.courts(myrmexDeck);
+				myrmexDeck = decktet.remove.courts(myrmexDeck);
 			} else {
 				//Remove the unwanted Courts.
 				myrmexDeck = decktet.remove.card(myrmexDeck,'the RITE');
@@ -257,7 +256,8 @@ context.cards = (function () {
 		move: move,
 		moveToFoundation: moveToFoundation,
 		refresh: refresh,
-		refreshAll: refreshAll
+		refreshAll: refreshAll,
+		stackDeck: stackDeck
 	};
 
 	function create(again) {
@@ -278,7 +278,6 @@ context.cards = (function () {
 			//Big draggability issues for hover.
 			//$(deck[i].selector).hover(shifter, unshifter);
 		}
-		//stackDeck();
 	}	
 
 	function createOnScreenCard(card,index) {
@@ -523,9 +522,18 @@ context.cards = (function () {
 	}
 
 	function stackDeck() {
-		// stack the cards with z-index - not used atm
-		for (var i = 0; i < deck.length; i++) {
-			$(deck[i].selector).css("z-index",i + 3);
+		//No longer a z-index adjustment; instead adjust top margins.
+		for (var t=0;t<8;t++)
+			stackTableau(t);
+	}
+
+	function stackTableau(tablIndex) {
+		// adjust the top margins
+		var card, prevCard;
+		for (var c = 0; c < tablArray[tablIndex].length; c++) {
+			card = deck[tablArray[tablIndex][c]];
+			stackCard(card, prevCard);
+			prevCard = card;
 		}
 	}
 	
@@ -577,6 +585,8 @@ context.settings = (function () {
 				set('magnification',false);
 				$('#plusButton').html("Enlarge");
 			}
+			//Need to adjust all card placements (different function?).
+			context.cards.stackDeck();
 		});
 		
 		//Fill in the rest of the settings form
