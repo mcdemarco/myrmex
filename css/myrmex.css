@@ -297,6 +297,7 @@ div#title {
     font-size:xx-large;
     font-weight:bold;
     text-shadow:1px 1px 0px #030;
+    line-height:1.5;
 }
 
 div#deckRow {
@@ -376,6 +377,11 @@ body, #playarea {
 .button:active {
     position:relative;
     top:1px;
+}
+
+.button:disabled {
+    background:none;
+    background-color:#b3b3b3;
 }
 
 #startButton {
@@ -465,3 +471,7 @@ a:visited {
     color:#C3FEB5;
 }
 
+#timer {
+    display:inline-block;
+    width:40px;
+}

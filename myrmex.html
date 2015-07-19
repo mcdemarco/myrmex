@@ -42,24 +42,29 @@
 		<div id="titleLeft">
 			<div id="title">Myrmex</div>
 			<div>
-				<span id="showStoryButton" class="linky">Rules</span> • 
-				<span id="settingsButton" class="linky">Settings</span> • 
-				<span id="creditsButton" class="linky">Credits</span>
+				<button type="button" class="button" id="startButton">New Game</button>
+				<button type="button" class="button" id="replayButton">Replay</button><br />
 			</div>
 		</div>
 		<div id="deckrow">
-			<div class="teeny cardspace" id="drawDeckLocation"></div>
 			<div class="teeny cardspace chamber" id="chamber1"></div>			
 			<div class="teeny cardspace chamber" id="chamber2"></div>			
 			<div class="teeny cardspace chamber" id="chamber3"></div>			
 			<div class="teeny cardspace chamber" id="chamber4"></div>			
 			<div class="teeny cardspace chamber" id="chamber5"></div>			
 			<div class="teeny cardspace chamber" id="chamber6"></div>			
+			<div class="teeny cardspace" id="drawDeckLocation"></div>
 		</div>
 		<div id="titleRight">
-			<button type="button" class="button" id="startButton">New Game</button>
-			<button type="button" class="button" id="replayButton">Replay</button><br />
-			<div id="timer">00:00</div>
+			<div>
+				<span id="showStoryButton" class="linky">Rules</span> • 
+				<span id="settingsButton" class="linky">Settings</span> • 
+				<span id="creditsButton" class="linky">Credits</span>
+			</div>
+			<div>
+				<button type="button" class="button" id="undoButton" class="linky" disabled>Undo</button> &nbsp;<!-- • -->
+				<span id="timer">00:00</span>
+			</div>
 		</div>
 	</div>
 

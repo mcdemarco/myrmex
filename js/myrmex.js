@@ -14,7 +14,7 @@ var myrmex = {};
 	var tablArray = [];
 	var chamber = 0;
 	var deck;
-	var debug = false;
+	var debug = true;
 
 
 context.init = (function () {
@@ -26,6 +26,7 @@ context.init = (function () {
 
 	function load() {
 		//The initialization function called on document ready.
+		if (debug) console.log("Initializing...");
 
 		context.settings.init();
 		context.ui.init();
@@ -37,8 +38,10 @@ context.init = (function () {
 			//			alerter("You must fill all tableau spaces before dealing.");
 			//		} else { 
 			context.ui.popDealer();
-			if (context.deal.row(false))
+			if (context.deal.row(false)) {
+				//If anything got dealt, we refresh.
 				context.cards.refreshAll();
+			}
 			//		}
 		});	
 	
@@ -46,6 +49,8 @@ context.init = (function () {
 	}
 
 	function initializeDeck(again) {
+		if (debug) console.log("Creating deck...");
+
 		// Build a deck of myrmex cards
 		deck = context.data.createDeck();
 
@@ -66,9 +71,12 @@ context.init = (function () {
 			context.cards.create(true);
 		}
 		context.ui.initDealer();
-		if (!replay)
+		if (!replay) {
+			if (debug) console.log("Shuffling...");
 			decktet.shuffle.deck(deck);
-		
+		} else {
+			if (debug) console.log("Not shuffling...");
+		}
 		//Deal to the tableau 4 times plus more for variants
 		context.deal.tableau();
 		//Initialize the card motion.
@@ -83,6 +91,7 @@ context.init = (function () {
 context.data = (function () {
 
 	return {
+		check: check,
 		createDeck: createDeck,
 		getIndexOfCardFromID: getIndexOfCardFromID,
 		getIndexOfTableau: getIndexOfTableau,
@@ -90,6 +99,36 @@ context.data = (function () {
 		initTableau: initTableau
 	};
 
+	function check() {
+		for (var t=0;t<8;t++)
+			checkColumn(t);
+	}
+	
+	function checkColumn(column) {
+		//private
+		if (!debug) return;
+		if (debug) console.log("checking tableau " + column);
+		//Validate the tableau against the data structure.
+		var dataCount = tablArray[column].length;
+		var cardCount = $("#tableau" + column + " .card").length;
+		if (dataCount != cardCount) {
+			console.log("column " + column + " count: "  + cardCount + "; expected: " + dataCount);
+			if (debug) alert("Error: Card count incorrect.");
+		}
+		$("#tableau" + column + " .card").each(function(index) {
+			if (deck[tablArray[column][index]].divID != $(this).attr('id'))
+				if (debug) console.log("Error: Card " + index + " (" + $(this).attr('id') + ") should be " + deck[tablArray[column][index]].divID);
+			if (deck[tablArray[column][index]].Location != "tableau" + column)
+				if (debug) console.log("Error: Card " + index + " (" + $(this).attr('id') + ") has wrong location " + deck[tablArray[column][index]].Location);
+		});
+		/*
+		for (var c=0;c<tablArray[column].length;c++) {
+			var expectedCard = tablArray[column][c];
+			//var actualCard = 
+		}
+		 */
+	}
+	
 	function createDeck() {
 		// create a deck of cards suitable for Myrmex
 		var level = context.settings.get('level');
@@ -102,7 +141,7 @@ context.data = (function () {
 			myrmexDeck = decktet.remove.rankByDeck(myrmexDeck,'Ace',4);
 			myrmexDeck = decktet.remove.rankByDeck(myrmexDeck,'CROWN',4);
 		}
-		if (level == "minor" || level == "larval") {
+		if (level == "minor" || level == "larval" || level == "double") {
 			//The normal deck.
 			myrmexDeck = decktet.remove.courts(myrmexDeck);
 			myrmexDeck = decktet.remove.pawns(myrmexDeck);
@@ -131,7 +170,7 @@ context.data = (function () {
 			if (myrmexDeck[i].Rank == "CROWN") {
 				if (level == "major" || level == "beetleMajor")
 					myrmexDeck[i].Value = 11;
-				if (level == "queen" || level == "beetleQueen" || level == "double")
+				if (level == "queen" || level == "beetleQueen" || level == "triple")
 					myrmexDeck[i].Value = 12;
 			}
 		}
@@ -165,7 +204,12 @@ context.data = (function () {
 	function initTableau() {
 		//Create the tableau array.
 		tablArray = [];
-		for (var f=0; f<8;f++) tablArray[f] = [];
+		for (var f=0; f<8;f++) {
+			tablArray[f] = [];
+			//Also remove any stray droppables.
+			if (debug) console.log("turning off drop on " + tableauID);
+			$("#" + f).droppable({addClasses:false,disabled:true});
+		}
 	}
 	
 	function areEmptyTableauSpaces() {
@@ -199,10 +243,15 @@ context.deal = (function () {
 		thisRow = 4;
 		if (vari == 'minor' || vari == 'queen') {
 			row(false,(thisRow-1)*8,true);
-		} else {//major and double, for now
+		} else if (vari == 'major') {
 			for (var p=0;p<6;p++)
 				card(p,context.settings.isBeetle(),(thisRow-1)*8 + p);
 			thisRow = 5;
+			row(false,(thisRow-1)*8,true);
+		} else {//double
+			for (thisRow=4;thisRow<8;thisRow++) {
+				row(context.settings.isBeetle(),(thisRow-1)*8);
+			}
 			row(false,(thisRow-1)*8,true);
 		}
 	}
@@ -310,7 +359,7 @@ context.cards = (function () {
 	function drop(droppedOnCardIndex,dragAndDropMeID,droppedOnTableauID) {
 		//Officially move the card.
 		var spaceID = (droppedOnTableauID ? droppedOnTableauID : deck[droppedOnCardIndex].Location);
-		if (debug) console.log("drop " + dragAndDropMeID + " on " + spaceID);
+		if (debug) console.log("dropping " + dragAndDropMeID + " on " + spaceID);
 		var cardIndex = context.data.getIndexOfCardFromID(dragAndDropMeID);
 		var originalCardLocation = deck[cardIndex].Location;
 		//Avoid bugs in dropping multiple cards back on their source stack.
@@ -318,9 +367,9 @@ context.cards = (function () {
 			//Still needs snapping to place.
 			stackCard(deck[cardIndex]);
 			return;
-		} else {
-			move(cardIndex, spaceID, 0);
 		}
+		move(cardIndex, spaceID, 0);
+
 		//Update all the draggability:
 		//0. the drop recipient should no longer be draggable in most cases.
 		//1. the drop recipient definitely should not be droppable.
@@ -330,6 +379,9 @@ context.cards = (function () {
 		refresh(context.data.getIndexOfTableau(originalCardLocation));
 		if (debug) console.log("refreshing " + spaceID);
 		refresh(context.data.getIndexOfTableau(spaceID));
+
+		//Add undo.
+		undoable(cardIndex, spaceID, originalCardLocation);
 	}
 	
 	function getNextChamber() {
@@ -339,7 +391,7 @@ context.cards = (function () {
 	}
 
 	function move(indexOfCard, spaceID, delayUnits) {
-		// move specified card to a new location
+		// move specified card to a new location.  Doesn't do any cleanup.
 		if (typeof delayUnits == 'undefined') delayUnits = 1;
 		var delay = delayUnits * speed;
 		var spaceIndex = context.data.getIndexOfTableau(spaceID);
@@ -359,8 +411,7 @@ context.cards = (function () {
 			var prevCard = deck[tablArray[spaceIndex][shift]];
 			$(prevCard.selector).append($(card.selector));
 			$(card.selector).delay(delay).fadeIn();
-			//Need to get the delay/transition onto removeClass.
-			//$(card.selector).css("z-index",shift).delay(delay).transition({left:targetOffset.left, top:targetOffset.top + 22*shift},speed,"snap").fadeIn();
+
 			//Draggable is messing up lots of CSS, so also unmess (z-index still messed up).
 			stackCard(card,prevCard);
 		}
@@ -373,14 +424,16 @@ context.cards = (function () {
 			var pops = $(card.selector).find('.card').length + 1;
 			removed = tablArray[oldColumn].splice(tablArray[oldColumn].length - pops,pops);
 			if (spaceIndex > -1) {
+				//Push; new space is a tableau space.
 				tablArray[spaceIndex] = tablArray[spaceIndex].concat(removed);
-				if (debug) console.log("removed " + removed + " (" + card.Name + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceIndex + ": " + tablArray[spaceIndex]);
+				if (debug) console.log("removed " + removed + " (" + card.divID + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceIndex + ": " + tablArray[spaceIndex]);
 			} else {
-				//No push.
-				if (debug) console.log("removed " + removed + " (" + card.Name + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceID);
+				//No push; new space is not a tableau space.
+				if (debug) console.log("removed " + removed + " (" + card.divID + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceID);
 			}
 		} else if (spaceIndex < 0) {
-			//No push to weird spaces.
+			//No push from oblivion to weird spaces.  (Not clear that this case ever occurs.)
+			if (debug) console.log("didn't push to " + spaceID);
 		} else {
 			//It didn't exist but it does now so it's a single card that needs some CSS and a push.
 			tablArray[spaceIndex].push(indexOfCard);
@@ -398,16 +451,9 @@ context.cards = (function () {
 	function moveToFoundation(tablIndex,crownRow,aceRow) {
 		//Move a completed set to the next available chamber.
 		var spaceID = getNextChamber();
+		
 		//Don't actually move, since that causes some problems.
-		//var removed = move(tablArray[tablIndex][crownRow],spaceID); //more delay?
-		
-		//Turn off its draggables.  Turn off all droppables just to be safe, though there should be only one.
-		/*for (var r=0;r<removed.length;r++) {
-		 $(deck[removed[r]].selector).draggable({addClasses:false,disabled:true}).droppable({addClasses:false,disabled:true}).addClass("teeny").css("top",0);
-		 }*/
-		//Put the ace image on the foundation.
-		
-
+		//Instead, put the ace image on the foundation.
 		for (var c=aceRow;c>=crownRow;c--) {
 			var cardIndex = tablArray[tablIndex][c];
 			if (c==aceRow) {
@@ -422,26 +468,31 @@ context.cards = (function () {
 		if (spaceID == "chamber6") {
 			context.ui.win(1);
 		} else {
-			if (debug) console.log("post-chamber refreshing tableau column " + tablIndex);
+			//if (debug) console.log("post-chamber refreshing tableau column " + tablIndex);
 			refresh(tablIndex);
 		}
 	}
 	
 	function refresh(tablIndex) {
-		if (debug) console.log("refreshing: " + tablIndex);
 		//Refresh dragging and dropping bindings for a single tableau stack.
 		//Also check for a pile to put on the foundation.
+		if (debug) console.log("refreshing: " + tablIndex);
+
+		//Turn off all undos here.
+		unundo();
+
 		var length = tablArray[tablIndex].length;
 		var tableauID = "tableau" + tablIndex;
 		if (length == 0) {
 			//The special case of an empty tableau column.
-			$("#" + tableauID).droppable({addClasses:false,disabled:false,accept:".card",drop:function(event, ui){context.cards.drop(null,$(ui.draggable).prop("id"),tableauID);}});
+			$("#" + tableauID).droppable({addClasses:false,disabled:false,greedy:true,accept:".card",drop:function(event, ui){context.cards.drop(null,$(ui.draggable).prop("id"),tableauID);}});
 			return;
 		} else {
-			if (debug) console.log("turning off drop on: " + tableauID);
+			if (debug) console.log("turning off drop on " + tableauID);
 			$("#" + tableauID).droppable({addClasses:false,disabled:true});
 		}
-		var card = deck[tablArray[tablIndex][length-1]];
+		var cardIndex = tablArray[tablIndex][length-1];
+		var card = deck[cardIndex];
 		//Store the row of the ace here; it serves as a boolean since it can't be at row zero AND a foundation stack.
 		var hasAce = ((card.Rank == "Ace" && length - 1 > 0) ? length-1 : 0);
 		
@@ -453,7 +504,7 @@ context.cards = (function () {
 		
 		//We always know what happens with the top card.  Note: Stack not working.
 		$(card.selector).draggable({addClasses:false,disabled:false,zIndex:100,revert:'invalid'});
-		$(card.selector).droppable({addClasses:false,disabled:false,accept:".value"+(card.Value - 1),drop:function(event, ui){context.cards.drop(tablArray[tablIndex][length-1],$(ui.draggable).prop("id"));}});
+		$(card.selector).droppable({addClasses:false,disabled:false,greedy:true,accept:".value"+(card.Value - 1),drop:function(event, ui){context.cards.drop(cardIndex,$(ui.draggable).prop("id"));}});
 		$(card.selector).addClass("topmost");
 		
 		//To check the other cards for suit going upwards/inwards from the top/uppermost card, we cheat with classes.
@@ -500,6 +551,7 @@ context.cards = (function () {
 			//Check for foundation pile, probably also with classes, and remove.
 			//   In this case we want to start the whole refresh over (so call refresh again on the same index).
 		}
+		context.data.check();
 	}
 
 	function refreshAll() {
@@ -538,9 +590,42 @@ context.cards = (function () {
 			prevCard = card;
 		}
 	}
+
+	function undoable(cardIndex, newCardLocation, oldCardLocation) {
+		//Allow undo using a droppable for the oldCardLocation, which must be a tableau.
+		//The card should already have a draggable, if it's still in the tableau at all.
+		if ($(deck[cardIndex].selector).length == 0) {
+			//This means the card was moved to a chamber, so the previous drag is not undoable.
+			if (debug) console.log("chamber move of " + cardIndex + " is not undoable");
+			return;
+		}
+		var oldIndex = context.data.getIndexOfTableau(oldCardLocation);
+		var oldShift = context.data.getShiftOfTableau(oldIndex);
+		if (oldShift < 0) {
+			//Since oldIndex must exist, this means the old tableau column is empty.
+			//The previous drag is already undoable with a legal move.
+			if (debug) console.log("tableau move of  " + deck[cardIndex].divID + " is already undoable");
+		} else {
+			//Finally, the actual undo case.
+			if (debug) console.log("making " + deck[cardIndex].divID + " undoable");
+			var oldCard = deck[tablArray[oldIndex][oldShift]];
+			$(oldCard.selector).droppable({addClasses:false,disabled:false,greedy:true,accept:".undo,.value"+(oldCard.Value - 1),drop:function(event, ui){context.cards.drop(oldIndex,$(ui.draggable).prop("id"));}});
+			$(deck[cardIndex].selector).addClass("undo");
+		}
+		
+		//Also set up the Undo button to do the same thing.
+		$("#undoButton").prop('disabled',false);
+		$("#undoButton").on("click",function(){drop(null,deck[cardIndex].divID,oldCardLocation);});
+	}
+
+	function unundo() {
+		//if (debug) console.log("turning off undos");
+		$(".undo").removeClass("undo");
+		$("#undoButton").prop('disabled',true).off();
+	}
 	
 })();
-	
+
 
 context.settings = (function () {
 
@@ -695,7 +780,7 @@ context.ui = (function () {
 		seconds = pretty_time_string(seconds);
 		
 		// Compose the string for display
-		var currentTimeString = hours + ":" + minutes + ":" + seconds;
+		var currentTimeString = (hours != "00" ? hours + ":" : "") + minutes + ":" + seconds;
 		
 		return currentTimeString;
 	}
@@ -730,7 +815,8 @@ context.ui = (function () {
 
 	function initDealer() {
 		//Place the fake cards on the fake deal stack.
-		$("#drawDeckLocation").append("<div class='back'><div class='back'><div class='back'><div class='back'>" + (context.settings.getVariant()=="queen" ? "<div class='back'></div>" : "") + "</div></div></div></div>");
+		var vari = context.settings.getVariant();
+		$("#drawDeckLocation").html("").append("<div class='back'><div class='back'><div class='back'><div class='back'>" + (vari=="queen" ? "<div class='back'></div>" : (vari=="double" ? "<div class='back'><div class='back'><div class='back'></div></div></div>" : "")) + "</div></div></div></div>");
 	}
 
 	function initTimer() {
