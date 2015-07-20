@@ -356,6 +356,13 @@ context.cards = (function () {
 		return "chamber" + chamber;
 	}
 
+	function makeCardDraggable(card,disable) {
+		if (disable)
+			$(card.selector).draggable({disabled:true});
+		else
+			$(card.selector).draggable({disabled:false,zIndex:100,revert:'invalid'});
+	}
+
 	function makeCardDroppable(card,disable) {
 		if (disable)
 			$(card.selector).droppable({disabled:true});
@@ -485,7 +492,7 @@ context.cards = (function () {
 		}
 		
 		//We always know what happens with the top card.  Note: Stack not working.
-		$(card.selector).draggable({disabled:false,zIndex:100,revert:'invalid'});
+		makeCardDraggable(card);
 		makeCardDroppable(card);
 		$(card.selector).addClass("topmost");
 		
@@ -501,7 +508,7 @@ context.cards = (function () {
 			makeCardDroppable(card,true);
 			//Remove all suit classes and draggability before re-adding.
 			$(card.selector).removeClass("Knots Leaves Moons Suns Waves Wyrms");
-			$(card.selector).draggable({disabled:true});
+			makeCardDraggable(card,true);
 			if (nuking) continue;
 			//Check values...
 			if (card.Value != prevCard.Value + 1) {
@@ -512,7 +519,6 @@ context.cards = (function () {
 			//Check suits...
 			if ($(prevCard.selector).hasClass(card.Suit1)) {
 				$(card.selector).addClass(card.Suit1);
-				$(card.selector).draggable({disabled:false,zIndex:100,revert:'invalid'});
 				//Because a Crown has only one suit, this is the only place where we need to test for it.
 				if (hasAce && card.Rank == "CROWN") {
 					event.stopPropagation();
@@ -523,12 +529,13 @@ context.cards = (function () {
 			}
 			if (card.Suit2 && $(prevCard.selector).hasClass(card.Suit2)) {
 				$(card.selector).addClass(card.Suit2);
-				$(card.selector).draggable({disabled:false,zIndex:100,revert:'invalid'});
 			}
 			if (card.Suit3 && $(prevCard.selector).hasClass(card.Suit3)) {
 				$(card.selector).addClass(card.Suit3);
-				$(card.selector).draggable({disabled:false,zIndex:100,revert:'invalid'});
 			}
+			if ($(card.selector).hasClass(card.Suit1) || $(card.selector).hasClass(card.Suit2) || $(card.selector).hasClass(card.Suit3)) {
+				makeCardDraggable(card);
+			}				
 			prevCard = card;
 			//Check for foundation pile, probably also with classes, and remove.
 			//   In this case we want to start the whole refresh over (so call refresh again on the same index).
