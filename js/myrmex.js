@@ -14,7 +14,7 @@ var myrmex = {};
 	var tablArray = [];
 	var chamber = 0;
 	var deck;
-	var debug = true;
+	var debugging = true;
 
 
 context.init = (function () {
@@ -26,7 +26,7 @@ context.init = (function () {
 
 	function load() {
 		//The initialization function called on document ready.
-		if (debug) console.log("Initializing...");
+		context.debug.log("Initializing...");
 
 		context.settings.init();
 		context.ui.init();
@@ -49,7 +49,7 @@ context.init = (function () {
 	}
 
 	function initializeDeck(again) {
-		if (debug) console.log("Creating deck...");
+		context.debug.log("Creating deck...");
 
 		// Build a deck of myrmex cards
 		deck = context.data.createDeck();
@@ -72,10 +72,10 @@ context.init = (function () {
 		}
 		context.ui.initDealer();
 		if (!replay) {
-			if (debug) console.log("Shuffling...");
+			context.debug.log("Shuffling...");
 			decktet.shuffle.deck(deck);
 		} else {
-			if (debug) console.log("Not shuffling...");
+			context.debug.log("Not shuffling...");
 		}
 		//Deal to the tableau 4 times plus more for variants
 		context.deal.tableau();
@@ -91,7 +91,6 @@ context.init = (function () {
 context.data = (function () {
 
 	return {
-		check: check,
 		createDeck: createDeck,
 		getIndexOfCardFromID: getIndexOfCardFromID,
 		getIndexOfTableau: getIndexOfTableau,
@@ -99,36 +98,6 @@ context.data = (function () {
 		initTableau: initTableau
 	};
 
-	function check() {
-		for (var t=0;t<8;t++)
-			checkColumn(t);
-	}
-	
-	function checkColumn(column) {
-		//private
-		if (!debug) return;
-		if (debug) console.log("checking tableau " + column);
-		//Validate the tableau against the data structure.
-		var dataCount = tablArray[column].length;
-		var cardCount = $("#tableau" + column + " .card").length;
-		if (dataCount != cardCount) {
-			console.log("column " + column + " count: "  + cardCount + "; expected: " + dataCount);
-			if (debug) alert("Error: Card count incorrect.");
-		}
-		$("#tableau" + column + " .card").each(function(index) {
-			if (deck[tablArray[column][index]].divID != $(this).attr('id'))
-				if (debug) console.log("Error: Card " + index + " (" + $(this).attr('id') + ") should be " + deck[tablArray[column][index]].divID);
-			if (deck[tablArray[column][index]].Location != "tableau" + column)
-				if (debug) console.log("Error: Card " + index + " (" + $(this).attr('id') + ") has wrong location " + deck[tablArray[column][index]].Location);
-		});
-		/*
-		for (var c=0;c<tablArray[column].length;c++) {
-			var expectedCard = tablArray[column][c];
-			//var actualCard = 
-		}
-		 */
-	}
-	
 	function createDeck() {
 		// create a deck of cards suitable for Myrmex
 		var level = context.settings.get('level');
@@ -207,7 +176,7 @@ context.data = (function () {
 		for (var f=0; f<8;f++) {
 			tablArray[f] = [];
 			//Also remove any stray droppables.
-			if (debug) console.log("turning off drop on " + tableauID);
+			context.debug.log("turning off drop on " + f);
 			$("#" + f).droppable({addClasses:false,disabled:true});
 		}
 	}
@@ -359,7 +328,7 @@ context.cards = (function () {
 	function drop(droppedOnCardIndex,dragAndDropMeID,droppedOnTableauID) {
 		//Officially move the card.
 		var spaceID = (droppedOnTableauID ? droppedOnTableauID : deck[droppedOnCardIndex].Location);
-		if (debug) console.log("dropping " + dragAndDropMeID + " on " + spaceID);
+		context.debug.log("dropping " + dragAndDropMeID + " on " + spaceID);
 		var cardIndex = context.data.getIndexOfCardFromID(dragAndDropMeID);
 		var originalCardLocation = deck[cardIndex].Location;
 		//Avoid bugs in dropping multiple cards back on their source stack.
@@ -375,9 +344,9 @@ context.cards = (function () {
 		//1. the drop recipient definitely should not be droppable.
 		//2. update draggability for the stack it came from
 		//3. possibly flip a card.
-		if (debug) console.log("refreshing " + originalCardLocation);
+		context.debug.log("refreshing original location " + originalCardLocation);
 		refresh(context.data.getIndexOfTableau(originalCardLocation));
-		if (debug) console.log("refreshing " + spaceID);
+		context.debug.log("refreshing new location " + spaceID);
 		refresh(context.data.getIndexOfTableau(spaceID));
 
 		//Add undo.
@@ -398,6 +367,8 @@ context.cards = (function () {
 		var shift = context.data.getShiftOfTableau(spaceIndex);
 		
 		var card = deck[indexOfCard];
+
+		context.debug.log("moving " + card.divID + " from " + card.Location + " to " + spaceIndex + ": " + spaceID);
 		
 		if (shift < 0) {
 			//Case for spaceIndex < 0 or shift < 0:  moving to unoccupied spaces.
@@ -426,14 +397,14 @@ context.cards = (function () {
 			if (spaceIndex > -1) {
 				//Push; new space is a tableau space.
 				tablArray[spaceIndex] = tablArray[spaceIndex].concat(removed);
-				if (debug) console.log("removed " + removed + " (" + card.divID + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceIndex + ": " + tablArray[spaceIndex]);
+				context.debug.log("removed " + removed + " (" + card.divID + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceIndex + ": " + tablArray[spaceIndex]);
 			} else {
 				//No push; new space is not a tableau space.
-				if (debug) console.log("removed " + removed + " (" + card.divID + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceID);
+				context.debug.log("removed " + removed + " (" + card.divID + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceID);
 			}
 		} else if (spaceIndex < 0) {
 			//No push from oblivion to weird spaces.  (Not clear that this case ever occurs.)
-			if (debug) console.log("didn't push to " + spaceID);
+			context.debug.log("didn't push to " + spaceID);
 		} else {
 			//It didn't exist but it does now so it's a single card that needs some CSS and a push.
 			tablArray[spaceIndex].push(indexOfCard);
@@ -468,7 +439,7 @@ context.cards = (function () {
 		if (spaceID == "chamber6") {
 			context.ui.win(1);
 		} else {
-			//if (debug) console.log("post-chamber refreshing tableau column " + tablIndex);
+			//context.debug.log("post-chamber refreshing tableau column " + tablIndex);
 			refresh(tablIndex);
 		}
 	}
@@ -476,7 +447,7 @@ context.cards = (function () {
 	function refresh(tablIndex) {
 		//Refresh dragging and dropping bindings for a single tableau stack.
 		//Also check for a pile to put on the foundation.
-		if (debug) console.log("refreshing: " + tablIndex);
+		//context.debug.log("refreshing: " + tablIndex);
 
 		//Turn off all undos here.
 		unundo();
@@ -488,7 +459,7 @@ context.cards = (function () {
 			$("#" + tableauID).droppable({addClasses:false,disabled:false,greedy:true,accept:".card",drop:function(event, ui){context.cards.drop(null,$(ui.draggable).prop("id"),tableauID);}});
 			return;
 		} else {
-			if (debug) console.log("turning off drop on " + tableauID);
+			context.debug.log("turning off drop on " + tableauID);
 			$("#" + tableauID).droppable({addClasses:false,disabled:true});
 		}
 		var cardIndex = tablArray[tablIndex][length-1];
@@ -551,7 +522,7 @@ context.cards = (function () {
 			//Check for foundation pile, probably also with classes, and remove.
 			//   In this case we want to start the whole refresh over (so call refresh again on the same index).
 		}
-		context.data.check();
+		context.debug.check();
 	}
 
 	function refreshAll() {
@@ -596,7 +567,7 @@ context.cards = (function () {
 		//The card should already have a draggable, if it's still in the tableau at all.
 		if ($(deck[cardIndex].selector).length == 0) {
 			//This means the card was moved to a chamber, so the previous drag is not undoable.
-			if (debug) console.log("chamber move of " + cardIndex + " is not undoable");
+			context.debug.log("chamber move of " + cardIndex + " is not undoable");
 			return;
 		}
 		var oldIndex = context.data.getIndexOfTableau(oldCardLocation);
@@ -604,13 +575,13 @@ context.cards = (function () {
 		if (oldShift < 0) {
 			//Since oldIndex must exist, this means the old tableau column is empty.
 			//The previous drag is already undoable with a legal move.
-			if (debug) console.log("tableau move of  " + deck[cardIndex].divID + " is already undoable");
+			context.debug.log("tableau move of  " + deck[cardIndex].divID + " is already undoable");
 		} else {
 			//Finally, the actual undo case.
-			if (debug) console.log("making " + deck[cardIndex].divID + " undoable");
-			var oldCard = deck[tablArray[oldIndex][oldShift]];
+			context.debug.log("making " + deck[cardIndex].divID + " undoable");
+			/* var oldCard = deck[tablArray[oldIndex][oldShift]];
 			$(oldCard.selector).droppable({addClasses:false,disabled:false,greedy:true,accept:".undo,.value"+(oldCard.Value - 1),drop:function(event, ui){context.cards.drop(oldIndex,$(ui.draggable).prop("id"));}});
-			$(deck[cardIndex].selector).addClass("undo");
+			$(deck[cardIndex].selector).addClass("undo"); */
 		}
 		
 		//Also set up the Undo button to do the same thing.
@@ -619,8 +590,8 @@ context.cards = (function () {
 	}
 
 	function unundo() {
-		//if (debug) console.log("turning off undos");
-		$(".undo").removeClass("undo");
+		//context.debug.log("turning off undos");
+		/*$(".undo").removeClass("undo");*/
 		$("#undoButton").prop('disabled',true).off();
 	}
 	
@@ -882,7 +853,53 @@ context.ui = (function () {
 		$("#meaning").html(yourSpeed);
 		$("#gameOver").fadeIn(delayUnits*speed);
 	}
+
+})();
 	
+context.debug = (function () {
+
+	return {
+		check: check,
+		log: log
+	};
+
+	function check() {
+		if (!debugging) return;
+		log("checking tableaux");
+		for (var t=0;t<8;t++)
+			checkColumn(t);
+	}
+	
+	function checkColumn(column) {
+		//private
+		if (!debugging) return;
+		//log("checking tableau " + column);
+		//Validate the tableau against the data structure.
+		var dataCount = tablArray[column].length;
+		var cardCount = $("#tableau" + column + " .card").length;
+		if (dataCount != cardCount) {
+			log("column " + column + " count: "  + cardCount + "; expected: " + dataCount);
+			alert("Error: Card count incorrect.");
+		}
+		$("#tableau" + column + " .card").each(function(index) {
+			if (deck[tablArray[column][index]].divID != $(this).attr('id'))
+				log("Error: Card " + index + " (" + $(this).attr('id') + ") should be " + deck[tablArray[column][index]].divID);
+			if (deck[tablArray[column][index]].Location != "tableau" + column)
+				log("Error: Card " + index + " (" + $(this).attr('id') + ") has wrong location " + deck[tablArray[column][index]].Location);
+		});
+		/*
+		for (var c=0;c<tablArray[column].length;c++) {
+			var expectedCard = tablArray[column][c];
+			//var actualCard = 
+		}
+		 */
+	}
+
+	function log(message) {
+		if (!debugging) return;
+		console.log(message);
+	}
+
 })();
 
 })(myrmex);
