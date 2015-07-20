@@ -175,9 +175,6 @@ context.data = (function () {
 		tablArray = [];
 		for (var f=0; f<8;f++) {
 			tablArray[f] = [];
-			//Also remove any stray droppables.
-			context.debug.log("turning off drop on " + f);
-			$("#" + f).droppable({addClasses:false,disabled:true});
 		}
 	}
 	
@@ -359,6 +356,20 @@ context.cards = (function () {
 		return "chamber" + chamber;
 	}
 
+	function makeCardDroppable(card,disable) {
+		if (disable)
+			$(card.selector).droppable({disabled:true});
+		else
+			$(card.selector).droppable({disabled:false,greedy:true,accept:".value"+(card.Value - 1),drop:function(event, ui){context.cards.drop(context.data.getIndexOfCardFromID(card.divID),$(ui.draggable).prop("id"));}});
+	}
+
+	function makeTableauDroppable(tableauID,disable) {
+		if (disable)
+			$("#" + tableauID).droppable({disabled:true});
+		else
+			$("#" + tableauID).droppable({disabled:false,greedy:true,accept:".card",drop:function(event, ui){context.cards.drop(null,$(ui.draggable).prop("id"),tableauID);}});
+	}
+
 	function move(indexOfCard, spaceID, delayUnits) {
 		// move specified card to a new location.  Doesn't do any cleanup.
 		if (typeof delayUnits == 'undefined') delayUnits = 1;
@@ -456,11 +467,11 @@ context.cards = (function () {
 		var tableauID = "tableau" + tablIndex;
 		if (length == 0) {
 			//The special case of an empty tableau column.
-			$("#" + tableauID).droppable({addClasses:false,disabled:false,greedy:true,accept:".card",drop:function(event, ui){context.cards.drop(null,$(ui.draggable).prop("id"),tableauID);}});
+			makeTableauDroppable(tableauID);
 			return;
 		} else {
 			context.debug.log("turning off drop on " + tableauID);
-			$("#" + tableauID).droppable({addClasses:false,disabled:true});
+			makeTableauDroppable(tableauID,true);
 		}
 		var cardIndex = tablArray[tablIndex][length-1];
 		var card = deck[cardIndex];
@@ -474,8 +485,8 @@ context.cards = (function () {
 		}
 		
 		//We always know what happens with the top card.  Note: Stack not working.
-		$(card.selector).draggable({addClasses:false,disabled:false,zIndex:100,revert:'invalid'});
-		$(card.selector).droppable({addClasses:false,disabled:false,greedy:true,accept:".value"+(card.Value - 1),drop:function(event, ui){context.cards.drop(cardIndex,$(ui.draggable).prop("id"));}});
+		$(card.selector).draggable({disabled:false,zIndex:100,revert:'invalid'});
+		makeCardDroppable(card);
 		$(card.selector).addClass("topmost");
 		
 		//To check the other cards for suit going upwards/inwards from the top/uppermost card, we cheat with classes.
@@ -487,7 +498,7 @@ context.cards = (function () {
 			if (!card.FaceUp) break;
 			$(card.selector).removeClass("topmost");
 			//Can only drop on the top card, so all these are disabled.
-			$(card.selector).droppable({disabled:true});
+			makeCardDroppable(card,true);
 			//Remove all suit classes and draggability before re-adding.
 			$(card.selector).removeClass("Knots Leaves Moons Suns Waves Wyrms");
 			$(card.selector).draggable({disabled:true});
@@ -501,7 +512,7 @@ context.cards = (function () {
 			//Check suits...
 			if ($(prevCard.selector).hasClass(card.Suit1)) {
 				$(card.selector).addClass(card.Suit1);
-				$(card.selector).draggable({addClasses:false,disabled:false,zIndex:100,revert:'invalid'});
+				$(card.selector).draggable({disabled:false,zIndex:100,revert:'invalid'});
 				//Because a Crown has only one suit, this is the only place where we need to test for it.
 				if (hasAce && card.Rank == "CROWN") {
 					event.stopPropagation();
@@ -512,11 +523,11 @@ context.cards = (function () {
 			}
 			if (card.Suit2 && $(prevCard.selector).hasClass(card.Suit2)) {
 				$(card.selector).addClass(card.Suit2);
-				$(card.selector).draggable({addClasses:false,disabled:false,zIndex:100,revert:'invalid'});
+				$(card.selector).draggable({disabled:false,zIndex:100,revert:'invalid'});
 			}
 			if (card.Suit3 && $(prevCard.selector).hasClass(card.Suit3)) {
 				$(card.selector).addClass(card.Suit3);
-				$(card.selector).draggable({addClasses:false,disabled:false,zIndex:100,revert:'invalid'});
+				$(card.selector).draggable({disabled:false,zIndex:100,revert:'invalid'});
 			}
 			prevCard = card;
 			//Check for foundation pile, probably also with classes, and remove.
@@ -580,11 +591,10 @@ context.cards = (function () {
 			//Finally, the actual undo case.
 			context.debug.log("making " + deck[cardIndex].divID + " undoable");
 			/* var oldCard = deck[tablArray[oldIndex][oldShift]];
-			$(oldCard.selector).droppable({addClasses:false,disabled:false,greedy:true,accept:".undo,.value"+(oldCard.Value - 1),drop:function(event, ui){context.cards.drop(oldIndex,$(ui.draggable).prop("id"));}});
+			$(oldCard.selector).droppable({disabled:false,greedy:true,accept:".undo,.value"+(oldCard.Value - 1),drop:function(event, ui){context.cards.drop(oldIndex,$(ui.draggable).prop("id"));}});
 			$(deck[cardIndex].selector).addClass("undo"); */
 		}
-		
-		//Also set up the Undo button to do the same thing.
+		//Now only set up the Undo button to do the same thing.
 		$("#undoButton").prop('disabled',false);
 		$("#undoButton").on("click",function(){drop(null,deck[cardIndex].divID,oldCardLocation);});
 	}
