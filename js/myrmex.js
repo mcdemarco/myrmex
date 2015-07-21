@@ -623,7 +623,8 @@ context.settings = (function () {
 		get: get,
 		set: set,
 		getVariant: getVariant,
-		isBeetle: isBeetle
+		isBeetle: isBeetle,
+		saveGame: saveGame
 	};
 
 	function alerter(msg) {
@@ -668,6 +669,8 @@ context.settings = (function () {
 		$("input[name=level]").val([get('level')]);
 		$("input#emblacken").prop("checked",get('blackmoons'));
 
+		//Configure the load button.
+		loadGameCheck();
 	}
 
 	function checkForChanges() {
@@ -723,6 +726,42 @@ context.settings = (function () {
 			return true;
 		else
 			return false;
+	}
+
+	function loadGameCheck() {
+		if (!get('savedTime')) {
+			$("#loadButton").prop('disabled',true).off();
+		} else {
+			$("#loadButton").prop('disabled',false);
+			$("#loadButton").on("click",loadGame);
+		}
+	}
+
+	function loadGame() {
+		context.debug.log("Loading saved game");
+		deck = JSON.parse(get('savedDeck'));
+		tablArray = JSON.parse(get('savedTableau'));
+		set('level',get('savedLevel')); //also update ui?
+		//Restart timer at saved value.
+		context.ui.initTimer(get('savedTime'));
+		
+		//TODO: Update UI from new tablArray:
+		//Recreate cards.
+		//Position cards.
+		//Set draggables:
+		//context.cards.refreshAll();
+	}
+
+	function saveGame() {
+		context.debug.log("Saving current game");
+		set('savedDeck',JSON.stringify(deck));
+		set('savedTableau',JSON.stringify(tablArray));
+		//The stored setting is correct because a level change isn't checked until a new game.
+		set('savedLevel',get('level'));
+		set('savedTime',$("#timer").text());
+
+		//Update the load button.
+		loadGameCheck();
 	}
 
 })();
@@ -791,12 +830,15 @@ context.ui = (function () {
 			$('html,body').animate({scrollTop:0},speed);
 		});
 		
-		// events for the start/replay buttons
+		// events for the start/replay/save buttons
 		$('#startButton').click(function () {
 			context.init.startButtonClick();
 		});
 		$('#replayButton').click(function () {
 			context.init.startButtonClick(true);
+		});
+		$('#saveButton').click(function () {
+			context.settings.saveGame();
 		});
 
 	}
@@ -807,11 +849,19 @@ context.ui = (function () {
 		$("#drawDeckLocation").html("").append("<div class='back'><div class='back'><div class='back'><div class='back'>" + (vari=="queen" ? "<div class='back'></div>" : (vari=="double" ? "<div class='back'><div class='back'><div class='back'></div></div></div>" : "")) + "</div></div></div></div>");
 	}
 
-	function initTimer() {
+	function initTimer(atTime) {
 		//Code from http://stackoverflow.com/a/2605236/4965965
 		if (timer)
 			clearInterval(timer);
 		var elapsed_seconds = 0;
+		//atTime is a string in the pretty-printed format produced by the timer.
+		if (atTime) {
+			var atTimes = atTime.split(":");
+			if (atTimes.length == 3)
+				elapsed_seconds = parseInt(atTimes[0],10) * 3600 + parseInt(atTimes[1],10) * 60 + parseInt(atTimes[2],10);
+			else
+				elapsed_seconds = parseInt(atTimes[0],10) * 60 + parseInt(atTimes[1],10);
+		}
 		timer = setInterval(function() {
 			elapsed_seconds = elapsed_seconds + 1;
 			$('#timer').text(displayTimer(elapsed_seconds));
