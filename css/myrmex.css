@@ -152,6 +152,10 @@ p::selection {
     background-size:124px 174px;
 }
 
+.card.ui-draggable-dragging {
+    box-shadow: 5px 5px 15px 1px rgba(0,0,0,0.75);
+}
+
 .aceAdjust {
     position:absolute;
     top:0;
@@ -361,11 +365,11 @@ body, #playarea {
     border:1px solid #40A728;
     display:inline-block;
     white-space:nowrap;
-    color:#ffffff;
-    font-size:15px;
+    color:#030;
+    font-size:14px;
     padding:6px 10px;
     text-decoration:none;
-    text-shadow:1px 1px 0px #030;
+    text-shadow:1px 1px 0px #C3FEB5;
 }
 
 .button:hover {
@@ -382,6 +386,7 @@ body, #playarea {
 .button:disabled {
     background:none;
     background-color:#b3b3b3;
+    border:1px solid #8A8A8A;
 }
 
 #startButton {

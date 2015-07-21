@@ -360,7 +360,7 @@ context.cards = (function () {
 		if (disable)
 			$(card.selector).draggable({disabled:true});
 		else
-			$(card.selector).draggable({disabled:false,zIndex:100,revert:'invalid'});
+			$(card.selector).draggable({containment:'#playarea',cursor:'move',disabled:false,zIndex:100,revert:'invalid'});
 	}
 
 	function makeCardDroppable(card,disable) {
