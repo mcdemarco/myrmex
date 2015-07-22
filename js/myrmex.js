@@ -192,10 +192,25 @@ context.deal = (function () {
 	//Didn't want to confuse matters by calling this "deck".
 
 	return {
+		restore: restore,
 		row: row,
 		tableau: tableau
 	};
 
+	function restore() {
+		for (var t=0;t<8;t++) {
+			for (var r=0;r<tablArray[t].length;r++) {
+				var c = tablArray[t][r];
+				context.debug.log("Restoring " + c + " to " + t);
+				if (deck[c].FaceUp)
+					$(deck[c].selector + " img.realBack").hide();
+				else
+					$(deck[c].selector + " img.realBack").show();
+				context.cards.move(c, "tableau" + t, 0, r - 1);
+			}
+		}	
+	}
+	
 	function tableau() {
 		// deal cards to the tableau.
 		//Create the tableau array.
@@ -377,12 +392,16 @@ context.cards = (function () {
 			$("#" + tableauID).droppable({disabled:false,greedy:true,accept:".card",drop:function(event, ui){context.cards.drop(null,$(ui.draggable).prop("id"),tableauID);}});
 	}
 
-	function move(indexOfCard, spaceID, delayUnits) {
+	function move(indexOfCard, spaceID, delayUnits, shift) {
 		// move specified card to a new location.  Doesn't do any cleanup.
 		if (typeof delayUnits == 'undefined') delayUnits = 1;
 		var delay = delayUnits * speed;
 		var spaceIndex = context.data.getIndexOfTableau(spaceID);
-		var shift = context.data.getShiftOfTableau(spaceIndex);
+		var noUpdate = false;
+		if (typeof shift == 'undefined')
+			shift = context.data.getShiftOfTableau(spaceIndex);
+		else
+			noUpdate = true;
 		
 		var card = deck[indexOfCard];
 
@@ -405,27 +424,30 @@ context.cards = (function () {
 			stackCard(card,prevCard);
 		}
 		$(card.selector).css("z-index",(shift+1));
-		//Add to array, cleaning up any old version.
-		var oldColumn = context.data.getIndexOfTableau(card.Location);
+
 		var removed = [];
-		if (oldColumn >= 0) {
-			//If it existed, pop it and any children from its previous array location and push onto new location.
-			var pops = $(card.selector).find('.card').length + 1;
-			removed = tablArray[oldColumn].splice(tablArray[oldColumn].length - pops,pops);
-			if (spaceIndex > -1) {
-				//Push; new space is a tableau space.
-				tablArray[spaceIndex] = tablArray[spaceIndex].concat(removed);
-				context.debug.log("removed " + removed + " (" + card.divID + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceIndex + ": " + tablArray[spaceIndex]);
+		if (!noUpdate) {
+			//Add to array, cleaning up any old version.
+			var oldColumn = context.data.getIndexOfTableau(card.Location);
+			if (oldColumn >= 0) {
+				//If it existed, pop it and any children from its previous array location and push onto new location.
+				var pops = $(card.selector).find('.card').length + 1;
+				removed = tablArray[oldColumn].splice(tablArray[oldColumn].length - pops,pops);
+				if (spaceIndex > -1) {
+					//Push; new space is a tableau space.
+					tablArray[spaceIndex] = tablArray[spaceIndex].concat(removed);
+					context.debug.log("removed " + removed + " (" + card.divID + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceIndex + ": " + tablArray[spaceIndex]);
+				} else {
+					//No push; new space is not a tableau space.
+					context.debug.log("removed " + removed + " (" + card.divID + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceID);
+				}
+			} else if (spaceIndex < 0) {
+				//No push from oblivion to weird spaces.  (Not clear that this case ever occurs.)
+				context.debug.log("didn't push to " + spaceID);
 			} else {
-				//No push; new space is not a tableau space.
-				context.debug.log("removed " + removed + " (" + card.divID + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceID);
+				//It didn't exist but it does now so it's a single card that needs some CSS and a push.
+				tablArray[spaceIndex].push(indexOfCard);
 			}
-		} else if (spaceIndex < 0) {
-			//No push from oblivion to weird spaces.  (Not clear that this case ever occurs.)
-			context.debug.log("didn't push to " + spaceID);
-		} else {
-			//It didn't exist but it does now so it's a single card that needs some CSS and a push.
-			tablArray[spaceIndex].push(indexOfCard);
 		}
 		
 		// reset card locations, including fellow-travellers'
@@ -747,9 +769,11 @@ context.settings = (function () {
 		
 		//TODO: Update UI from new tablArray:
 		//Recreate cards.
+		context.cards.create(true);
 		//Position cards.
+		context.deal.restore();
 		//Set draggables:
-		//context.cards.refreshAll();
+		context.cards.refreshAll();
 	}
 
 	function saveGame() {
@@ -946,7 +970,6 @@ context.debug = (function () {
 		var cardCount = $("#tableau" + column + " .card").length;
 		if (dataCount != cardCount) {
 			log("column " + column + " count: "  + cardCount + "; expected: " + dataCount);
-			alert("Error: Card count incorrect.");
 		}
 		$("#tableau" + column + " .card").each(function(index) {
 			if (deck[tablArray[column][index]].divID != $(this).attr('id'))
@@ -954,12 +977,6 @@ context.debug = (function () {
 			if (deck[tablArray[column][index]].Location != "tableau" + column)
 				log("Error: Card " + index + " (" + $(this).attr('id') + ") has wrong location " + deck[tablArray[column][index]].Location);
 		});
-		/*
-		for (var c=0;c<tablArray[column].length;c++) {
-			var expectedCard = tablArray[column][c];
-			//var actualCard = 
-		}
-		 */
 	}
 
 	function log(message) {
