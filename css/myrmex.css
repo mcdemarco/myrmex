@@ -156,6 +156,13 @@ p::selection {
     box-shadow: 5px 5px 15px 1px rgba(0,0,0,0.75);
 }
 
+.card img {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    user-drag: none;
+}
+
 .aceAdjust {
     position:absolute;
     top:0;
