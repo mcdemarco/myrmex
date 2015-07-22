@@ -12,7 +12,7 @@ var myrmex = {};
 						   level: 'minor'};
 	var speed;
 	var tablArray = [];
-	var chamber = 0;
+	var chamberArray = [];
 	var deck;
 	var debugging = true;
 
@@ -21,7 +21,7 @@ context.init = (function () {
 
 	return {
 		load: load,
-		startButtonClick: startButtonClick
+		newGame: newGame
 	};
 
 	function load() {
@@ -58,10 +58,8 @@ context.init = (function () {
 		context.cards.create(again);
 	}
 
-	function startButtonClick(replay) {
-		context.ui.show('');
-		context.ui.clearChambers();
-		context.data.initTableau();
+	function newGame(replay) {
+		context.ui.reinit();
 
 		//Set the other two settings here for convenience.
 		if (context.settings.checkForChanges()) {
@@ -70,6 +68,7 @@ context.init = (function () {
 		} else {
 			context.cards.create(true);
 		}
+		
 		context.ui.initDealer();
 		if (!replay) {
 			context.debug.log("Shuffling...");
@@ -77,7 +76,8 @@ context.init = (function () {
 		} else {
 			context.debug.log("Not shuffling...");
 		}
-		//Deal to the tableau 4 times plus more for variants
+		//Deal to the tableau 4 times plus more for variants.
+		//This calls context.data.initTableau();
 		context.deal.tableau();
 		context.ui.pushDealer();
 
@@ -97,7 +97,8 @@ context.data = (function () {
 		getIndexOfCardFromID: getIndexOfCardFromID,
 		getIndexOfTableau: getIndexOfTableau,
 		getShiftOfTableau: getShiftOfTableau,
-		initTableau: initTableau
+		initTableau: initTableau,
+		nextChamber: nextChamber
 	};
 
 	function createDeck() {
@@ -178,6 +179,16 @@ context.data = (function () {
 		for (var f=0; f<8;f++) {
 			tablArray[f] = [];
 		}
+	}
+
+	function nextChamber(suit) {
+		//private
+		//Get and set the next chamber.
+		var next = chamberArray.length;
+		if (suit) {
+			chamberArray[next] = suit;
+		}
+		return "chamber" + next;
 	}
 	
 	function areEmptyTableauSpaces() {
@@ -367,12 +378,6 @@ context.cards = (function () {
 		//Add undo.
 		undoable(cardIndex, spaceID, originalCardLocation);
 	}
-	
-	function getNextChamber() {
-		//private
-		chamber++;
-		return "chamber" + chamber;
-	}
 
 	function makeCardDraggable(card,disable) {
 		if (disable)
@@ -464,14 +469,16 @@ context.cards = (function () {
 
 	function moveToFoundation(tablIndex,crownRow,aceRow) {
 		//Move a completed set to the next available chamber.
-		var spaceID = getNextChamber();
+		var spaceID = context.data.nextChamber();
 		
 		//Don't actually move, since that causes some problems.
 		//Instead, put the ace image on the foundation.
 		for (var c=aceRow;c>=crownRow;c--) {
 			var cardIndex = tablArray[tablIndex][c];
 			if (c==aceRow) {
-				$("#" + spaceID).addClass(deck[cardIndex].Suit1);
+				var suit = deck[cardIndex].Suit1;
+				$("#" + spaceID).addClass(suit);
+				context.data.nextChamber(suit);
 			}
 			//Kill them all!
 			$(deck[cardIndex].selector).remove();
@@ -764,6 +771,10 @@ context.settings = (function () {
 
 	function loadGame() {
 		context.debug.log("Loading saved game");
+		//Some cleanup.
+		context.ui.reinit();
+
+		//Loading.
 		deck = JSON.parse(get('savedDeck'));
 		tablArray = JSON.parse(get('savedTableau'));
 		set('level',get('savedLevel')); //also update ui?
@@ -785,6 +796,7 @@ context.settings = (function () {
 		context.debug.log("Saving current game");
 		set('savedDeck',JSON.stringify(deck));
 		set('savedTableau',JSON.stringify(tablArray));
+		set('savedChambers',JSON.stringify(chamberArray));
 		//The stored setting is correct because a level change isn't checked until a new game.
 		set('savedLevel',get('level'));
 		set('savedTime',$("#timer").text());
@@ -799,12 +811,12 @@ context.settings = (function () {
 context.ui = (function () {
 
 	return {
-		clearChambers: clearChambers,
 		init: init,
 		initDealer: initDealer,
 		initTimer: initTimer,
 		popDealer: popDealer,
 		pushDealer: pushDealer,
+		reinit: reinit,
 		shifter: shifter,
 		show: show,
 		win: win
@@ -813,7 +825,7 @@ context.ui = (function () {
 	var timer;
 
 	function clearChambers() {
-		chamber = 0;
+		chamberArray = [];
 		$(".chamber").removeClass("Knots Leaves Moons Suns Waves Wyrms");
 	}
 
@@ -862,10 +874,10 @@ context.ui = (function () {
 		
 		// events for the start/replay/save buttons
 		$('#startButton').click(function () {
-			context.init.startButtonClick();
+			context.init.newGame();
 		});
 		$('#replayButton').click(function () {
-			context.init.startButtonClick(true);
+			context.init.newGame(true);
 		});
 		$('#saveButton').click(function () {
 			context.settings.saveGame();
@@ -912,6 +924,21 @@ context.ui = (function () {
 	function popDealer() {
 		//Remove a fake card from the fake deal stack.
 		$("#drawDeckLocation").find(".back:empty").remove();
+	}
+
+	function reinit() {
+		//Clean up the UI for a new game.
+		clearChambers();
+		show('');
+		//Note unundo happens on the refresh.
+	}
+
+	function restoreChambers() {
+		//The UI was previously cleared.
+		//$(".chamber").removeClass("Knots Leaves Moons Suns Waves Wyrms");
+		for (var c=0;c>chamberArray.length;c++) {
+			$("#chamber" + c).addClass(chamberArray[c]);
+		}
 	}
 
 	function shifter(event) {
