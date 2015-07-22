@@ -204,7 +204,7 @@ context.deal = (function () {
 		for (var t=0;t<8;t++) {
 			for (var r=0;r<tablArray[t].length;r++) {
 				var c = tablArray[t][r];
-				context.debug.log("Restoring " + c + " to " + t);
+				context.debug.log("Restoring " + c + " to " + t + " as " + (deck[c].FaceUp ? "face up" : "face down" ));
 				if (deck[c].FaceUp)
 					$(deck[c].selector + " img.realBack").hide();
 				else
@@ -294,7 +294,7 @@ context.cards = (function () {
 		stackDeck: stackDeck
 	};
 
-	function create(again) {
+	function create(again,forRestore) {
 		if (again) {
 			//Delete existing cards.
 			$(".card").remove();
@@ -303,7 +303,8 @@ context.cards = (function () {
 		for (var i = deck.length - 1; i >= 0; i--) {
 			//Not moving back anymore, so set these here.
 			deck[i].Location = 'drawDeckLocation';
-			deck[i].FaceUp = false;
+			if (!forRestore)
+				deck[i].FaceUp = false;
 			
 			//Create.
 			createOnScreenCard(deck[i],i);
@@ -771,7 +772,7 @@ context.settings = (function () {
 		
 		//TODO: Update UI from new tablArray:
 		//Recreate cards.
-		context.cards.create(true);
+		context.cards.create(true,true);
 		//Position cards.
 		context.deal.restore();
 		//Set draggables:
