@@ -36,7 +36,7 @@ context.init = (function () {
 			//Add back in later as an option.
 			//		if (areEmptyTableauSpaces()) {
 			//			alerter("You must fill all tableau spaces before dealing.");
-			//		} else { 
+			//		} else {
 			context.ui.popDealer();
 			if (context.deal.row(false)) {
 				//If anything got dealt, we refresh.
@@ -79,6 +79,8 @@ context.init = (function () {
 		}
 		//Deal to the tableau 4 times plus more for variants
 		context.deal.tableau();
+		context.ui.pushDealer();
+
 		//Initialize the card motion.
 		context.cards.refreshAll();
 		
@@ -192,6 +194,7 @@ context.deal = (function () {
 	//Didn't want to confuse matters by calling this "deck".
 
 	return {
+		getIndexOfTopCardOnDrawDeck: getIndexOfTopCardOnDrawDeck,
 		restore: restore,
 		row: row,
 		tableau: tableau
@@ -264,7 +267,6 @@ context.deal = (function () {
 	}
 
 	function getIndexOfTopCardOnDrawDeck() {
-		//private
 		// get index of the top card in the drawdeck
 		var returnValue = -1;
 		for (var i = 0; i < deck.length; i++) {
@@ -774,6 +776,8 @@ context.settings = (function () {
 		context.deal.restore();
 		//Set draggables:
 		context.cards.refreshAll();
+		//Restore the dealer.
+		context.ui.pushDealer();
 	}
 
 	function saveGame() {
@@ -799,6 +803,7 @@ context.ui = (function () {
 		initDealer: initDealer,
 		initTimer: initTimer,
 		popDealer: popDealer,
+		pushDealer: pushDealer,
 		shifter: shifter,
 		show: show,
 		win: win
@@ -868,9 +873,8 @@ context.ui = (function () {
 	}
 
 	function initDealer() {
-		//Place the fake cards on the fake deal stack.
-		var vari = context.settings.getVariant();
-		$("#drawDeckLocation").html("").append("<div class='back'><div class='back'><div class='back'><div class='back'>" + (vari=="queen" ? "<div class='back'></div>" : (vari=="double" ? "<div class='back'><div class='back'><div class='back'></div></div></div>" : "")) + "</div></div></div></div>");
+		//Place one fake card on the fake deal stack, to be replaced with the spread cards later.
+		$("#drawDeckLocation").html("").append("<div class='back'></div>");
 	}
 
 	function initTimer(atTime) {
@@ -890,6 +894,18 @@ context.ui = (function () {
 			elapsed_seconds = elapsed_seconds + 1;
 			$('#timer').text(displayTimer(elapsed_seconds));
 		}, 1000);
+	}
+
+	function pushDealer() {
+		//Place the fake cards on the fake deal stack.
+		var count = Math.ceil((deck.length - context.deal.getIndexOfTopCardOnDrawDeck())/8);
+		var divString1 = "<div class='back'>";
+		var divString2 = "</div>";
+		var divString = "";
+		for (var d=0;d<count;d++) {
+			divString = divString1 + divString + divString2;
+		}
+		$("#drawDeckLocation").html("").append(divString);
 	}
 
 	function popDealer() {
