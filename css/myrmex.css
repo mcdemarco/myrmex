@@ -292,8 +292,9 @@ div#header {
     display:flex;
     -webkit-flex-direction:row;
     flex-direction:row;
+    -webkit-align-items: center;
+    align-items: center;
     padding:10px 20px;
-    line-height:2;
 }
 
 div#titleLeft {
@@ -301,6 +302,7 @@ div#titleLeft {
     flex: 1 0 0;
     text-align:center;
     color: #251;
+    line-height:1.0;
 }
 
 div#title {
@@ -308,7 +310,6 @@ div#title {
     font-size:xx-large;
     font-weight:bold;
     text-shadow:1px 1px 0px #030;
-    line-height:1.5;
 }
 
 div#deckRow {
@@ -321,8 +322,8 @@ div#titleRight {
     -webkit-flex: 1 0 0;
     flex: 1 0 0;
     text-align:center;
-    padding:15px;
     height:100%;
+    line-height:2.5;
 }
 
 

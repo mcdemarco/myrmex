@@ -15,6 +15,7 @@ var myrmex = {};
 	var chamberArray = [];
 	var deck;
 	var debugging = true;
+	var version = 0.993;
 
 
 context.init = (function () {
@@ -26,24 +27,9 @@ context.init = (function () {
 
 	function load() {
 		//The initialization function called on document ready.
-		context.debug.log("Initializing...");
-
+		context.debug.init();
 		context.settings.init();
 		context.ui.init();
-		
-		//Init dealer.
-		$("#drawDeckLocation").click(function () {
-			//Add back in later as an option.
-			//		if (areEmptyTableauSpaces()) {
-			//			alerter("You must fill all tableau spaces before dealing.");
-			//		} else {
-			context.ui.popDealer();
-			if (context.deal.row(false)) {
-				//If anything got dealt, we refresh.
-				context.cards.refreshAll();
-			}
-			//		}
-		});	
 	
 		initializeDeck();
 	}
@@ -312,11 +298,11 @@ context.cards = (function () {
 		}
 		// create a series of image tags and load up the card images.
 		for (var i = deck.length - 1; i >= 0; i--) {
-			//Not moving back anymore, so set these here.
-			deck[i].Location = 'drawDeckLocation';
-			if (!forRestore)
+			if (!forRestore) {
+				//Not moving back anymore, so set these here.
+				deck[i].Location = 'drawDeckLocation';
 				deck[i].FaceUp = false;
-			
+			}
 			//Create.
 			createOnScreenCard(deck[i],i);
 			//For touch?
@@ -777,6 +763,7 @@ context.settings = (function () {
 		//Loading.
 		deck = JSON.parse(get('savedDeck'));
 		tablArray = JSON.parse(get('savedTableau'));
+		chamberArray = JSON.parse(get('savedChambers'));
 		set('level',get('savedLevel')); //also update ui?
 		//Restart timer at saved value.
 		context.ui.initTimer(get('savedTime'));
@@ -788,6 +775,8 @@ context.settings = (function () {
 		context.deal.restore();
 		//Set draggables:
 		context.cards.refreshAll();
+		//Restore any completed chambers.
+		context.ui.restoreChambers();
 		//Restore the dealer.
 		context.ui.pushDealer();
 	}
@@ -817,6 +806,7 @@ context.ui = (function () {
 		popDealer: popDealer,
 		pushDealer: pushDealer,
 		reinit: reinit,
+		restoreChambers: restoreChambers,
 		shifter: shifter,
 		show: show,
 		win: win
@@ -883,6 +873,19 @@ context.ui = (function () {
 			context.settings.saveGame();
 		});
 
+		//Init dealer.
+		$("#drawDeckLocation").click(function () {
+			//Add back in later as an option.
+			//		if (areEmptyTableauSpaces()) {
+			//			alerter("You must fill all tableau spaces before dealing.");
+			//		} else {
+			context.ui.popDealer();
+			if (context.deal.row(false)) {
+				//If anything got dealt, we refresh.
+				context.cards.refreshAll();
+			}
+			//		}
+		});	
 	}
 
 	function initDealer() {
@@ -936,7 +939,7 @@ context.ui = (function () {
 	function restoreChambers() {
 		//The UI was previously cleared.
 		//$(".chamber").removeClass("Knots Leaves Moons Suns Waves Wyrms");
-		for (var c=0;c>chamberArray.length;c++) {
+		for (var c = 0; c < chamberArray.length; c++) {
 			$("#chamber" + c).addClass(chamberArray[c]);
 		}
 	}
@@ -995,6 +998,7 @@ context.debug = (function () {
 
 	return {
 		check: check,
+		init: init,
 		log: log
 	};
 
@@ -1023,6 +1027,13 @@ context.debug = (function () {
 		});
 	}
 
+	function init() {
+		if (!debugging) return;
+		log("Initializing...");
+		//Write the version number somewhere visible to fight with the appcache.
+		$("#title").append(" " + version);
+	}
+	
 	function log(message) {
 		if (!debugging) return;
 		console.log(message);
