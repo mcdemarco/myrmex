@@ -15,7 +15,8 @@ var myrmex = {};
 	var chamberArray = [];
 	var deck;
 	var debugging = true;
-	var version = 0.993;
+	var undoAllowed = false;
+	var version = "0.9c";
 
 
 context.init = (function () {
@@ -399,7 +400,7 @@ context.cards = (function () {
 		
 		var card = deck[indexOfCard];
 
-		context.debug.log("moving " + card.divID + " from " + card.Location + " to " + spaceIndex + ": " + spaceID);
+		//context.debug.log("moving " + card.divID + " from " + card.Location + " to " + spaceIndex + ": " + spaceID);
 		
 		if (shift < 0) {
 			//Case for spaceIndex < 0 or shift < 0:  moving to unoccupied spaces.
@@ -430,10 +431,10 @@ context.cards = (function () {
 				if (spaceIndex > -1) {
 					//Push; new space is a tableau space.
 					tablArray[spaceIndex] = tablArray[spaceIndex].concat(removed);
-					context.debug.log("removed " + removed + " (" + card.divID + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceIndex + ": " + tablArray[spaceIndex]);
+					//context.debug.log("removed " + removed + " (" + card.divID + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceIndex + ": " + tablArray[spaceIndex]);
 				} else {
 					//No push; new space is not a tableau space.
-					context.debug.log("removed " + removed + " (" + card.divID + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceID);
+					//context.debug.log("removed " + removed + " (" + card.divID + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceID);
 				}
 			} else if (spaceIndex < 0) {
 				//No push from oblivion to weird spaces.  (Not clear that this case ever occurs.)
@@ -492,10 +493,11 @@ context.cards = (function () {
 		var tableauID = "tableau" + tablIndex;
 		if (length == 0) {
 			//The special case of an empty tableau column.
+			context.debug.log("Turning on drop on  " + tableauID); 
 			makeTableauDroppable(tableauID);
 			return;
 		} else {
-			context.debug.log("turning off drop on " + tableauID);
+			context.debug.log("Turning off drop on " + tableauID);
 			makeTableauDroppable(tableauID,true);
 		}
 		var cardIndex = tablArray[tablIndex][length-1];
@@ -510,6 +512,7 @@ context.cards = (function () {
 		}
 		
 		//We always know what happens with the top card.  Note: Stack not working.
+		context.debug.log("Making " + card.divID + " draggable.");
 		makeCardDraggable(card);
 		makeCardDroppable(card);
 		$(card.selector).addClass("topmost");
@@ -552,11 +555,10 @@ context.cards = (function () {
 				$(card.selector).addClass(card.Suit3);
 			}
 			if ($(card.selector).hasClass(card.Suit1) || $(card.selector).hasClass(card.Suit2) || $(card.selector).hasClass(card.Suit3)) {
+				context.debug.log("Making " + card.divID + " draggable for shared suit.");
 				makeCardDraggable(card);
 			}				
 			prevCard = card;
-			//Check for foundation pile, probably also with classes, and remove.
-			//   In this case we want to start the whole refresh over (so call refresh again on the same index).
 		}
 		context.debug.check();
 	}
@@ -599,6 +601,7 @@ context.cards = (function () {
 	}
 
 	function undoable(cardIndex, newCardLocation, oldCardLocation) {
+		if (!undoAllowed) return;
 		//Allow undo using a droppable for the oldCardLocation, which must be a tableau.
 		//The card should already have a draggable, if it's still in the tableau at all.
 		if ($(deck[cardIndex].selector).length == 0) {
@@ -606,27 +609,14 @@ context.cards = (function () {
 			context.debug.log("chamber move of " + cardIndex + " is not undoable");
 			return;
 		}
-		var oldIndex = context.data.getIndexOfTableau(oldCardLocation);
-		var oldShift = context.data.getShiftOfTableau(oldIndex);
-		if (oldShift < 0) {
-			//Since oldIndex must exist, this means the old tableau column is empty.
-			//The previous drag is already undoable with a legal move.
-			context.debug.log("tableau move of  " + deck[cardIndex].divID + " is already undoable");
-		} else {
-			//Finally, the actual undo case.
-			context.debug.log("making " + deck[cardIndex].divID + " undoable");
-			/* var oldCard = deck[tablArray[oldIndex][oldShift]];
-			$(oldCard.selector).droppable({disabled:false,greedy:true,accept:".undo,.value"+(oldCard.Value - 1),drop:function(event, ui){context.cards.drop(oldIndex,$(ui.draggable).prop("id"));}});
-			$(deck[cardIndex].selector).addClass("undo"); */
-		}
-		//Now only set up the Undo button to do the same thing.
+		//Set up the Undo button.
+		context.debug.log("Making move of " + deck[cardIndex].divID + " from " + oldCardLocation + " to " + newCardLocation + " undoable.");
 		$("#undoButton").prop('disabled',false);
 		$("#undoButton").on("click",function(){drop(null,deck[cardIndex].divID,oldCardLocation);});
 	}
 
 	function unundo() {
 		//context.debug.log("turning off undos");
-		/*$(".undo").removeClass("undo");*/
 		$("#undoButton").prop('disabled',true).off();
 	}
 	
@@ -642,6 +632,7 @@ context.settings = (function () {
 		set: set,
 		getVariant: getVariant,
 		isBeetle: isBeetle,
+		loadGameCheck: loadGameCheck,
 		saveGame: saveGame
 	};
 
@@ -1004,7 +995,7 @@ context.debug = (function () {
 
 	function check() {
 		if (!debugging) return;
-		log("checking tableaux");
+		//log("checking tableaux");
 		for (var t=0;t<8;t++)
 			checkColumn(t);
 	}
@@ -1031,12 +1022,27 @@ context.debug = (function () {
 		if (!debugging) return;
 		log("Initializing...");
 		//Write the version number somewhere visible to fight with the appcache.
-		$("#title").append(" " + version);
+		$("#title").append(" <span id='version'>" + version + "</span>");
+		//$("#version").click(function() {saveGame();});
 	}
 	
 	function log(message) {
 		if (!debugging) return;
 		console.log(message);
+	}
+
+	function saveGame() {
+		//store a demo game
+
+		context.debug.log("Saving demo game");
+		context.settings.set('savedDeck','[{"Rank":"CROWN","Suit1":"Leaves","Suit2":"","Suit3":"","Name":"the END","Face":false,"Image":"crown_leaves.png","FaceUp":false,"Value":11,"DeckNo":1,"Selected":false,"Location":"tableau0","divID":"theEND1","selector":"#theEND1"},{"Rank":"2","Suit1":"Suns","Suit2":"Wyrms","Suit3":"","Name":"the DESERT","Face":false,"Image":"2_desert.png","FaceUp":false,"Value":2,"DeckNo":2,"Selected":false,"Location":"tableau1","divID":"theDESERT2","selector":"#theDESERT2"},{"Rank":"Ace","Suit1":"Wyrms","Suit2":"","Suit3":"","Name":"Ace of Wyrms","Face":false,"Image":"1_ace_wyrms.png","FaceUp":false,"Value":1,"DeckNo":1,"Selected":false,"Location":"tableau2","divID":"AceofWyrms1","selector":"#AceofWyrms1"},{"Rank":"5","Suit1":"Wyrms","Suit2":"Knots","Suit3":"","Name":"the SOLDIER","Face":true,"Image":"5_soldier.png","FaceUp":false,"Value":5,"DeckNo":2,"Selected":false,"Location":"tableau3","divID":"theSOLDIER2","selector":"#theSOLDIER2"},{"Rank":"8","Suit1":"Waves","Suit2":"Leaves","Suit3":"","Name":"the MILL","Face":false,"Image":"8_mill.png","FaceUp":true,"Value":8,"DeckNo":1,"Selected":false,"Location":"tableau4","divID":"theMILL1","selector":"#theMILL1"},{"Rank":"Ace","Suit1":"Leaves","Suit2":"","Suit3":"","Name":"Ace of Leaves","Face":false,"Image":"1_ace_leaves.png","FaceUp":true,"Value":1,"DeckNo":1,"Selected":false,"Location":"tableau6","divID":"AceofLeaves1","selector":"#AceofLeaves1"},{"Rank":"3","Suit1":"Leaves","Suit2":"Wyrms","Suit3":"","Name":"the SAVAGE","Face":true,"Image":"3_savage.png","FaceUp":false,"Value":3,"DeckNo":1,"Selected":false,"Location":"tableau6","divID":"theSAVAGE1","selector":"#theSAVAGE1"},{"Rank":"5","Suit1":"Suns","Suit2":"Waves","Suit3":"","Name":"the DISCOVERY","Face":false,"Image":"5_discovery.png","FaceUp":false,"Value":5,"DeckNo":2,"Selected":false,"Location":"tableau7","divID":"theDISCOVERY2","selector":"#theDISCOVERY2"},{"Rank":"2","Suit1":"Suns","Suit2":"Wyrms","Suit3":"","Name":"the DESERT","Face":false,"Image":"2_desert.png","FaceUp":true,"Value":2,"DeckNo":1,"Selected":false,"Location":"tableau0","divID":"theDESERT1","selector":"#theDESERT1"},{"Rank":"9","Suit1":"Leaves","Suit2":"Knots","Suit3":"","Name":"the MERCHANT","Face":true,"Image":"9_merchant.png","FaceUp":false,"Value":9,"DeckNo":2,"Selected":false,"Location":"tableau1","divID":"theMERCHANT2","selector":"#theMERCHANT2"},{"Rank":"9","Suit1":"Leaves","Suit2":"Knots","Suit3":"","Name":"the MERCHANT","Face":true,"Image":"9_merchant.png","FaceUp":false,"Value":9,"DeckNo":1,"Selected":false,"Location":"tableau2","divID":"theMERCHANT1","selector":"#theMERCHANT1"},{"Rank":"PAWN","Suit1":"Moons","Suit2":"Suns","Suit3":"Leaves","Name":"the HARVEST","Face":false,"Image":"pawn_harvest.png","FaceUp":false,"Value":10,"DeckNo":1,"Selected":false,"Location":"tableau3","divID":"theHARVEST1","selector":"#theHARVEST1"},{"Rank":"7","Suit1":"Moons","Suit2":"Leaves","Suit3":"","Name":"the CHANCE MEETING","Face":false,"Image":"7_chance_meeting.png","FaceUp":true,"Value":7,"DeckNo":1,"Selected":false,"Location":"tableau7","divID":"theCHANCEMEETING1","selector":"#theCHANCEMEETING1"},{"Rank":"4","Suit1":"Wyrms","Suit2":"Knots","Suit3":"","Name":"the BATTLE","Face":false,"Image":"4_battle.png","FaceUp":true,"Value":4,"DeckNo":1,"Selected":false,"Location":"tableau6","divID":"theBATTLE1","selector":"#theBATTLE1"},{"Rank":"CROWN","Suit1":"Suns","Suit2":"","Suit3":"","Name":"the BARD","Face":true,"Image":"crown_suns.png","FaceUp":false,"Value":11,"DeckNo":1,"Selected":false,"Location":"tableau6","divID":"theBARD1","selector":"#theBARD1"},{"Rank":"3","Suit1":"Suns","Suit2":"Knots","Suit3":"","Name":"the PAINTER","Face":true,"Image":"3_painter.png","FaceUp":false,"Value":3,"DeckNo":2,"Selected":false,"Location":"tableau7","divID":"thePAINTER2","selector":"#thePAINTER2"},{"Rank":"6","Suit1":"Moons","Suit2":"Waves","Suit3":"","Name":"the LUNATIC","Face":true,"Image":"6_lunactic.png","FaceUp":true,"Value":6,"DeckNo":1,"Selected":false,"Location":"tableau7","divID":"theLUNATIC1","selector":"#theLUNATIC1"},{"Rank":"CROWN","Suit1":"Wyrms","Suit2":"","Suit3":"","Name":"the CALAMITY","Face":false,"Image":"crown_wyrms.png","FaceUp":true,"Value":11,"DeckNo":1,"Selected":false,"Location":"tableau1","divID":"theCALAMITY1","selector":"#theCALAMITY1"},{"Rank":"2","Suit1":"Moons","Suit2":"Knots","Suit3":"","Name":"the AUTHOR","Face":true,"Image":"2_author.png","FaceUp":false,"Value":2,"DeckNo":1,"Selected":false,"Location":"tableau2","divID":"theAUTHOR1","selector":"#theAUTHOR1"},{"Rank":"6","Suit1":"Moons","Suit2":"Waves","Suit3":"","Name":"the LUNATIC","Face":true,"Image":"6_lunactic.png","FaceUp":false,"Value":6,"DeckNo":2,"Selected":false,"Location":"tableau3","divID":"theLUNATIC2","selector":"#theLUNATIC2"},{"Rank":"9","Suit1":"Waves","Suit2":"Wyrms","Suit3":"","Name":"the DARKNESS","Face":false,"Image":"9_darkness.png","FaceUp":true,"Value":9,"DeckNo":1,"Selected":false,"Location":"tableau2","divID":"theDARKNESS1","selector":"#theDARKNESS1"},{"Rank":"5","Suit1":"Wyrms","Suit2":"Knots","Suit3":"","Name":"the SOLDIER","Face":true,"Image":"5_soldier.png","FaceUp":true,"Value":5,"DeckNo":1,"Selected":false,"Location":"tableau6","divID":"theSOLDIER1","selector":"#theSOLDIER1"},{"Rank":"PAWN","Suit1":"Moons","Suit2":"Wyrms","Suit3":"Knots","Name":"the WATCHMAN","Face":true,"Image":"pawn_watchman.png","FaceUp":false,"Value":10,"DeckNo":1,"Selected":false,"Location":"tableau6","divID":"theWATCHMAN1","selector":"#theWATCHMAN1"},{"Rank":"4","Suit1":"Moons","Suit2":"Suns","Suit3":"","Name":"the MOUNTAIN","Face":false,"Image":"4_mountain.png","FaceUp":false,"Value":4,"DeckNo":1,"Selected":false,"Location":"tableau7","divID":"theMOUNTAIN1","selector":"#theMOUNTAIN1"},{"Rank":"Ace","Suit1":"Waves","Suit2":"","Suit3":"","Name":"Ace of Waves","Face":false,"Image":"1_ace_waves.png","FaceUp":true,"Value":1,"DeckNo":1,"Selected":false,"Location":"tableau2","divID":"AceofWaves1","selector":"#AceofWaves1"},{"Rank":"7","Suit1":"Moons","Suit2":"Leaves","Suit3":"","Name":"the CHANCE MEETING","Face":false,"Image":"7_chance_meeting.png","FaceUp":true,"Value":7,"DeckNo":2,"Selected":false,"Location":"tableau6","divID":"theCHANCEMEETING2","selector":"#theCHANCEMEETING2"},{"Rank":"PAWN","Suit1":"Waves","Suit2":"Leaves","Suit3":"Wyrms","Name":"the BORDERLAND","Face":false,"Image":"pawn_borderland.png","FaceUp":false,"Value":10,"DeckNo":2,"Selected":false,"Location":"tableau2","divID":"theBORDERLAND2","selector":"#theBORDERLAND2"},{"Rank":"6","Suit1":"Leaves","Suit2":"Knots","Suit3":"","Name":"the MARKET","Face":false,"Image":"6_market.png","FaceUp":false,"Value":6,"DeckNo":1,"Selected":false,"Location":"tableau3","divID":"theMARKET1","selector":"#theMARKET1"},{"Rank":"8","Suit1":"Moons","Suit2":"Suns","Suit3":"","Name":"the DIPLOMAT","Face":true,"Image":"8_diplomat.png","FaceUp":true,"Value":8,"DeckNo":2,"Selected":false,"Location":"tableau7","divID":"theDIPLOMAT2","selector":"#theDIPLOMAT2"},{"Rank":"5","Suit1":"Moons","Suit2":"Leaves","Suit3":"","Name":"the FOREST","Face":false,"Image":"5_forest.png","FaceUp":true,"Value":5,"DeckNo":2,"Selected":false,"Location":"tableau2","divID":"theFOREST2","selector":"#theFOREST2"},{"Rank":"8","Suit1":"Wyrms","Suit2":"Knots","Suit3":"","Name":"the BETRAYAL","Face":false,"Image":"8_betrayal.png","FaceUp":true,"Value":8,"DeckNo":2,"Selected":false,"Location":"tableau2","divID":"theBETRAYAL2","selector":"#theBETRAYAL2"},{"Rank":"8","Suit1":"Waves","Suit2":"Leaves","Suit3":"","Name":"the MILL","Face":false,"Image":"8_mill.png","FaceUp":true,"Value":8,"DeckNo":2,"Selected":false,"Location":"tableau6","divID":"theMILL2","selector":"#theMILL2"},{"Rank":"2","Suit1":"Moons","Suit2":"Knots","Suit3":"","Name":"the AUTHOR","Face":true,"Image":"2_author.png","FaceUp":true,"Value":2,"DeckNo":2,"Selected":false,"Location":"tableau2","divID":"theAUTHOR2","selector":"#theAUTHOR2"},{"Rank":"CROWN","Suit1":"Waves","Suit2":"","Suit3":"","Name":"the SEA","Face":false,"Image":"crown_waves.png","FaceUp":true,"Value":11,"DeckNo":1,"Selected":false,"Location":"tableau3","divID":"theSEA1","selector":"#theSEA1"},{"Rank":"4","Suit1":"Waves","Suit2":"Leaves","Suit3":"","Name":"the SAILOR","Face":true,"Image":"4_sailor.png","FaceUp":true,"Value":4,"DeckNo":1,"Selected":false,"Location":"tableau2","divID":"theSAILOR1","selector":"#theSAILOR1"},{"Rank":"6","Suit1":"Suns","Suit2":"Wyrms","Suit3":"","Name":"the PENITENT","Face":true,"Image":"6_penitent.png","FaceUp":true,"Value":6,"DeckNo":2,"Selected":false,"Location":"tableau6","divID":"thePENITENT2","selector":"#thePENITENT2"},{"Rank":"9","Suit1":"Waves","Suit2":"Wyrms","Suit3":"","Name":"the DARKNESS","Face":false,"Image":"9_darkness.png","FaceUp":true,"Value":9,"DeckNo":2,"Selected":false,"Location":"tableau6","divID":"theDARKNESS2","selector":"#theDARKNESS2"},{"Rank":"9","Suit1":"Moons","Suit2":"Suns","Suit3":"","Name":"the PACT","Face":false,"Image":"9_pact.png","FaceUp":true,"Value":9,"DeckNo":1,"Selected":false,"Location":"tableau7","divID":"thePACT1","selector":"#thePACT1"},{"Rank":"3","Suit1":"Leaves","Suit2":"Wyrms","Suit3":"","Name":"the SAVAGE","Face":true,"Image":"3_savage.png","FaceUp":true,"Value":3,"DeckNo":2,"Selected":false,"Location":"tableau6","divID":"theSAVAGE2","selector":"#theSAVAGE2"},{"Rank":"PAWN","Suit1":"Waves","Suit2":"Leaves","Suit3":"Wyrms","Name":"the BORDERLAND","Face":false,"Image":"pawn_borderland.png","FaceUp":true,"Value":10,"DeckNo":1,"Selected":false,"Location":"tableau2","divID":"theBORDERLAND1","selector":"#theBORDERLAND1"},{"Rank":"CROWN","Suit1":"Knots","Suit2":"","Suit3":"","Name":"the WINDFALL","Face":false,"Image":"crown_knots.png","FaceUp":true,"Value":11,"DeckNo":1,"Selected":false,"Location":"tableau2","divID":"theWINDFALL1","selector":"#theWINDFALL1"},{"Rank":"6","Suit1":"Suns","Suit2":"Wyrms","Suit3":"","Name":"the PENITENT","Face":true,"Image":"6_penitent.png","FaceUp":true,"Value":6,"DeckNo":1,"Selected":false,"Location":"tableau3","divID":"thePENITENT1","selector":"#thePENITENT1"},{"Rank":"2","Suit1":"Waves","Suit2":"Leaves","Suit3":"","Name":"the ORIGIN","Face":false,"Image":"2_origin.png","FaceUp":true,"Value":2,"DeckNo":2,"Selected":false,"Location":"tableau6","divID":"theORIGIN2","selector":"#theORIGIN2"},{"Rank":"7","Suit1":"Suns","Suit2":"Knots","Suit3":"","Name":"the CASTLE","Face":false,"Image":"7_castle.png","FaceUp":true,"Value":7,"DeckNo":1,"Selected":false,"Location":"tableau2","divID":"theCASTLE1","selector":"#theCASTLE1"},{"Rank":"6","Suit1":"Leaves","Suit2":"Knots","Suit3":"","Name":"the MARKET","Face":false,"Image":"6_market.png","FaceUp":true,"Value":6,"DeckNo":2,"Selected":false,"Location":"tableau2","divID":"theMARKET2","selector":"#theMARKET2"},{"Rank":"Ace","Suit1":"Moons","Suit2":"","Suit3":"","Name":"Ace of Moons","Face":false,"Image":"1_ace_moons.png","FaceUp":true,"Value":1,"DeckNo":1,"Selected":false,"Location":"tableau0","divID":"AceofMoons1","selector":"#AceofMoons1"},{"Rank":"Ace","Suit1":"Suns","Suit2":"","Suit3":"","Name":"Ace of Suns","Face":false,"Image":"1_ace_suns.png","FaceUp":false,"Value":1,"DeckNo":1,"Selected":false,"Location":"drawDeckLocation","divID":"AceofSuns1","selector":"#AceofSuns1"},{"Rank":"4","Suit1":"Moons","Suit2":"Suns","Suit3":"","Name":"the MOUNTAIN","Face":false,"Image":"4_mountain.png","FaceUp":false,"Value":4,"DeckNo":2,"Selected":false,"Location":"drawDeckLocation","divID":"theMOUNTAIN2","selector":"#theMOUNTAIN2"},{"Rank":"2","Suit1":"Waves","Suit2":"Leaves","Suit3":"","Name":"the ORIGIN","Face":false,"Image":"2_origin.png","FaceUp":false,"Value":2,"DeckNo":1,"Selected":false,"Location":"drawDeckLocation","divID":"theORIGIN1","selector":"#theORIGIN1"},{"Rank":"3","Suit1":"Moons","Suit2":"Waves","Suit3":"","Name":"the JOURNEY","Face":false,"Image":"3_journey.png","FaceUp":false,"Value":3,"DeckNo":1,"Selected":false,"Location":"drawDeckLocation","divID":"theJOURNEY1","selector":"#theJOURNEY1"},{"Rank":"Ace","Suit1":"Knots","Suit2":"","Suit3":"","Name":"Ace of Knots","Face":false,"Image":"1_ace_knots.png","FaceUp":false,"Value":1,"DeckNo":1,"Selected":false,"Location":"drawDeckLocation","divID":"AceofKnots1","selector":"#AceofKnots1"},{"Rank":"CROWN","Suit1":"Moons","Suit2":"","Suit3":"","Name":"the HUNTRESS","Face":true,"Image":"crown_moons.png","FaceUp":false,"Value":11,"DeckNo":1,"Selected":false,"Location":"drawDeckLocation","divID":"theHUNTRESS1","selector":"#theHUNTRESS1"},{"Rank":"8","Suit1":"Wyrms","Suit2":"Knots","Suit3":"","Name":"the BETRAYAL","Face":false,"Image":"8_betrayal.png","FaceUp":false,"Value":8,"DeckNo":1,"Selected":false,"Location":"drawDeckLocation","divID":"theBETRAYAL1","selector":"#theBETRAYAL1"},{"Rank":"7","Suit1":"Waves","Suit2":"Wyrms","Suit3":"","Name":"the CAVE","Face":false,"Image":"7_cave.png","FaceUp":false,"Value":7,"DeckNo":1,"Selected":false,"Location":"drawDeckLocation","divID":"theCAVE1","selector":"#theCAVE1"},{"Rank":"3","Suit1":"Moons","Suit2":"Waves","Suit3":"","Name":"the JOURNEY","Face":false,"Image":"3_journey.png","FaceUp":false,"Value":3,"DeckNo":2,"Selected":false,"Location":"drawDeckLocation","divID":"theJOURNEY2","selector":"#theJOURNEY2"},{"Rank":"8","Suit1":"Moons","Suit2":"Suns","Suit3":"","Name":"the DIPLOMAT","Face":true,"Image":"8_diplomat.png","FaceUp":false,"Value":8,"DeckNo":1,"Selected":false,"Location":"drawDeckLocation","divID":"theDIPLOMAT1","selector":"#theDIPLOMAT1"},{"Rank":"PAWN","Suit1":"Moons","Suit2":"Suns","Suit3":"Leaves","Name":"the HARVEST","Face":false,"Image":"pawn_harvest.png","FaceUp":false,"Value":10,"DeckNo":2,"Selected":false,"Location":"drawDeckLocation","divID":"theHARVEST2","selector":"#theHARVEST2"},{"Rank":"9","Suit1":"Moons","Suit2":"Suns","Suit3":"","Name":"the PACT","Face":false,"Image":"9_pact.png","FaceUp":false,"Value":9,"DeckNo":2,"Selected":false,"Location":"drawDeckLocation","divID":"thePACT2","selector":"#thePACT2"},{"Rank":"5","Suit1":"Moons","Suit2":"Leaves","Suit3":"","Name":"the FOREST","Face":false,"Image":"5_forest.png","FaceUp":false,"Value":5,"DeckNo":1,"Selected":false,"Location":"drawDeckLocation","divID":"theFOREST1","selector":"#theFOREST1"},{"Rank":"4","Suit1":"Wyrms","Suit2":"Knots","Suit3":"","Name":"the BATTLE","Face":false,"Image":"4_battle.png","FaceUp":false,"Value":4,"DeckNo":2,"Selected":false,"Location":"drawDeckLocation","divID":"theBATTLE2","selector":"#theBATTLE2"},{"Rank":"7","Suit1":"Waves","Suit2":"Wyrms","Suit3":"","Name":"the CAVE","Face":false,"Image":"7_cave.png","FaceUp":false,"Value":7,"DeckNo":2,"Selected":false,"Location":"drawDeckLocation","divID":"theCAVE2","selector":"#theCAVE2"},{"Rank":"7","Suit1":"Suns","Suit2":"Knots","Suit3":"","Name":"the CASTLE","Face":false,"Image":"7_castle.png","FaceUp":false,"Value":7,"DeckNo":2,"Selected":false,"Location":"drawDeckLocation","divID":"theCASTLE2","selector":"#theCASTLE2"},{"Rank":"3","Suit1":"Suns","Suit2":"Knots","Suit3":"","Name":"the PAINTER","Face":true,"Image":"3_painter.png","FaceUp":false,"Value":3,"DeckNo":1,"Selected":false,"Location":"drawDeckLocation","divID":"thePAINTER1","selector":"#thePAINTER1"},{"Rank":"4","Suit1":"Waves","Suit2":"Leaves","Suit3":"","Name":"the SAILOR","Face":true,"Image":"4_sailor.png","FaceUp":false,"Value":4,"DeckNo":2,"Selected":false,"Location":"drawDeckLocation","divID":"theSAILOR2","selector":"#theSAILOR2"},{"Rank":"PAWN","Suit1":"Moons","Suit2":"Wyrms","Suit3":"Knots","Name":"the WATCHMAN","Face":true,"Image":"pawn_watchman.png","FaceUp":false,"Value":10,"DeckNo":2,"Selected":false,"Location":"drawDeckLocation","divID":"theWATCHMAN2","selector":"#theWATCHMAN2"},{"Rank":"5","Suit1":"Suns","Suit2":"Waves","Suit3":"","Name":"the DISCOVERY","Face":false,"Image":"5_discovery.png","FaceUp":false,"Value":5,"DeckNo":1,"Selected":false,"Location":"drawDeckLocation","divID":"theDISCOVERY1","selector":"#theDISCOVERY1"}]');
+		context.settings.set('savedTableau','[[0,8,45],[1,9,17],[2,10,18,26,32,24,40,39,20,30,43,44,29,34],[3,11,19,27,33,41],[4],[],[6,14,22,36,31,25,35,21,13,38,42,5],[7,15,23,37,28,12,16]]');
+		context.settings.set('savedChambers','[]');
+		context.settings.set('savedLevel','beetleMajor');
+		context.settings.set('savedTime','05:00');
+
+		//Update the load button.
+		context.settings.loadGameCheck();
 	}
 
 })();
