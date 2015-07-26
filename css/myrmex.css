@@ -8,7 +8,7 @@ Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
 /* basics */
 
 * {
-    box-model:border-box;
+    box-sizing:border-box;
 }
 
 ::selection {
@@ -19,6 +19,62 @@ p::selection {
     color:black;
     background:#C3FEB5;
 }
+
+/* layout: width is 1110px */
+
+html, body {
+    margin:0;
+    height:100%;
+}
+
+#playarea {
+    padding:0 10px 10px 10px;
+}
+
+#playarea {
+    width:1122px;
+    margin: 0 auto;
+    height:100%;
+    padding-top:125px;
+    overflow:auto;
+}
+
+/* removed flex from header */
+
+div#header {
+    position:absolute;
+    top:0;
+    display:table;
+    width:1110px;
+    padding:10px 20px;
+}
+
+div#header > div {
+    display:table-cell;
+    vertical-align: middle;
+    text-align: center;
+}
+
+div#titleLeft {
+    color: #251;
+    line-height:1.0;
+}
+
+div#title {
+    color: #170;
+    font-size:xx-large;
+    font-weight:bold;
+    text-shadow:1px 1px 0px #030;
+}
+
+div#deckrow {
+    white-space:nowrap;
+}
+
+div#titleRight {
+    line-height:2.5;
+}
+
 
 /* Sizing
    original card size: 100x150
@@ -63,11 +119,6 @@ p::selection {
     background-size: 62px 87px;
 }
 
-.embiggen .cardspace, .embiggen .card {
-    width:124px;
-    height:174px;
-}
-
 .cardspace {
     position:relative;
     margin:4px;
@@ -100,10 +151,6 @@ p::selection {
     top:44px;
 }
 
-.embiggen .cardspace {
-    margin:2px;
-}
-
 .magnify .card {
     background-size:248px 348px;
     border-radius:12px 0 0 0;
@@ -126,7 +173,8 @@ p::selection {
 }
 
 .cardspace {
-    border:thin solid #170;
+    /* border:thin solid #170; */
+    background-color:rgba(64,115,52,0.4);/*17,119,0,0.4); */
 }
 
 .cardspace, .card {
@@ -167,10 +215,10 @@ p::selection {
     position:absolute;
     top:0;
     left:0;
+    box-sizing:content-box;
+    border: solid #fffefe;
+    border-width:2px 0 12px 2px;
     border-radius:6px;
-    padding-left:2px 0 12px 2px;
-    padding-bottom:12px;
-    background-color: #fffefe;
     width:20px;
     height:20px;
     opacity:.99;
@@ -178,8 +226,7 @@ p::selection {
 
 .magnify .aceAdjust {
     border-radius:12px;
-    padding-left:4px 0 24px 4px;
-    padding-bottom:24px;
+    border-width:4px 0 24px 4px;
     width:40px;
     height:40px;
 }
@@ -187,7 +234,7 @@ p::selection {
 .suit1, .suit2, .suit3 {
     position:absolute;
     top:0;
-    padding-top: 2px;
+    margin-top: 2px;
     background-color: #fffefe;
     width:20px;
     height:20px;
@@ -285,82 +332,9 @@ p {
     font-size: 30px;
 }
 
-/* layout: header */
-
-div#header {
-    display:-webkit-flex;
-    display:flex;
-    -webkit-flex-direction:row;
-    flex-direction:row;
-    -webkit-align-items: center;
-    align-items: center;
-    padding:10px 20px;
-}
-
-div#titleLeft {
-    -webkit-flex: 1 0 0;
-    flex: 1 0 0;
-    text-align:center;
-    color: #251;
-    line-height:1.0;
-}
-
-div#title {
-    color: #170;
-    font-size:xx-large;
-    font-weight:bold;
-    text-shadow:1px 1px 0px #030;
-}
-
-div#deckRow {
-    -webkit-flex: 2 0 0;
-    flex: 2 0 0;
-    text-align:center;
-}
-
-div#titleRight {
-    -webkit-flex: 1 0 0;
-    flex: 1 0 0;
-    text-align:center;
-    height:100%;
-    line-height:2.5;
-}
-
-
 p.callout {
     padding: 0 5%;
     font-style:italic;
-}
-
-/* layout: game */
-
-#gamewrapper {
-    padding:0 10px 10px 10px;
-    white-space:nowrap;
-    min-height: 500px;
-}
-
-.embiggen #gamewrapper {
-    min-height: 500px;
-}
-
-body, #playarea {
-    min-width:1150px;
-    min-height:1000px;
-}
-
-.embiggen #playarea {
-    min-width:780px;
-}
-
-.titlerow {
-    height:30px;
-    margin:2px;
-    min-width:100%;
-    text-align:center;
-    vertical-align:middle;
-    color:white;
-    padding:5px;
 }
 
 .button {
@@ -406,23 +380,8 @@ body, #playarea {
 }
 
 .gamerow {
-    margin:4px;
-    float:left;
     height:187px;
-    width:auto;
     text-align:center;
-    min-width:680px;
-}
-
-.embiggen .gamerow {
-    margin:2px;
-    height:163px;
-    width:600px;
-    min-width:550px;
-}
-
-.deckrow {
-    margin-top:10px;
 }
 
 .backgroundtext {
@@ -439,7 +398,7 @@ body, #playarea {
     position:absolute;
     top:0;
     left:0;
-    min-height:1000px;
+    min-height:500px;
     height:auto;
     background-color: rgba(114,169,101,0.90);
     color:white;

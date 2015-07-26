@@ -15,8 +15,8 @@ var myrmex = {};
 	var chamberArray = [];
 	var deck;
 	var debugging = true;
-	var undoAllowed = false;
-	var version = "0.9c";
+	var undoAllowed = true;
+	var version = "0.9j";
 
 
 context.init = (function () {
@@ -333,7 +333,7 @@ context.cards = (function () {
 			}
 		}
 		imageLit += '<img class="realBack" src="cards/back.png" /></div>';
-		$(imageLit).appendTo('#gamewrapper').hide();
+		$(imageLit).appendTo('#playarea').hide();
 		if (card.FaceUp) 
 			$("#" + card.divID + " img.realBack").hide();
 	}
@@ -473,7 +473,7 @@ context.cards = (function () {
 		}
 		
 		//Re-refresh the source column or win.
-		if (spaceID == "chamber6") {
+		if (spaceID == "chamber5") {
 			context.ui.win(1);
 		} else {
 			//context.debug.log("post-chamber refreshing tableau column " + tablIndex);
@@ -905,7 +905,9 @@ context.ui = (function () {
 
 	function pushDealer() {
 		//Place the fake cards on the fake deal stack.
-		var count = Math.ceil((deck.length - context.deal.getIndexOfTopCardOnDrawDeck())/8);
+		var top = context.deal.getIndexOfTopCardOnDrawDeck();
+		if (top < 0) return;
+		var count = Math.ceil((deck.length - top)/8);
 		var divString1 = "<div class='back'>";
 		var divString2 = "</div>";
 		var divString = "";
