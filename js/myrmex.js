@@ -17,7 +17,7 @@ var myrmex = {};
 	var debugging = true;
 	var debugLevel = 2;
 	var undoAllowed = true;
-	var version = "0.9k";
+	var version = "0.9m";
 
 
 context.init = (function () {
@@ -29,6 +29,7 @@ context.init = (function () {
 
 	function load() {
 		//The initialization function called on document ready.
+		
 		context.debug.init();
 		context.settings.init();
 		context.ui.init();
@@ -339,12 +340,12 @@ context.cards = (function () {
 			$("#" + card.divID + " img.realBack").hide();
 	}
 
-	function drop(droppedOnCardIndex,dragAndDropMeID,droppedOnTableauID,fromUndo) {
-		if (fromUndo)
-			context.debug.log("Undoing move of " + dragAndDropMeID,2);
+	function drop(droppedOnCardIndex,dragAndDropMeID,droppedOnTableauID,fromFunc) {
+		if (fromFunc)
+			context.debug.log("Drop/move of " + dragAndDropMeID + " to " + (droppedOnCardIndex ? droppedOnCardIndex : droppedOnTableauID) + " called from " + fromFunc,2);
 		//Officially move the card.
 		var spaceID = (droppedOnTableauID ? droppedOnTableauID : deck[droppedOnCardIndex].Location);
-		context.debug.log("dropping " + dragAndDropMeID + " on " + spaceID,1);
+		context.debug.log("dropping " + dragAndDropMeID + " on " + spaceID,2);
 		var cardIndex = context.data.getIndexOfCardFromID(dragAndDropMeID);
 		var originalCardLocation = deck[cardIndex].Location;
 		//Avoid bugs in dropping multiple cards back on their source stack.
@@ -380,14 +381,14 @@ context.cards = (function () {
 		if (disable)
 			$(card.selector).droppable({disabled:true});
 		else
-			$(card.selector).droppable({disabled:false,greedy:true,accept:".value"+(card.Value - 1),drop:function(event, ui){context.cards.drop(context.data.getIndexOfCardFromID(card.divID),$(ui.draggable).prop("id"));}});
+			$(card.selector).droppable({disabled:false,greedy:true,accept:".value"+(card.Value - 1),drop:function(event, ui){context.cards.drop(context.data.getIndexOfCardFromID(card.divID),$(ui.draggable).prop("id"),null,"makeCardDroppable(" + card.divID + ")");}});
 	}
 
 	function makeTableauDroppable(tableauID,disable) {
 		if (disable)
 			$("#" + tableauID).droppable({disabled:true});
 		else
-			$("#" + tableauID).droppable({disabled:false,greedy:true,accept:".card",drop:function(event, ui){context.cards.drop(null,$(ui.draggable).prop("id"),tableauID);}});
+			$("#" + tableauID).droppable({disabled:false,greedy:true,accept:".card",drop:function(event, ui){context.cards.drop(null,$(ui.draggable).prop("id"),tableauID,"makeTableauDroppable("+ tableauID +")");}});
 	}
 
 	function move(indexOfCard, spaceID, delayUnits, shift) {
@@ -615,7 +616,7 @@ context.cards = (function () {
 		//Set up the Undo button.
 		context.debug.log("Making move of " + deck[cardIndex].divID + " from " + oldCardLocation + " to " + newCardLocation + " undoable.",2);
 		$("#undoButton").prop('disabled',false).off();
-		$("#undoButton").on("click",function(){drop(null,deck[cardIndex].divID,oldCardLocation,true);});
+		$("#undoButton").on("click",function(){drop(null,deck[cardIndex].divID,oldCardLocation,"undoable(" + cardIndex + "," + newCardLocation + "," + oldCardLocation + ")");});
 	}
 
 	function unundo() {
