@@ -1,10 +1,11 @@
 CACHE MANIFEST
-# v0.9m - 2015-07-26
+# v0.9n - 2015-07-28
 # myrmex.html is the file that calls the manifest.
 
 CACHE:
 js/jquery-latest.min.js
-js/jquery-ui.min.js
+#js/jquery-ui.min.js
+js/jquery-ui.js
 js/jquery.ui.touch-punch.min.js
 js/jquery.transit.min.js
 js/decktet.js

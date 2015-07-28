@@ -2465,6 +2465,12 @@ $.ui.ddmanager = {
 		// Create a copy of the droppables in case the list changes during the drop (#9116)
 		$.each( ( $.ui.ddmanager.droppables[ draggable.options.scope ] || [] ).slice(), function() {
 
+			//Begin https://github.com/Mdonmounts/jquery-ui/commit/4e710037243026f37d51f161ac923ed63b8458bb 
+			if ( this.greedyChild ) {
+				this.greedyChild = false;
+			}
+			//End pull request (added manually)
+			
 			if ( !this.options ) {
 				return;
 			}
