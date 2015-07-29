@@ -17,7 +17,7 @@ var myrmex = {};
 	var debugging = true;
 	var debugLevel = 2;
 	var undoAllowed = true;
-	var version = "0.9n";
+	var version = "0.9o";
 
 
 context.init = (function () {
@@ -371,23 +371,20 @@ context.cards = (function () {
 	}
 
 	function makeCardDraggable(card,disable) {
-		if (disable)
-			$(card.selector).draggable({disabled:true});
-		else
+		$(card.selector).draggable({disabled:true});
+		if (!disable)
 			$(card.selector).draggable({containment:'#playarea',cursor:'move',disabled:false,zIndex:100,revert:'invalid'});
 	}
 
 	function makeCardDroppable(card,disable) {
-		if (disable)
-			$(card.selector).droppable({disabled:true});
-		else
+		$(card.selector).droppable({disabled:true});
+		if (!disable)
 			$(card.selector).droppable({disabled:false,greedy:true,accept:".value"+(card.Value - 1),drop:function(event, ui){context.cards.drop(context.data.getIndexOfCardFromID(card.divID),$(ui.draggable).prop("id"),null,"makeCardDroppable(" + card.divID + ")");}});
 	}
 
 	function makeTableauDroppable(tableauID,disable) {
-		if (disable)
-			$("#" + tableauID).droppable({disabled:true});
-		else
+		$("#" + tableauID).droppable({disabled:true});
+		if (!disable)
 			$("#" + tableauID).droppable({disabled:false,greedy:true,accept:".card",drop:function(event, ui){context.cards.drop(null,$(ui.draggable).prop("id"),tableauID,"makeTableauDroppable("+ tableauID +")");}});
 	}
 
@@ -424,29 +421,13 @@ context.cards = (function () {
 		}
 		$(card.selector).css("z-index",(shift+1));
 
-		var removed = [];
+		var removed;
 		if (!noUpdate) {
 			//Add to array, cleaning up any old version.
 			var oldColumn = context.data.getIndexOfTableau(card.Location);
-			if (oldColumn >= 0) {
-				//If it existed, pop it and any children from its previous array location and push onto new location.
-				var pops = $(card.selector).find('.card').length + 1;
-				removed = tablArray[oldColumn].splice(tablArray[oldColumn].length - pops,pops);
-				if (spaceIndex > -1) {
-					//Push; new space is a tableau space.
-					tablArray[spaceIndex] = tablArray[spaceIndex].concat(removed);
-					context.debug.log("removed " + removed + " (" + card.divID + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceIndex + ": " + tablArray[spaceIndex],-2);
-				} else {
-					//No push; new space is not a tableau space.
-					context.debug.log("removed " + removed + " (" + card.divID + ") from " + oldColumn + ": " + tablArray[oldColumn] + " to " + spaceID,-2);
-				}
-			} else if (spaceIndex < 0) {
-				//No push from oblivion to weird spaces.  (Not clear that this case ever occurs.)
-				context.debug.log("didn't push to " + spaceID,3);
-			} else {
-				//It didn't exist but it does now so it's a single card that needs some CSS and a push.
-				tablArray[spaceIndex].push(indexOfCard);
-			}
+			removed = pusher(indexOfCard, oldColumn, spaceIndex);
+		} else {
+			removed = [];
 		}
 		
 		// reset card locations, including fellow-travellers'
@@ -455,6 +436,32 @@ context.cards = (function () {
 			deck[removed[r]].Location = spaceID;
 		
 		//The removed array is returned for use in foundation moves.
+		return removed;
+	}
+
+	function pusher(cardIndex, oldIndex, newIndex) {
+		//private
+		var removed = [];
+		var card = deck[cardIndex];
+		if (oldIndex >= 0) {
+			//If the card already existed, pop it and any children from its previous array location and push onto new location.
+			var pops = $(card.selector).find('.card').length + 1;
+			removed = tablArray[oldIndex].splice(tablArray[oldIndex].length - pops,pops);
+				if (newIndex > -1) {
+					//Push; new space is a tableau space.
+					tablArray[newIndex] = tablArray[newIndex].concat(removed);
+					context.debug.log("removed " + removed + " (" + card.divID + ") from " + oldIndex + ": " + tablArray[oldIndex] + " to " + newIndex + ": " + tablArray[newIndex],-2);
+				} else {
+					//No push; new space is not a tableau space.
+					context.debug.log("removed " + removed + " (" + card.divID + ") from " + oldIndex + ": " + tablArray[oldIndex] + " to " + newIndex,-2);
+				}
+			} else if (newIndex < 0) {
+				//No push from oblivion to weird spaces.  (Not clear that this case ever occurs.)
+				context.debug.log("didn't push to " + newIndex,3);
+			} else {
+				//It didn't exist but it does now so it's a single card that needs some CSS and a push.
+				tablArray[newIndex].push(cardIndex);
+			}
 		return removed;
 	}
 
@@ -528,16 +535,11 @@ context.cards = (function () {
 		for (var c=length-2;c>=0;c--) {
 			card = deck[tablArray[tablIndex][c]];
 			if (!card.FaceUp) break;
-			$(card.selector).removeClass("topmost");
-			//Can only drop on the top card, so all these are disabled.
-			makeCardDroppable(card,true);
-			//Remove all suit classes and draggability before re-adding.
-			$(card.selector).removeClass("Knots Leaves Moons Suns Waves Wyrms");
-			makeCardDraggable(card,true);
+			cleanUp(card);
+			
 			if (nuking) continue;
 			//Check values...
 			if (card.Value != prevCard.Value + 1) {
-				//TODO: Disable any more visible ones.
 				nuking = true;
 				continue;
 			}
@@ -565,6 +567,17 @@ context.cards = (function () {
 			prevCard = card;
 		}
 		context.debug.check();
+	}
+
+	function cleanUp(card) {
+		//private
+		//Card is no longer topmost, if it ever was.
+		$(card.selector).removeClass("topmost");
+		//Can only drop on the top card, so all these are disabled.
+		makeCardDroppable(card,true);
+		//Remove all suit classes and draggability before re-adding.
+		$(card.selector).removeClass("Knots Leaves Moons Suns Waves Wyrms");
+		makeCardDraggable(card,true);
 	}
 
 	function refreshAll() {
