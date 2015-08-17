@@ -17,7 +17,7 @@ var myrmex = {};
 	var debugging = true;
 	var debugLevel = 2;
 	var undoAllowed = true;
-	var version = "0.9o";
+	var version = "0.9o1";
 
 
 context.init = (function () {
@@ -909,7 +909,7 @@ context.ui = (function () {
 		//atTime is a string in the pretty-printed format produced by the timer.
 		if (atTime) {
 			var atTimes = atTime.split(":");
-			if (atTimes.length == 3)
+			if (atTimes.length == 3) 
 				elapsed_seconds = parseInt(atTimes[0],10) * 3600 + parseInt(atTimes[1],10) * 60 + parseInt(atTimes[2],10);
 			else
 				elapsed_seconds = parseInt(atTimes[0],10) * 60 + parseInt(atTimes[1],10);
@@ -992,7 +992,11 @@ context.ui = (function () {
 	function win(delayUnits) {
 		clearInterval(timer);
 		//Add time and meaning.
-		var yourTime = $("#timer").text().split(":")[1];
+		var yourTime = $("#timer").text().split(":");
+		if (yourTime.length == 3)
+			yourTime = yourTime[1];
+		else
+			yourTime = yourTime[0];
 		var yourSpeed;
 		if (yourTime < 15) yourSpeed = "an easy win";
 		else if (yourTime < 25) yourSpeed = "a sweaty victory";
