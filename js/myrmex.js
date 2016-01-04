@@ -17,7 +17,7 @@ var myrmex = {};
 	var debugging = true;
 	var debugLevel = 2;
 	var undoAllowed = true;
-	var version = "0.9";
+	var version = "1.0";
 
 
 context.init = (function () {
@@ -109,7 +109,7 @@ context.data = (function () {
 		} else {
 			//Remove the unwanted Pawns.
 			myrmexDeck = decktet.remove.card(myrmexDeck,'the LIGHT KEEPER');
-			if (level == "major" || level == "beetleMajor") {
+			if (level == "major" || level == "blindMajor") {
 				//Remove all the Courts.
 				myrmexDeck = decktet.remove.courts(myrmexDeck);
 			} else {
@@ -129,9 +129,9 @@ context.data = (function () {
 			if (myrmexDeck[i].Rank == "COURT")
 				myrmexDeck[i].Value = 11;
 			if (myrmexDeck[i].Rank == "CROWN") {
-				if (level == "major" || level == "beetleMajor")
+				if (level == "major" || level == "blindMajor")
 					myrmexDeck[i].Value = 11;
-				if (level == "queen" || level == "beetleQueen" || level == "triple")
+				if (level == "queen" || level == "blindQueen" || level == "triple")
 					myrmexDeck[i].Value = 12;
 			}
 		}
@@ -718,6 +718,8 @@ context.settings = (function () {
 				value = defaultSettings[setting];
 			}
 			if (setting == 'blackmoons' || setting == 'magnification')  value = (value.toLowerCase() === "true");
+			//Temporary fix to handle 0.9 settings.
+			if (setting == 'beetleQueen' || setting == 'beetleMajor')  value = value.replace('beetle','blind');
 			return value;
 		} else {
 			return defaultSettings[setting];
@@ -740,15 +742,15 @@ context.settings = (function () {
 	function getVariant() {
 		//Get a simpler version of the level.
 		var level = get('level');
-		if (level == 'major' || level == 'beetleMajor') return 'major';
-		if (level == 'queen' || level == 'beetleQueen') return 'queen';
+		if (level == 'major' || level == 'blindMajor') return 'major';
+		if (level == 'queen' || level == 'blindQueen') return 'queen';
 		if (level == 'double') return 'double';
 		return 'minor';
 	}
 	
 	function isBeetle() {
 		var level = get('level');
-		if (level == "minor" || level == "beetleMajor" || level == "beetleQueen" || level == "double")
+		if (level == "minor" || level == "blindMajor" || level == "blindQueen" || level == "double")
 			return true;
 		else
 			return false;
