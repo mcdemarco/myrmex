@@ -718,8 +718,6 @@ context.settings = (function () {
 				value = defaultSettings[setting];
 			}
 			if (setting == 'blackmoons' || setting == 'magnification')  value = (value.toLowerCase() === "true");
-			//Temporary fix to handle 0.9 settings.
-			if (setting == 'beetleQueen' || setting == 'beetleMajor')  value = value.replace('beetle','blind');
 			return value;
 		} else {
 			return defaultSettings[setting];
