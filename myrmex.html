@@ -1,0 +1,156 @@
+﻿<!DOCTYPE html>
+<html manifest="myrmex.appcache">
+<head>
+	<!-- This file was created by M.C. DeMarco, based on a remix of Adaman by Felbrigg Herriot.
+	     It is released under a Creative Commons Attribution NonCommercial ShareAlike 3.0 License. -->
+
+	<title>Myrmex, a Decktet game</title>
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-title" content="Myrmex">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black"/><!-- black-translucent"/> -->
+	<!-- no viewport means scale full size to phone viewport (didn't work) -->
+	<meta name="viewport" content="width=1130,user-scalable=no">
+
+	
+	<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-180.png">
+	<link rel="shortcut icon" sizes="196x196" href="assets/favicon-196.png">
+	<link rel="icon" type="image/png" href="assets/favicon.png">
+
+	<!-- online mode
+	<script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery.transit/0.9.12/jquery.transit.min.js"></script>
+	-->
+	<!-- offline mode -->
+	<script src="js/jquery-latest.min.js" type="text/javascript"></script>
+	<script src="js/jquery-ui.min.js"></script>
+	<script src="js/jquery.ui.touch-punch.min.js"></script>
+	
+	<script src="js/decktet.js" type="text/javascript"></script>
+	<script src="js/myrmex.js" type="text/javascript"></script>
+	<link href="css/myrmex.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body>
+
+	<script type="text/javascript">
+		$(document).ready(myrmex.init.load);
+	</script>
+
+	<div id="header">
+		<div id="titleLeft">
+			<div id="title">Myrmex</div>
+			<div>
+				<button type="button" class="button" id="startButton" title="Start a new game">New</button>
+				<button type="button" class="button" id="replayButton" title="Replay the last deal">Replay</button>
+				<button type="button" class="button" id="loadButton" title="Load a saved game">Resume</button>
+			</div>
+		</div>
+		<div id="deckrow">
+			<div class="teeny cardspace chamber" id="chamber0"></div>
+			<div class="teeny cardspace chamber" id="chamber1"></div>
+			<div class="teeny cardspace chamber" id="chamber2"></div>
+			<div class="teeny cardspace chamber" id="chamber3"></div>
+			<div class="teeny cardspace chamber" id="chamber4"></div>
+			<div class="teeny cardspace chamber" id="chamber5"></div>
+			<div class="teeny cardspace" id="drawDeckLocation"></div>
+		</div>
+		<div id="titleRight">
+			<div>
+				<span id="showStoryButton" class="linky">Rules</span> • 
+				<span id="settingsButton" class="linky">Settings</span> • 
+				<span id="creditsButton" class="linky">Credits</span>
+			</div>
+			<div>
+				<button type="button" class="button" id="undoButton" title="Undo last move" disabled>Undo</button> &nbsp;
+				<span id="timer">00:00</span> &nbsp;
+				<button type="button" class="button" id="saveButton" title="Save current game">Save</button>
+			</div>
+		</div>
+	</div>
+
+        <div id="playarea">
+
+            <div id="tableauRow" class="gamerow">
+                <div class="cardspace" id="tableau0"></div>
+                <div class="cardspace" id="tableau1"></div>
+                <div class="cardspace" id="tableau2"></div>
+                <div class="cardspace" id="tableau3"></div>
+                <div class="cardspace" id="tableau4"></div>
+                <div class="cardspace" id="tableau5"></div>
+                <div class="cardspace" id="tableau6"></div>
+                <div class="cardspace" id="tableau7"></div>
+            </div>
+
+        </div>
+
+
+    <div id="whatsthestory" class="panel">
+            <p class="callout">An ant colony is a place of feverish activity, where workers endlessly toil for the greater good of the superorganism. You are a worker ant, constantly moving detritus and foodstuffs from chamber to chamber. The problem is that other workers are bringing in more goods faster than you can sort out the old stuff! At the end of the day, the best that you can hope for is a chance to do it all over again tomorrow.</p>
+
+            <h2>How to Play</h2>
+            <p>Cards are ranked Ace, 2. 3, 4, 5, 6, 7, 8, 9, (Pawn, (Court,)) Crown.  (Pawns and Courts are optional and don't appear in the base game.)  You can move any single top card onto a card of the next higher rank or into an empty tableau space.  You can also move any set of cards in descending rank order onto a card of the next higher rank or into an empty tableau space, provided that the cards you are moving all share a common suit.  When you have assembled a descending sequence from Crown to Ace which shares a single suit, you have completed one-sixth of your sorting task!  The stack is automatically moved to one of the six chambers at the top of the play area.</p>
+	    <p>Cards are moved by dragging; illegal moves are not allowed.  When you uncover a face-down card in a tableau stack, it will be flipped automatically.  (Some game levels have no face-down cards.)  At any time you may deal eight more cards (four on the last deal) to the tops of the eight tableau piles by clicking on the tiny face-down card at the top center of the screen.  To see the suits of cards that are hidden by other cards, click on the (visible) top of the card.  Click again to neaten.</p>
+
+	    <h3>Winning and Losing</h3>
+	    <p>Filling no chambers is a total loss, filling 1 to 5 chambers is a partial win, and filling all six chambers is a true victory.  There is no official point at which you have lost; you can always start over with the New Game button, or replay the same game (deal) with the Replay button.  You can switch to an easier or some harder variants in the Settings.</p>
+        <div class="close button">Close</div>
+    </div>
+
+    <div id="gameOver" class="panel">
+        <h2>Victory!</h2>
+	<p>You filled all the chambers in <span id="minutes"></span> minutes, <span id="meaning"></span>.</p>
+        <p>You may now enter the Queen’s chamber and start mucking it out.</p>
+        <div id="gameOverCloseButton" class="close button">Close</div>
+    </div>
+
+    <div id="settingsPanel" class="panel">
+        <h2>Settings</h2>
+	<div>
+		<p style="text-align:right;">
+			Speed:&nbsp;<input type="text" id="speed" value="" size="4"/>
+		</p>
+		<p>The card animation is helpful, but can be slow on mobile.  Set the speed to 0 to turn off animation, or increase it to slow the cards down.</p>
+	</div>
+
+	<div>
+		<p style="text-align:right;">
+			<span id="plusButton" class="button">Enlarge</span>
+		</p>
+		<p>Normal card size shows the full card, but it can be hard to make out the suits this way.  Press the Enlarge button at any time to zoom in to just the upper left corners of the cards, or the Normal button to unzoom.</p>
+	</div>
+
+	<div>
+		<p style="text-align:right;white-space:nowrap;">
+			<input type="checkbox" id="emblacken" title="Emblacken" checked /> Black&nbsp;Moons
+		</p>
+		<p>For added legibility, a black sky background has been added to the moon suit.  Uncheck this option to use the unadulterated artwork in your next game.</p>
+	</div>
+
+	<div>
+		<p style="white-space:nowrap;">
+			<input type="radio" name="level" value="larval">Larval Stage</input><br/>
+			<input type="radio" name="level" value="minor" checked>Minor Worker (Beetle)</input><br/>
+			<input type="radio" name="level" value="major">Major Worker</input><br/>
+			<input type="radio" name="level" value="queen">Queen</input><br/>
+			<input type="radio" name="level" value="beetleMajor">Beetle Major Worker</input><br/>
+			<input type="radio" name="level" value="beetleQueen">Beetle Queen</input><br/>
+			<input type="radio" name="level" value="double">Double Myrmex (Beetle)</input>
+		</p>
+		<p>Your next game can be made harder with the addition of six Pawns (the Major Worker level) or six Pawns and six Courts (the Queen level).  The game can be made easier by dealing the tableau face up and visible as in the Beetle variant of Spider; this is the default for the Larval Stage, the Major Worker level, and the Queen level.  (Double Myrmex is an experimental version using four decks.)</p>
+	</div>
+	<span class="close button">Close</span>
+    </div>
+
+    <div id="gameCredits" class="panel">
+            <h2>Credits</h2>
+            <p>The Decktet Card system was created by P.D. Magnus. The card images and card backs shown here are released under a Creative Commons License by P.D. Magnus.  The optional black moons are a cosmetic change by M.C. DeMarco to increase legibility on small screens.  The handwriting font is Fortune Letters, also by P.D. Magnus.  The background texture is "Skulls" by Adam, from <a href="http://subtlepatterns.com/skulls/">Subtle Patterns</a>.</p>
+            <p>Please visit the <a href="http://www.decktet.com/">Decktet web site</a> to find out more about the Decktet and to get your own deck.  (Note that a double deck is required to play Myrmex.)</p>
+            <p>Myrmex was created by Greg James and is quite similar to the solitaire game of Spider for a regular deck of cards.  It requires most of two Decktet decks.  The official rules are available <a href="http://decktet.wikidot.com/game:myrmex">at the Decktet Wiki</a>, and some background about the variants can be found <a href="http://www.boardgamegeek.com/forum/1076224/myrmex/strategy">at BoardGameGeek</a>.  The undocumented, experimental Double Myrmex variant is by M.C. DeMarco.</p>
+            <p>This implementation of Myrmex is by M.C. DeMarco, using some code from Felbrigg Herriot's electronic web version of Adaman (another Decktet solitaire game), and is released under a Creative Commons Attribution NonCommercial ShareAlike 3.0 License.  The code is available <a href="https://github.com/mcdemarco/myrmex">at Github</a>.</p>
+	    <p>You may also want to try <a href="https://mcdemarco.github.io/adaman/">Adaman</a>.</p>
+            <div class="close button">Close</div>
+    </div>
+
+</body>
+</html>
