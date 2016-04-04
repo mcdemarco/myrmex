@@ -371,21 +371,45 @@ context.cards = (function () {
 	}
 
 	function makeCardDraggable(card,disable) {
-		$(card.selector).draggable({disabled:true});
-		if (!disable)
-			$(card.selector).draggable({containment:'#playarea',cursor:'move',disabled:false,zIndex:100,revert:'invalid'});
+		if (disable)
+			interact(card.selector).draggable({enabled:false});
+		else
+			interact(card.selector).draggable({enabled:true,inertia:true,autoScroll:true,onmove: dragMoveListener, onend: dragMoveCleanup});
+
+		function dragMoveListener (event) {
+			var target = event.target,
+					// keep the dragged position in the data-x/data-y attributes
+					x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+					y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+			
+			// translate the element
+			target.style.webkitTransform = target.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+			
+			// update the posiion attributes
+			target.setAttribute('data-x', x);
+			target.setAttribute('data-y', y);
+		}
+
+		function dragMoveCleanup (event) {
+			var target = event.target;
+			target.style.webkitTransform = target.style.transform = 'translate(0px, 0px)';
+			target.setAttribute('data-x', 0);
+			target.setAttribute('data-y', 0);
+		}
 	}
 
 	function makeCardDroppable(card,disable) {
-		$(card.selector).droppable({disabled:true});
-		if (!disable)
-			$(card.selector).droppable({disabled:false,greedy:true,accept:".value"+(card.Value - 1),drop:function(event, ui){context.cards.drop(context.data.getIndexOfCardFromID(card.divID),$(ui.draggable).prop("id"),null,"makeCardDroppable(" + card.divID + ")");}});
+		if (disable)
+			interact(card.selector).dropzone({enabled:false});
+		else
+			interact(card.selector).dropzone({enabled:true,accept:".value"+(card.Value - 1),ondrop:function(event){context.cards.drop(context.data.getIndexOfCardFromID(card.divID),event.relatedTarget.id,null,"makeCardDroppable(" + card.divID + ")");}});
 	}
 
 	function makeTableauDroppable(tableauID,disable) {
-		$("#" + tableauID).droppable({disabled:true});
-		if (!disable)
-			$("#" + tableauID).droppable({disabled:false,greedy:true,accept:".card",drop:function(event, ui){context.cards.drop(null,$(ui.draggable).prop("id"),tableauID,"makeTableauDroppable("+ tableauID +")");}});
+		if (disable)
+			interact("#" + tableauID).dropzone({enabled:false});
+		else
+			interact("#" + tableauID).dropzone({enabled:true,greedy:true,accept:".card",ondrop:function(event){context.cards.drop(null,event.relatedTarget.id,tableauID,"makeTableauDroppable("+ tableauID +")");}});
 	}
 
 	function move(indexOfCard, spaceID, delayUnits, shift) {
