@@ -4,9 +4,7 @@ CACHE MANIFEST
 
 CACHE:
 js/jquery-latest.min.js
-js/jquery-ui.min.js
-js/jquery.ui.touch-punch.min.js
-js/jquery.transit.min.js
+js/interact.min.js
 js/decktet.js
 js/myrmex.js
 css/myrmex.css
