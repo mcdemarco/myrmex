@@ -308,6 +308,10 @@ context.cards = (function () {
 			}
 			//Create.
 			createOnScreenCard(deck[i],i);
+			//Clear any drag-and-drops.
+			interact(deck[i].selector).unset();
+
+			
 			//For touch?
 			//$(deck[i].selector).click(context.ui.shifter);
 			//Big draggability issues for hover.
@@ -372,9 +376,18 @@ context.cards = (function () {
 
 	function makeCardDraggable(card,disable) {
 		if (disable)
-			interact(card.selector).draggable({enabled:false});
+			interact(card.selector).draggable({enabled:false});//.unset();
 		else
-			interact(card.selector).draggable({enabled:true,inertia:true,autoScroll:true,onmove: dragMoveListener, onend: dragMoveCleanup});
+			interact(card.selector).draggable({enabled:true,
+																				 restrict:{
+																					 restriction: "#playarea",
+																					 elementRect:{ top: 0, left: 0, bottom: 1, right: 1 }
+																				 },
+																				 inertia:true,
+																				 autoScroll:true,
+																				 onmove: dragMoveListener,
+																				 onend: dragMoveCleanup
+																				});
 
 		function dragMoveListener (event) {
 			var target = event.target,
@@ -400,14 +413,14 @@ context.cards = (function () {
 
 	function makeCardDroppable(card,disable) {
 		if (disable)
-			interact(card.selector).dropzone({enabled:false});
+			interact(card.selector).dropzone({enabled:false}); //.unset();
 		else
 			interact(card.selector).dropzone({enabled:true,accept:".value"+(card.Value - 1),ondrop:function(event){context.cards.drop(context.data.getIndexOfCardFromID(card.divID),event.relatedTarget.id,null,"makeCardDroppable(" + card.divID + ")");}});
 	}
 
 	function makeTableauDroppable(tableauID,disable) {
 		if (disable)
-			interact("#" + tableauID).dropzone({enabled:false});
+			interact("#" + tableauID).dropzone({enabled:false}); //.unset();
 		else
 			interact("#" + tableauID).dropzone({enabled:true,greedy:true,accept:".card",ondrop:function(event){context.cards.drop(null,event.relatedTarget.id,tableauID,"makeTableauDroppable("+ tableauID +")");}});
 	}
