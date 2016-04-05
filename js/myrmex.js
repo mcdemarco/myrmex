@@ -401,13 +401,17 @@ context.cards = (function () {
 			// update the posiion attributes
 			target.setAttribute('data-x', x);
 			target.setAttribute('data-y', y);
+
+			// pop the card above later cards
+			target.style.zIndex = 100;
 		}
 
 		function dragMoveCleanup (event) {
 			var target = event.target;
-			target.style.webkitTransform = target.style.transform = 'translate(0px, 0px)';
+			target.style.webkitTransform = target.style.transform = 'none';
 			target.setAttribute('data-x', 0);
 			target.setAttribute('data-y', 0);
+			target.style.zIndex = "auto";
 		}
 	}
 
@@ -456,7 +460,7 @@ context.cards = (function () {
 			//Draggable is messing up lots of CSS, so also unmess (z-index still messed up).
 			stackCard(card,prevCard);
 		}
-		$(card.selector).css("z-index",(shift+1));
+//		$(card.selector).css("z-index",(shift+1));
 
 		var removed;
 		if (!noUpdate) {

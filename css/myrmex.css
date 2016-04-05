@@ -28,15 +28,11 @@ html, body {
 }
 
 #playarea {
-    padding:0 10px 10px 10px;
-}
-
-#playarea {
-    width:1122px;
+    padding: 125px 10px 10px 10px;
+    width: 1122px;
     margin: 0 auto;
-    height:100%;
-    padding-top:125px;
-    overflow:auto;
+    height: 100%;
+    overflow: auto;
 }
 
 /* removed flex from header */
