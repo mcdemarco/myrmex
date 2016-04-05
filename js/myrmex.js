@@ -419,14 +419,14 @@ context.cards = (function () {
 		if (disable)
 			interact(card.selector).dropzone({enabled:false}); //.unset();
 		else
-			interact(card.selector).dropzone({enabled:true,accept:".value"+(card.Value - 1),ondrop:function(event){context.cards.drop(context.data.getIndexOfCardFromID(card.divID),event.relatedTarget.id,null,"makeCardDroppable(" + card.divID + ")");}});
+			interact(card.selector).dropzone({enabled:true,overlap:0.33,accept:".value"+(card.Value - 1),ondrop:function(event){context.cards.drop(context.data.getIndexOfCardFromID(card.divID),event.relatedTarget.id,null,"makeCardDroppable(" + card.divID + ")");}});
 	}
 
 	function makeTableauDroppable(tableauID,disable) {
 		if (disable)
 			interact("#" + tableauID).dropzone({enabled:false}); //.unset();
 		else
-			interact("#" + tableauID).dropzone({enabled:true,greedy:true,accept:".card",ondrop:function(event){context.cards.drop(null,event.relatedTarget.id,tableauID,"makeTableauDroppable("+ tableauID +")");}});
+			interact("#" + tableauID).dropzone({enabled:true,overlap:0.33,accept:".card",ondrop:function(event){context.cards.drop(null,event.relatedTarget.id,tableauID,"makeTableauDroppable("+ tableauID +")");}});
 	}
 
 	function move(indexOfCard, spaceID, delayUnits, shift) {
