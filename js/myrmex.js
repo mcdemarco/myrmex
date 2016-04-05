@@ -17,7 +17,7 @@ var myrmex = {};
 	var debugging = true;
 	var debugLevel = 2;
 	var undoAllowed = true;
-	var version = "1.0";
+	var version = "1.1";
 
 
 context.init = (function () {
