@@ -17,7 +17,7 @@ var myrmex = {};
 	var debugging = true;
 	var debugLevel = 2;
 	var undoAllowed = true;
-	var version = "1.0";
+	var version = "1.1";
 
 
 context.init = (function () {
@@ -308,6 +308,10 @@ context.cards = (function () {
 			}
 			//Create.
 			createOnScreenCard(deck[i],i);
+			//Clear any drag-and-drops.
+			interact(deck[i].selector).unset();
+
+			
 			//For touch?
 			//$(deck[i].selector).click(context.ui.shifter);
 			//Big draggability issues for hover.
@@ -371,21 +375,58 @@ context.cards = (function () {
 	}
 
 	function makeCardDraggable(card,disable) {
-		$(card.selector).draggable({disabled:true});
-		if (!disable)
-			$(card.selector).draggable({containment:'#playarea',cursor:'move',disabled:false,zIndex:100,revert:'invalid'});
+		if (disable)
+			interact(card.selector).draggable({enabled:false});//.unset();
+		else
+			interact(card.selector).draggable({enabled:true,
+																				 restrict:{
+																					 restriction: "#playarea",
+																					 elementRect:{ top: 0, left: 0, bottom: 1, right: 1 }
+																				 },
+																				 inertia:true,
+																				 autoScroll:true,
+																				 onmove: dragMoveListener,
+																				 onend: dragMoveCleanup
+																				});
+
+		function dragMoveListener (event) {
+			var target = event.target,
+					// keep the dragged position in the data-x/data-y attributes
+					x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+					y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+			
+			// translate the element
+			target.style.webkitTransform = target.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+			
+			// update the posiion attributes
+			target.setAttribute('data-x', x);
+			target.setAttribute('data-y', y);
+
+			// pop the card above later cards
+			target.style.zIndex = 100;
+		}
+
+		function dragMoveCleanup (event) {
+			var target = event.target;
+			target.style.webkitTransform = target.style.transform = 'none';
+			target.setAttribute('data-x', 0);
+			target.setAttribute('data-y', 0);
+			target.style.zIndex = "auto";
+		}
 	}
 
 	function makeCardDroppable(card,disable) {
-		$(card.selector).droppable({disabled:true});
-		if (!disable)
-			$(card.selector).droppable({disabled:false,greedy:true,accept:".value"+(card.Value - 1),drop:function(event, ui){context.cards.drop(context.data.getIndexOfCardFromID(card.divID),$(ui.draggable).prop("id"),null,"makeCardDroppable(" + card.divID + ")");}});
+		if (disable)
+			interact(card.selector).dropzone({enabled:false}); //.unset();
+		else
+			interact(card.selector).dropzone({enabled:true,overlap:0.33,accept:".value"+(card.Value - 1),ondrop:function(event){context.cards.drop(context.data.getIndexOfCardFromID(card.divID),event.relatedTarget.id,null,"makeCardDroppable(" + card.divID + ")");}});
 	}
 
 	function makeTableauDroppable(tableauID,disable) {
-		$("#" + tableauID).droppable({disabled:true});
-		if (!disable)
-			$("#" + tableauID).droppable({disabled:false,greedy:true,accept:".card",drop:function(event, ui){context.cards.drop(null,$(ui.draggable).prop("id"),tableauID,"makeTableauDroppable("+ tableauID +")");}});
+		if (disable)
+			interact("#" + tableauID).dropzone({enabled:false}); //.unset();
+		else
+			interact("#" + tableauID).dropzone({enabled:true,overlap:0.33,accept:".card",ondrop:function(event){context.cards.drop(null,event.relatedTarget.id,tableauID,"makeTableauDroppable("+ tableauID +")");}});
 	}
 
 	function move(indexOfCard, spaceID, delayUnits, shift) {
@@ -419,7 +460,7 @@ context.cards = (function () {
 			//Draggable is messing up lots of CSS, so also unmess (z-index still messed up).
 			stackCard(card,prevCard);
 		}
-		$(card.selector).css("z-index",(shift+1));
+//		$(card.selector).css("z-index",(shift+1));
 
 		var removed;
 		if (!noUpdate) {
