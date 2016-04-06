@@ -27,6 +27,10 @@ html, body {
     height:100%;
 }
 
+body {
+    background-color: #438636;
+}
+
 #playarea {
     padding: 125px 10px 10px 10px;
     width: 1122px;
