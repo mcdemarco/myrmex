@@ -15,7 +15,7 @@ var myrmex = {};
 	var chamberArray = [];
 	var deck;
 	var debugging = true;
-	var debugLevel = 2;
+	var debugLevel = -2; //Turn up to 2 or off on release.
 	var undoAllowed = true;
 	var version = "1.1";
 
@@ -509,17 +509,15 @@ context.cards = (function () {
 	function moveToFoundation(tablIndex,crownRow,aceRow) {
 		//Move a completed set to the next available chamber.
 		var spaceID = context.data.nextChamber();
+		var suit = deck[tablArray[tablIndex][aceRow]].Suit1;
+
+		//Put the ace suit on the foundation.
+		$("#" + spaceID).addClass(suit);
+		context.data.nextChamber(suit);
 		
-		//Don't actually move, since that causes some problems.
-		//Instead, put the ace image on the foundation.
+		//Don't actually move, since that causes some problems, just kill them all!
 		for (var c=aceRow;c>=crownRow;c--) {
 			var cardIndex = tablArray[tablIndex][c];
-			if (c==aceRow) {
-				var suit = deck[cardIndex].Suit1;
-				$("#" + spaceID).addClass(suit);
-				context.data.nextChamber(suit);
-			}
-			//Kill them all!
 			$(deck[cardIndex].selector).remove();
 			tablArray[tablIndex].pop();
 		}
@@ -608,6 +606,7 @@ context.cards = (function () {
 			prevCard = card;
 		}
 		context.debug.check();
+
 	}
 
 	function cleanUp(card) {
@@ -623,6 +622,7 @@ context.cards = (function () {
 
 	function refreshAll() {
 		//Refresh all dragging and dropping bindings in the tableau.
+		//This only happens on init and dealing.
 		for (var f=0;f<8;f++)
 			refresh(f);
 	}

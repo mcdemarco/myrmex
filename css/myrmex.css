@@ -313,6 +313,7 @@ body {
 
 button {
     font-family: 'Fortune Letters', Futura, Geneva, sans-serif;
+    padding-top: 5px;
 }
 
 #settingsPanel div p:first-child {
@@ -336,7 +337,7 @@ p.callout {
     padding: 0 5%;
     font-style:italic;
 }
-
+/*
 .button {
     clear:left;
     margin-bottom:2px;
@@ -370,6 +371,7 @@ p.callout {
     background-color:#b3b3b3;
     border:1px solid #8A8A8A;
 }
+*/
 
 #startButton {
     margin-top:10px;
