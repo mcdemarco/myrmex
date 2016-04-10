@@ -15,7 +15,7 @@ var myrmex = {};
 	var chamberArray = [];
 	var deck;
 	var debugging = true;
-	var debugLevel = -2; //Turn up to 2 or off on release.
+	var debugLevel = -1; //Turn up to 2 or off on release.
 	var undoAllowed = true;
 	var version = "1.1";
 
@@ -587,7 +587,6 @@ context.cards = (function () {
 				$(card.selector).addClass(card.Suit1);
 				//Because a Crown has only one suit, this is the only place where we need to test for it.
 				if (hasAce && card.Rank == "CROWN") {
-					event.stopPropagation();
 					moveToFoundation(tablIndex,c,hasAce);
 					//Will have to call the whole function again from there, so...
 					return;
@@ -997,7 +996,7 @@ context.ui = (function () {
 
 	function shifter(event) {
 		//Not using this anymore.
-		event.stopPropagation();
+		//event.stopPropagation();
 		//Shift cards for visibility on hover or click
 		if (!$(this).hasClass("card") || $(this).find("img.realBack").is(":visible")) return;
 		var cardID = this.id;
@@ -1059,7 +1058,7 @@ context.debug = (function () {
 
 	function check() {
 		if (!debugging) return;
-		log("checking tableaux",-2);
+		log("checking tableaux",-1);
 		for (var t=0;t<8;t++)
 			checkColumn(t);
 	}
