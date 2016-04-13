@@ -449,3 +449,17 @@ a:visited {
     display:inline-block;
     width:40px;
 }
+
+/* homegrown animations */
+
+@keyframes fade-in {
+    from { opacity: 0 }
+}
+
+.fadeIn {
+    animation: fade-in 2s
+}
+
+.fadeOut {
+    animation: fade-in reverse 2s
+}

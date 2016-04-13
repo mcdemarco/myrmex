@@ -35,7 +35,7 @@ context.init = (function () {
 		context.ui.init();
 	
 		initializeDeck();
-		$("#title").animateCss("fadeIn");
+		$("#title").animex("fadeIn");
 	}
 
 	function initializeDeck(again) {
@@ -448,7 +448,7 @@ context.cards = (function () {
 		if (shift < 0) {
 			//Case for spaceIndex < 0 or shift < 0:  moving to unoccupied spaces.
 			$("#" + spaceID).append($(card.selector));
-			$(card.selector).animateCss("fadeIn");//delay(delay).fadeIn();
+			$(card.selector).animex("fadeIn",delay);//delay(delay).fadeIn();
 			//Draggable is messing up lots of CSS, so also unmess (z-index still messed up).
 			//$(card.selector).css({"top":0,"left":0});
 			//$(".magnify " + card.selector).css({"top":0,"left":0});
@@ -456,7 +456,7 @@ context.cards = (function () {
 			//Case for moving to an occupied tableau space.  Needs transitions.
 			var prevCard = deck[tablArray[spaceIndex][shift]];
 			$(prevCard.selector).append($(card.selector));
-			$(card.selector).animateCss("fadeIn");//delay(delay).fadeIn();
+			$(card.selector).animex("fadeIn",delay);//delay(delay).fadeIn();
 
 			//Draggable is messing up lots of CSS, so also unmess (z-index still messed up).
 			//stackCard(card,prevCard);
@@ -1015,10 +1015,10 @@ context.ui = (function () {
 
 	function show(panelID) {
 		//Hide others.
-		$(".panel").hide();
+		$(".panel:visible").animex("fadeOut");
 		//Show requested panel.
 		if (panelID)
-			$("#" + panelID).animateCss("fadeIn");
+			$("#" + panelID).animex("fadeIn");
 	}
 	
 	function unshifter(tableau) {
