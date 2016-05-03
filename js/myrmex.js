@@ -17,7 +17,7 @@ var myrmex = {};
 	var debugging = true;
 	var debugLevel = -1; //Turn up to 2 or off on release.
 	var undoAllowed = true;
-	var version = "1.1";
+	var version = "1.1g";
 
 
 context.init = (function () {
@@ -449,16 +449,21 @@ context.cards = (function () {
 			//Case for spaceIndex < 0 or shift < 0:  moving to unoccupied spaces.
 			$("#" + spaceID).append($(card.selector));
 			$(card.selector).animex("fadeIn",delay);//delay(delay).fadeIn();
-			//Draggable is messing up lots of CSS, so also unmess (z-index still messed up).
-			//$(card.selector).css({"top":0,"left":0});
-			//$(".magnify " + card.selector).css({"top":0,"left":0});
+			$(card.selector).css({"top":0,"left":0});
+			$(".magnify " + card.selector).css({"top":0,"left":0});
 		} else {
 			//Case for moving to an occupied tableau space.  Needs transitions.
 			var prevCard = deck[tablArray[spaceIndex][shift]];
 			$(prevCard.selector).append($(card.selector));
 			$(card.selector).animex("fadeIn",delay);//delay(delay).fadeIn();
+			if (!prevCard.FaceUp) {
+ 				$(card.selector).css({"top":11,"left":0});
+ 				$(".magnify " + card.selector).css({"top":11,"left":0});
+ 			} else {
+ 				$(card.selector).css({"top":22,"left":0,"z-index":(shift + 1)});
+ 				$(".magnify " + card.selector).css({"top":44,"left":0,"z-index":(shift + 1)});
+ 			}
 
-			//Draggable is messing up lots of CSS, so also unmess (z-index still messed up).
 			//stackCard(card,prevCard);
 		}
 

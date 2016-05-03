@@ -331,6 +331,7 @@ p {
 
 .magnify .panel input, .magnify .panel .button {
     font-size: 30px;
+    border-radius:10px;
 }
 
 p.callout {
