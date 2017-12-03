@@ -17,7 +17,7 @@ var myrmex = {};
 	var debugging = true;
 	var debugLevel = -1; //Turn up to 2 or off on release.
 	var undoAllowed = true;
-	var version = "1.1g";
+	var version = "1.2";
 
 
 context.init = (function () {
@@ -1090,7 +1090,7 @@ context.debug = (function () {
 		if (!debugging) return;
 		log("Initializing...",0);
 		//Write the version number somewhere visible to fight with the appcache.
-		$("#title").append(" <span id='version'>" + version + "</span>");
+		$("#versionP").append(" <span id='version'>" + version + ".</span>");
 	}
 	
 	function log(message,level) {
