@@ -15,9 +15,9 @@ var myrmex = {};
 	var chamberArray = [];
 	var deck;
 	var debugging = true;
-	var debugLevel = 2;
+	var debugLevel = -1; //Turn up to 2 or off on release.
 	var undoAllowed = true;
-	var version = "1.1";
+	var version = "1.2";
 
 
 context.init = (function () {
@@ -35,6 +35,7 @@ context.init = (function () {
 		context.ui.init();
 	
 		initializeDeck();
+		$("#title").animex("fadeIn");
 	}
 
 	function initializeDeck(again) {
@@ -447,20 +448,24 @@ context.cards = (function () {
 		if (shift < 0) {
 			//Case for spaceIndex < 0 or shift < 0:  moving to unoccupied spaces.
 			$("#" + spaceID).append($(card.selector));
-			$(card.selector).delay(delay).fadeIn();
-			//Draggable is messing up lots of CSS, so also unmess (z-index still messed up).
+			$(card.selector).animex("fadeIn",delay);//delay(delay).fadeIn();
 			$(card.selector).css({"top":0,"left":0});
 			$(".magnify " + card.selector).css({"top":0,"left":0});
 		} else {
 			//Case for moving to an occupied tableau space.  Needs transitions.
 			var prevCard = deck[tablArray[spaceIndex][shift]];
 			$(prevCard.selector).append($(card.selector));
-			$(card.selector).delay(delay).fadeIn();
+			$(card.selector).animex("fadeIn",delay);//delay(delay).fadeIn();
+			if (!prevCard.FaceUp) {
+ 				$(card.selector).css({"top":11,"left":0});
+ 				$(".magnify " + card.selector).css({"top":11,"left":0});
+ 			} else {
+ 				$(card.selector).css({"top":22,"left":0,"z-index":(shift + 1)});
+ 				$(".magnify " + card.selector).css({"top":44,"left":0,"z-index":(shift + 1)});
+ 			}
 
-			//Draggable is messing up lots of CSS, so also unmess (z-index still messed up).
-			stackCard(card,prevCard);
+			//stackCard(card,prevCard);
 		}
-//		$(card.selector).css("z-index",(shift+1));
 
 		var removed;
 		if (!noUpdate) {
@@ -509,17 +514,15 @@ context.cards = (function () {
 	function moveToFoundation(tablIndex,crownRow,aceRow) {
 		//Move a completed set to the next available chamber.
 		var spaceID = context.data.nextChamber();
+		var suit = deck[tablArray[tablIndex][aceRow]].Suit1;
+
+		//Put the ace suit on the foundation.
+		$("#" + spaceID).addClass(suit);
+		context.data.nextChamber(suit);
 		
-		//Don't actually move, since that causes some problems.
-		//Instead, put the ace image on the foundation.
+		//Don't actually move, since that causes some problems, just kill them all!
 		for (var c=aceRow;c>=crownRow;c--) {
 			var cardIndex = tablArray[tablIndex][c];
-			if (c==aceRow) {
-				var suit = deck[cardIndex].Suit1;
-				$("#" + spaceID).addClass(suit);
-				context.data.nextChamber(suit);
-			}
-			//Kill them all!
 			$(deck[cardIndex].selector).remove();
 			tablArray[tablIndex].pop();
 		}
@@ -589,7 +592,6 @@ context.cards = (function () {
 				$(card.selector).addClass(card.Suit1);
 				//Because a Crown has only one suit, this is the only place where we need to test for it.
 				if (hasAce && card.Rank == "CROWN") {
-					event.stopPropagation();
 					moveToFoundation(tablIndex,c,hasAce);
 					//Will have to call the whole function again from there, so...
 					return;
@@ -608,6 +610,7 @@ context.cards = (function () {
 			prevCard = card;
 		}
 		context.debug.check();
+
 	}
 
 	function cleanUp(card) {
@@ -623,6 +626,7 @@ context.cards = (function () {
 
 	function refreshAll() {
 		//Refresh all dragging and dropping bindings in the tableau.
+		//This only happens on init and dealing.
 		for (var f=0;f<8;f++)
 			refresh(f);
 	}
@@ -997,7 +1001,7 @@ context.ui = (function () {
 
 	function shifter(event) {
 		//Not using this anymore.
-		event.stopPropagation();
+		//event.stopPropagation();
 		//Shift cards for visibility on hover or click
 		if (!$(this).hasClass("card") || $(this).find("img.realBack").is(":visible")) return;
 		var cardID = this.id;
@@ -1016,10 +1020,10 @@ context.ui = (function () {
 
 	function show(panelID) {
 		//Hide others.
-		$('.panel').hide();
+		$(".panel:visible").animex("fadeOut");
 		//Show requested panel.
 		if (panelID)
-			$("#" + panelID).fadeIn(speed);
+			$("#" + panelID).animex("fadeIn");
 	}
 	
 	function unshifter(tableau) {
@@ -1059,7 +1063,7 @@ context.debug = (function () {
 
 	function check() {
 		if (!debugging) return;
-		log("checking tableaux",-2);
+		log("checking tableaux",-1);
 		for (var t=0;t<8;t++)
 			checkColumn(t);
 	}
@@ -1086,7 +1090,7 @@ context.debug = (function () {
 		if (!debugging) return;
 		log("Initializing...",0);
 		//Write the version number somewhere visible to fight with the appcache.
-		$("#title").append(" <span id='version'>" + version + "</span>");
+		$("#versionP").append(" <span id='version'>" + version + ".</span>");
 	}
 	
 	function log(message,level) {

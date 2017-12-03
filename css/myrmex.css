@@ -313,6 +313,7 @@ body {
 
 button {
     font-family: 'Fortune Letters', Futura, Geneva, sans-serif;
+    padding-top: 5px;
 }
 
 #settingsPanel div p:first-child {
@@ -330,13 +331,14 @@ p {
 
 .magnify .panel input, .magnify .panel .button {
     font-size: 30px;
+    border-radius:10px;
 }
 
 p.callout {
     padding: 0 5%;
     font-style:italic;
 }
-
+/*
 .button {
     clear:left;
     margin-bottom:2px;
@@ -370,6 +372,7 @@ p.callout {
     background-color:#b3b3b3;
     border:1px solid #8A8A8A;
 }
+*/
 
 #startButton {
     margin-top:10px;
@@ -446,4 +449,18 @@ a:visited {
 #timer {
     display:inline-block;
     width:40px;
+}
+
+/* homegrown animations */
+
+@keyframes fade-in {
+    from { opacity: 0 }
+}
+
+.fadeIn {
+    animation: fade-in 2s
+}
+
+.fadeOut {
+    animation: fade-in reverse 2s
 }

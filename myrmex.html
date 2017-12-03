@@ -25,6 +25,7 @@
 	<script src="js/jquery-latest.min.js" type="text/javascript"></script>
 	<script src="js/interact.min.js"></script>
 	
+	<script src="js/animate.js" type="text/javascript"></script>
 	<script src="js/decktet.js" type="text/javascript"></script>
 	<script src="js/myrmex.js" type="text/javascript"></script>
 	<link href="css/myrmex.css" rel="stylesheet" type="text/css" />
@@ -93,14 +94,14 @@
 
 	    <h3>Winning and Losing</h3>
 	    <p>Filling no chambers is a total loss, filling 1 to 5 chambers is a partial win, and filling all six chambers is a true victory.  There is no official point at which you have lost; you can always start over with the New Game button, or replay the same game (deal) with the Replay button.  You can switch to an easier or some harder variants in the Settings.</p>
-        <div class="close button">Close</div>
+        <button type="button" class="close button">Close</button>
     </div>
 
     <div id="gameOver" class="panel">
         <h2>Victory!</h2>
-	<p>You filled all the chambers in <span id="minutes"></span> minutes, <span id="meaning"></span>.</p>
+				<p>You filled all the chambers in <span id="minutes"></span> minutes, <span id="meaning"></span>.</p>
         <p>You may now enter the Queen’s chamber and start mucking it out.</p>
-        <div id="gameOverCloseButton" class="close button">Close</div>
+        <button type="button" id="gameOverCloseButton" class="close button">Close</button>
     </div>
 
     <div id="settingsPanel" class="panel">
@@ -114,7 +115,7 @@
 
 	<div>
 		<p style="text-align:right;">
-			<span id="plusButton" class="button">Enlarge</span>
+			<button type="button" id="plusButton" class="button">Enlarge</button>
 		</p>
 		<p>Normal card size shows the full card, but it can be hard to make out the suits this way.  Press the Enlarge button at any time to zoom in to just the upper left corners of the cards, or the Normal button to unzoom.</p>
 	</div>
@@ -138,7 +139,7 @@
 		</p>
 		<p>Your next game can be made harder with the addition of six Pawns (the Major Worker levels) or six Pawns and six Courts (the Queen levels).  The game can be made easier by dealing the tableau face up and visible as in the Beetle variant of Spider; this is the default for the Larval Stage, the Major Worker level, and the Queen level.  <!-- (Double Myrmex is an experimental version using four decks.) --></p>
 	</div>
-	<span class="close button">Close</span>
+	<button type="button" class="close button">Close</button>
     </div>
 
     <div id="gameCredits" class="panel">
@@ -146,9 +147,9 @@
             <p>The Decktet Card system was created by P.D. Magnus. The card images and card backs shown here are released under a Creative Commons License by P.D. Magnus.  The optional black moons are a cosmetic change by M.C. DeMarco to increase legibility on small screens.  The handwriting font is Fortune Letters, also by P.D. Magnus.  The background texture is "Skulls" by Adam, from <a href="http://subtlepatterns.com/skulls/">Subtle Patterns</a>.</p>
             <p>Please visit the <a href="http://www.decktet.com/">Decktet web site</a> to find out more about the Decktet and to get your own deck.  (Note that a double deck is required to play Myrmex.)</p>
             <p>Myrmex was created by Greg James and is quite similar to the solitaire game of Spider for a regular deck of cards.  It requires most of two Decktet decks.  The official rules are available <a href="http://decktet.wikidot.com/game:myrmex">at the Decktet Wiki</a>, and some background about the variants can be found <a href="http://www.boardgamegeek.com/forum/1076224/myrmex/strategy">at BoardGameGeek</a>.  The undocumented, experimental Double Myrmex variant is by M.C. DeMarco.</p>
-            <p>This implementation of Myrmex is by M.C. DeMarco, using some code from Felbrigg Herriot's electronic web version of Adaman (another Decktet solitaire game), and is released under a Creative Commons Attribution NonCommercial ShareAlike 3.0 License.  The code is available <a href="https://github.com/mcdemarco/myrmex">at Github</a>.</p>
-	    <p>You may also want to try <a href="https://mcdemarco.github.io/adaman/">Adaman</a>.</p>
-            <div class="close button">Close</div>
+            <p id="versionP">This implementation of Myrmex is by M.C. DeMarco, using some code from Felbrigg Herriot's electronic web version of Adaman (another Decktet solitaire game), and is released under a Creative Commons Attribution NonCommercial ShareAlike 3.0 License.  The code is available <a href="https://github.com/mcdemarco/myrmex">at Github</a>.  This is version</p>
+						<p>You may also want to try <a href="https://mcdemarco.github.io/adaman/">Adaman</a>.</p>
+						<button type="button" class="close button">Close</button>
     </div>
 
 </body>
