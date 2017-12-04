@@ -1,5 +1,6 @@
 ﻿//
-// This implementation of Myrmex is by M. C. DeMarco, based on an implementation of Adaman by Felbrigg Herriot, released under a Creative Commons Attribution NonCommercial ShareAlike 3.0 License
+// This implementation of Myrmex is by M. C. DeMarco, based on a remix of Adaman by Felbrigg Herriot.
+//	     It is released under a Creative Commons Attribution NonCommercial ShareAlike 3.0 License.
 //
 
 var myrmex = {};
