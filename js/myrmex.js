@@ -1087,10 +1087,10 @@ context.debug = (function () {
 	}
 
 	function init() {
+		//Write the version number somewhere semi-visible to fight with the appcache.
+		$("#versionP").append(" <span id='version'>" + version + ".</span>");
 		if (!debugging) return;
 		log("Initializing...",0);
-		//Write the version number somewhere visible to fight with the appcache.
-		$("#versionP").append(" <span id='version'>" + version + ".</span>");
 	}
 	
 	function log(message,level) {
