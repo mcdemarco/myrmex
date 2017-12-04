@@ -14,7 +14,7 @@ var myrmex = {};
 	var tablArray = [];
 	var chamberArray = [];
 	var deck;
-	var debugging = true;
+	var debugging = false;
 	var debugLevel = -1; //Turn up to 2 or off on release.
 	var undoAllowed = true;
 	var version = "1.2";
