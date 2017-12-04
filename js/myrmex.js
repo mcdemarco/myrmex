@@ -17,7 +17,15 @@ var myrmex = {};
 	var debugging = true;
 	var debugLevel = -1; //Turn up to 2 or off on release.
 	var undoAllowed = true;
-	var version = "1.2";
+	var version = "1.3b";
+
+//init
+//data
+//deal
+//cards
+//settings
+//ui
+//debug
 
 
 context.init = (function () {
@@ -610,7 +618,6 @@ context.cards = (function () {
 			prevCard = card;
 		}
 		context.debug.check();
-
 	}
 
 	function cleanUp(card) {
@@ -663,6 +670,9 @@ context.cards = (function () {
 	}
 
 	function undoable(cardIndex, newCardLocation, oldCardLocation) {
+		//A convenient point to autosave.
+		context.settings.saveGame();
+
 		if (!undoAllowed) return;
 		//Allow undo using a droppable for the oldCardLocation, which must be a tableau.
 		//The card should already have a draggable, if it's still in the tableau at all.
@@ -1052,7 +1062,7 @@ context.ui = (function () {
 	}
 
 })();
-	
+
 context.debug = (function () {
 
 	return {
@@ -1087,10 +1097,10 @@ context.debug = (function () {
 	}
 
 	function init() {
+		//Write the version number somewhere semi-visible to fight with the appcache.
+		$("#versionP").append(" <span id='version'>" + version + ".</span>");
 		if (!debugging) return;
 		log("Initializing...",0);
-		//Write the version number somewhere visible to fight with the appcache.
-		$("#versionP").append(" <span id='version'>" + version + ".</span>");
 	}
 	
 	function log(message,level) {
