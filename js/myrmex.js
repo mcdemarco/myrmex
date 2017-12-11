@@ -45,6 +45,8 @@ context.init = (function () {
 	
 		initializeDeck();
 		$("#title").animex("fadeIn");
+
+		context.settings.loadGame();
 	}
 
 	function initializeDeck(again) {
@@ -709,7 +711,7 @@ context.settings = (function () {
 		set: set,
 		getVariant: getVariant,
 		isBeetle: isBeetle,
-		loadGameCheck: loadGameCheck,
+		loadGame: loadGame,
 		saveGame: saveGame
 	};
 
@@ -754,9 +756,6 @@ context.settings = (function () {
 		//Fill in the rest of the settings form
 		$("input[name=level]").val([get('level')]);
 		$("input#emblacken").prop("checked",get('blackmoons'));
-
-		//Configure the load button.
-		loadGameCheck();
 	}
 
 	function checkForChanges() {
@@ -814,17 +813,12 @@ context.settings = (function () {
 			return false;
 	}
 
-	function loadGameCheck() {
-		if (!get('savedTime')) {
-			$("#loadButton").prop('disabled',true).off();
-		} else {
-			$("#loadButton").prop('disabled',false);
-			$("#loadButton").on("click",loadGame);
-		}
-	}
-
 	function loadGame() {
-		context.debug.log("Loading saved game",0);
+		if (!get('savedTime')) {
+			return;
+		} else {
+			context.debug.log("Loading saved game",0);
+		}
 		//Some cleanup.
 		context.ui.reinit();
 
@@ -857,9 +851,6 @@ context.settings = (function () {
 		//The stored setting is correct because a level change isn't checked until a new game.
 		set('savedLevel',get('level'));
 		set('savedTime',$("#timer").text());
-
-		//Update the load button.
-		loadGameCheck();
 	}
 
 })();
