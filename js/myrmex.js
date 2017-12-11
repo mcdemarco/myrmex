@@ -20,7 +20,7 @@ var myrmex = {};
 	var debugging = true;
 	var debugLevel = 2; //Turn up to 2 or off on release.
 	var undoAllowed = true;
-	var version = "1.3c";
+	var version = "1.3h";
 
 //init
 //data
@@ -65,7 +65,7 @@ context.init = (function () {
 		context.ui.reinit();
 
 		//Set the other two settings here for convenience.
-		if (context.settings.checkForChanges()) {
+		if (context.settings.checkForDeckChanges()) {
 			//If certain values have changed since the deck was created, then we need to recreate it.
 			initializeDeck(true);
 		} else {
@@ -76,6 +76,8 @@ context.init = (function () {
 		if (!replay) {
 			context.debug.log("Shuffling...",1);
 			decktet.shuffle.deck(deck);
+			//For testing chamber filling, switch to a sorted deck.
+			//decktet.shuffle.sort(deck,true);
 		} else {
 			context.debug.log("Not shuffling...",1);
 		}
@@ -132,8 +134,9 @@ context.data = (function () {
 				myrmexDeck = decktet.remove.card(myrmexDeck,'the RITE');
 			}
 		}
-		
-		myrmexDeck = decktet.shuffle.deck(myrmexDeck);
+
+		//Only shuffle the once.
+		//myrmexDeck = decktet.shuffle.deck(myrmexDeck);
 		for (var i = 0; i < myrmexDeck.length; i++) {
 			myrmexDeck[i].Location = 'drawDeckLocation';
 			myrmexDeck[i].divID = myrmexDeck[i].Name.replace(/\s+/g, '') + myrmexDeck[i].DeckNo;
@@ -723,6 +726,7 @@ context.settings = (function () {
 	return {
 		init: init,
 		checkForChanges: checkForChanges,
+		checkForDeckChanges: checkForDeckChanges,
 		get: get,
 		set: set,
 		getVariant: getVariant,
@@ -774,12 +778,34 @@ context.settings = (function () {
 	}
 
 	function checkForChanges() {
-		if (get('level') != $("input[name=level]:checked").val() || get('blackmoons') != $("input#emblacken").is(":checked") || get('unsnooker') != $("input#unsnooker").is(":checked")) {
-			set('level', $("input[name=level]:checked").val());
+		//We don't set the level here, but we do turn off the replay button in some cases.
+		var currentVariant = getVariant(get('level'));
+		var newVariant = getVariant($("input[name=level]:checked").val());
+		//Turn off replay.
+		if (currentVariant != newVariant)
+			$("#replayButton").prop('disabled',true);
+		else
+			$("#replayButton").prop('disabled',false);
+
+		//We do set and use all other settings.
+		if (get('blackmoons') != $("input#emblacken").is(":checked") || get('unsnooker') != $("input#unsnooker").is(":checked")  || get('checkEmpties') != $("input#checkEmpties").is(":checked")) {
 			set('blackmoons', $("input#emblacken").is(":checked").toString());
 			set('unsnooker', $("input#unsnooker").is(":checked").toString());
 			set('checkEmpties', $("input#checkEmpties").is(":checked").toString());
 			emclassen();
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	function checkForDeckChanges() {
+		//We don't abort the game on a level change; level doesn't change until New is pressed,
+		//so we don't actually set the setting until then.
+		if (get('level') != $("input[name=level]:checked").val()) {
+			set('level', $("input[name=level]:checked").val());
+			//May need to turn on replay.
+			$("#replayButton").prop('disabled',false);
 			return true;
 		} else {
 			return false;
@@ -827,9 +853,11 @@ context.settings = (function () {
 		}
 	}
 	
-	function getVariant() {
+	function getVariant(level) {
 		//Get a simpler version of the level.
-		var level = get('level');
+		if (!level)
+			level = get('level');
+
 		if (level == 'major' || level == 'blindMajor') return 'major';
 		if (level == 'queen' || level == 'blindQueen') return 'queen';
 		if (level == 'double') return 'double';
@@ -910,6 +938,7 @@ context.ui = (function () {
 		pushDealer: pushDealer,
 		reinit: reinit,
 		restoreChambers: restoreChambers,
+		setChamber: setChamber,
 		shifter: shifter,
 		show: show,
 		win: win
@@ -925,7 +954,7 @@ context.ui = (function () {
 	function clearChambers() {
 		chamberArray = [];
 		$(".chamber").removeClass("Knots Leaves Moons Suns Waves Wyrms");
-		$(".subchamber").removeClass("theBORDERLAND theHARVEST theLIGHTKEEPER theWATCHMAN theCONSUL theISLAND theRITE theWINDOW");
+		$(".subchamber").removeClass("theBORDERLAND theHARVEST theLIGHTKEEPER theWATCHMAN theCONSUL theISLAND theRITE theWINDOW").removeClass("Knots Leaves Moons Suns Waves Wyrms");
 	}
 
 	function displayTimer(total_seconds) {
@@ -1056,10 +1085,13 @@ context.ui = (function () {
 
 	function setChamber(c) {
 		$("#chamber" + c).addClass(chamberArray[c].suit);
+		//Don't need to context.settings.get('unsnooker') here because classes.
 		if (chamberArray[c].pawn) {
 			$("#subsubchamber" + c).addClass(chamberArray[c].pawn);
-			if (chamberArray[c].court)
+			if (chamberArray[c].court) {
 				$("#subchamber" + c).addClass(chamberArray[c].court);
+			} 
+			$("#acesubchamber" + c).addClass(chamberArray[c].suit);
 		}
 	}
 
