@@ -16,9 +16,9 @@ var myrmex = {};
 	var chamberArray = [];
 	var deck;
 	var debugging = true;
-	var debugLevel = -1; //Turn up to 2 or off on release.
+	var debugLevel = 2; //Turn up to 2 or off on release.
 	var undoAllowed = true;
-	var version = "1.3b";
+	var version = "1.3c";
 
 //init
 //data
@@ -412,8 +412,12 @@ context.cards = (function () {
 			target.setAttribute('data-x', x);
 			target.setAttribute('data-y', y);
 
-			// pop the card above later cards
-			target.style.zIndex = 100;
+			//Need to hackishly pop the card above later cards because of interact.js issue #237.
+			var tableauId = $(target).closest(".cardspace").data("tableau");
+			for (var t=0; t<tableauId; t++) {
+				$("#tableau" + t + " .card").css("zIndex",1);
+			}
+			$(target).css("zIndex",1000);
 		}
 
 		function dragMoveCleanup (event) {
@@ -421,7 +425,7 @@ context.cards = (function () {
 			target.style.webkitTransform = target.style.transform = 'none';
 			target.setAttribute('data-x', 0);
 			target.setAttribute('data-y', 0);
-			target.style.zIndex = "auto";
+			$(".card").css("zIndex","auto");
 		}
 	}
 
