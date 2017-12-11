@@ -10,6 +10,8 @@ var myrmex = {};
 	var defaultSettings = {speed: 300,
 						   magnification: false,
 						   blackmoons: true,
+						   unsnooker: false,
+						   checkEmpties: false,
 						   level: 'minor'};
 	var speed;
 	var tablArray = [];
@@ -94,6 +96,7 @@ context.init = (function () {
 context.data = (function () {
 
 	return {
+		areEmptyTableauSpaces: areEmptyTableauSpaces,
 		createDeck: createDeck,
 		getIndexOfCardFromID: getIndexOfCardFromID,
 		getIndexOfTableau: getIndexOfTableau,
@@ -182,12 +185,17 @@ context.data = (function () {
 		}
 	}
 
-	function nextChamber(suit) {
+	function nextChamber(suit,pawnName,courtName) {
 		//private
 		//Get and set the next chamber.
 		var next = chamberArray.length;
 		if (suit) {
-			chamberArray[next] = suit;
+			chamberArray[next] = {suit: suit};
+			if (pawnName) 
+				chamberArray[next].pawn = pawnName.replace(/\s+/g, '');
+			if (courtName)
+				chamberArray[next].court = courtName.replace(/\s+/g, '');
+			context.ui.setChamber(next);
 		}
 		return "chamber" + next;
 	}
@@ -530,10 +538,18 @@ context.cards = (function () {
 		//Move a completed set to the next available chamber.
 		var spaceID = context.data.nextChamber();
 		var suit = deck[tablArray[tablIndex][aceRow]].Suit1;
+		var pawn, court;
 
 		//Put the ace suit on the foundation.
 		$("#" + spaceID).addClass(suit);
-		context.data.nextChamber(suit);
+
+		if (aceRow > 10) {
+			pawn = deck[tablArray[tablIndex][2]].Name;
+			court = deck[tablArray[tablIndex][1]].Name;
+		} else if (aceRow == 10) {
+			pawn = deck[tablArray[tablIndex][1]].Name;
+		}
+		context.data.nextChamber(suit,pawn,court);
 		
 		//Don't actually move, since that causes some problems, just kill them all!
 		for (var c=aceRow;c>=crownRow;c--) {
@@ -715,11 +731,6 @@ context.settings = (function () {
 		saveGame: saveGame
 	};
 
-	function alerter(msg) {
-		//TODO: replace with something nice, if we're actually using this.
-		alert(msg);
-	}
-
 	function init() {
 		//Initialize settings during page init.
 		
@@ -756,16 +767,35 @@ context.settings = (function () {
 		//Fill in the rest of the settings form
 		$("input[name=level]").val([get('level')]);
 		$("input#emblacken").prop("checked",get('blackmoons'));
+		$("input#unsnooker").prop("checked",get('unsnooker'));
+		$("input#checkEmpties").prop("checked",get('checkEmpties'));
+
+		emclassen();
 	}
 
 	function checkForChanges() {
-		if (get('level') != $("input[name=level]:checked").val() || get('blackmoons') != $("input#emblacken").is(":checked")) {
+		if (get('level') != $("input[name=level]:checked").val() || get('blackmoons') != $("input#emblacken").is(":checked") || get('unsnooker') != $("input#unsnooker").is(":checked")) {
 			set('level', $("input[name=level]:checked").val());
 			set('blackmoons', $("input#emblacken").is(":checked").toString());
+			set('unsnooker', $("input#unsnooker").is(":checked").toString());
+			set('checkEmpties', $("input#checkEmpties").is(":checked").toString());
+			emclassen();
 			return true;
 		} else {
 			return false;
 		}
+	}
+
+	function emclassen() {
+		//Blackening is usually done per card, but there's one exception that needs to be set onblackchange.
+		if (get('blackmoons'))
+			$("#deckrow").addClass("blackmoo");
+		else
+			$("#deckrow").removeClass("blackmoo");
+		if (get('unsnooker'))
+			$("#deckrow").addClass("unsnoo");
+		else
+			$("#deckrow").removeClass("unsnoo");
 	}
 
 	function get(setting) {
@@ -776,7 +806,8 @@ context.settings = (function () {
 			} catch (e) {
 				value = defaultSettings[setting];
 			}
-			if (setting == 'blackmoons' || setting == 'magnification')  value = (value.toLowerCase() === "true");
+			if (setting == 'blackmoons' || setting == 'magnification' || setting == 'unsnooker' || setting == 'checkEmpties')  
+				value = (value.toLowerCase() === "true");
 			return value;
 		} else {
 			return defaultSettings[setting];
@@ -825,7 +856,7 @@ context.settings = (function () {
 		//Loading.
 		deck = JSON.parse(get('savedDeck'));
 		tablArray = JSON.parse(get('savedTableau'));
-		chamberArray = JSON.parse(get('savedChambers'));
+		chamberArray = fixChambers(JSON.parse(get('savedChambers')));
 		set('level',get('savedLevel')); //also update ui?
 		//Restart timer at saved value.
 		context.ui.initTimer(get('savedTime'));
@@ -841,6 +872,18 @@ context.settings = (function () {
 		context.ui.restoreChambers();
 		//Restore the dealer.
 		context.ui.pushDealer();
+	}
+
+	function fixChambers(currentArray) {
+		//Convert an old-style chamberArray to the new style.
+		if (currentArray && currentArray.length > 0 && typeof currentArray[0] == "string") {
+			var updatedArray = [];
+			for (var c=0; c<currentArray.length; c++) {
+				updatedArray[c] = {suit: currentArray[c]};
+			}
+			return updatedArray;
+		} else
+			return currentArray;
 	}
 
 	function saveGame() {
@@ -859,6 +902,7 @@ context.settings = (function () {
 context.ui = (function () {
 
 	return {
+		alerter: alerter,
 		init: init,
 		initDealer: initDealer,
 		initTimer: initTimer,
@@ -873,9 +917,15 @@ context.ui = (function () {
 
 	var timer;
 
+	function alerter(msg) {
+		//TODO: replace with something nice, if we're actually using this.
+		alert(msg);
+	}
+
 	function clearChambers() {
 		chamberArray = [];
 		$(".chamber").removeClass("Knots Leaves Moons Suns Waves Wyrms");
+		$(".subchamber").removeClass("theBORDERLAND theHARVEST theLIGHTKEEPER theWATCHMAN theCONSUL theISLAND theRITE theWINDOW");
 	}
 
 	function displayTimer(total_seconds) {
@@ -928,22 +978,21 @@ context.ui = (function () {
 		$('#replayButton').click(function () {
 			context.init.newGame(true);
 		});
-		$('#saveButton').click(function () {
-			context.settings.saveGame();
-		});
+
+		$('div#settingsPanel button.close').on("click",context.settings.checkForChanges);
 
 		//Init dealer.
 		$("#drawDeckLocation").click(function () {
 			//Add back in later as an option.
-			//		if (areEmptyTableauSpaces()) {
-			//			alerter("You must fill all tableau spaces before dealing.");
-			//		} else {
-			context.ui.popDealer();
-			if (context.deal.row(false)) {
-				//If anything got dealt, we refresh.
-				context.cards.refreshAll();
+			if (context.settings.get('checkEmpties') && context.data.areEmptyTableauSpaces()) {
+				alerter("You must fill all empty tableau spaces before dealing.");
+			} else {
+				context.ui.popDealer();
+				if (context.deal.row(false)) {
+					//If anything got dealt, we refresh.
+					context.cards.refreshAll();
+				}
 			}
-			//		}
 		});	
 	}
 
@@ -1001,7 +1050,16 @@ context.ui = (function () {
 		//The UI was previously cleared.
 		//$(".chamber").removeClass("Knots Leaves Moons Suns Waves Wyrms");
 		for (var c = 0; c < chamberArray.length; c++) {
-			$("#chamber" + c).addClass(chamberArray[c]);
+			setChamber(c);
+		}
+	}
+
+	function setChamber(c) {
+		$("#chamber" + c).addClass(chamberArray[c].suit);
+		if (chamberArray[c].pawn) {
+			$("#subsubchamber" + c).addClass(chamberArray[c].pawn);
+			if (chamberArray[c].court)
+				$("#subchamber" + c).addClass(chamberArray[c].court);
 		}
 	}
 

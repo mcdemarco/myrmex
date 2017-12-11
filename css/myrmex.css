@@ -115,8 +115,14 @@ div#titleRight {
     background-size: 62px 87px;
 }
 
-.chamber {
+.chamber, .subchamber {
     background-size: 62px 87px;
+}
+
+.subchamber {
+    height:100%;
+    margin-left:11px;
+    overflow:hidden;
 }
 
 .cardspace {
@@ -248,6 +254,13 @@ div#titleRight {
     border-radius:10px;
 }
 
+.chamber .pawnused {
+    margin-top: 10px;
+    width:25px;
+    height:25px;
+    border-radius:10px;
+}
+
 .suit1 {
     left:20px;
 }
@@ -281,6 +294,9 @@ img.realBack {
     background-image: url('../cards/1_ace_knots.png');
 }
 .chamber.Moons {
+    background-image: url('../cards/1_ace_moons.png');
+}
+.blackmoo .chamber.Moons {
     background-image: url('../cards/1_ace_moons_black.png');
 }
 .chamber.Leaves {
@@ -295,6 +311,67 @@ img.realBack {
 .chamber.Wyrms {
     background-image: url('../cards/1_ace_wyrms.png');
 }
+
+.unsnoo .chamber.Knots {
+    background-image: url('../cards/crown_knots.png');
+}
+.unsnoo .chamber.Moons {
+    background-image: url('../cards/crown_moons.png');
+}
+.unsnoo.blackmoo .chamber.Moons {
+    background-image: url('../cards/crown_moons_black.png');
+}
+.unsnoo .chamber.Leaves {
+    background-image: url('../cards/crown_leaves.png');
+}
+.unsnoo .chamber.Suns {
+    background-image: url('../cards/crown_suns.png');
+}
+.unsnoo .chamber.Waves {
+    background-image: url('../cards/crown_waves.png');
+}
+.unsnoo .chamber.Wyrms {
+    background-image: url('../cards/crown_wyrms.png');
+}
+
+.unsnoo .subchamber.theBORDERLAND {
+    background-image: url('../cards/pawn_borderland.png');
+}
+.unsnoo .subchamber.theHARVEST {
+    background-image: url('../cards/pawn_harvest.png');
+}
+.unsnoo.blackmoo .subchamber.theHARVEST {
+    background-image: url('../cards/pawn_harvest_black.png');
+}
+.unsnoo .subchamber.theLIGHTKEEPER {
+    background-image: url('../cards/pawn_light_keeper.png');
+}
+.unsnoo .subchamber.theWATCHMAN {
+    background-image: url('../cards/pawn_watchman.png');
+}
+.unsnoo.blackmoo .subchamber.theWATCHMAN {
+    background-image: url('../cards/pawn_watchman_black.png');
+}
+
+.unsnoo .subchamber.theCONSUL {
+    background-image: url('../cards/11_court_consul.png');
+}
+.unsnoo.blackmoo .subchamber.theCONSUL {
+    background-image: url('../cards/11_court_consul_black.png');
+}
+.unsnoo .subchamber.theISLAND {
+    background-image: url('../cards/11_court_island.png');
+}
+.unsnoo .subchamber.theRITE {
+    background-image: url('../cards/11_court_rite.png');
+}
+.unsnoo.blackmoo .subchamber.theRITE {
+    background-image: url('../cards/11_court_rite_black.png');
+}
+.unsnoo .subchamber.theWINDOW {
+    background-image: url('../cards/11_court_window.png');
+}
+
 
 /* font */
 

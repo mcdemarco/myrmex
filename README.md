@@ -16,7 +16,7 @@ Myrmex is a Decktet version of Spider, which I wanted to be able to play even wh
 
 ## Bugs
 
-Undo only undoes one move; undoing again will re-do.  Undo will not undo a deal, although the autosave does not save after a deal, so you can undo an accidental deal immediately by reloading the page.
+Undo only undoes one move; undoing again will re-do.  Undo will not undo a deal.  However, the autosave does not save after a deal until you make another move, so you can undo an accidental deal immediately by reloading the page.
 
 ## Links
 

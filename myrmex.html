@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html manifest="myrmex.appcache">
+<html><!--  manifest="myrmex.appcache"> -->
 <head>
 	<!-- This file was created by M.C. DeMarco, based on a remix of Adaman by Felbrigg Herriot.
 	     It is released under a Creative Commons Attribution NonCommercial ShareAlike 3.0 License. -->
@@ -46,8 +46,18 @@
 			</div>
 		</div>
 		<div id="deckrow">
-			<div class="teeny cardspace chamber" id="chamber0"></div>
-			<div class="teeny cardspace chamber" id="chamber1"></div>
+			<div class="teeny cardspace chamber" id="chamber0">
+				<div class="subchamber" id="subchamber0">
+					<div class="subchamber" id="subsubchamber0">
+					</div>
+				</div>
+			</div>
+			<div class="teeny cardspace chamber" id="chamber1">
+				<div class="subchamber" id="subchamber1">
+					<div class="subchamber" id="subsubchamber1">
+					</div>
+				</div>
+			</div>
 			<div class="teeny cardspace chamber" id="chamber2"></div>
 			<div class="teeny cardspace chamber" id="chamber3"></div>
 			<div class="teeny cardspace chamber" id="chamber4"></div>
@@ -120,7 +130,7 @@
 
 	<div>
 		<p style="text-align:right;white-space:nowrap;">
-			<input type="checkbox" id="emblacken" title="Emblacken" checked /> Black&nbsp;Moons
+			<input type="checkbox" id="emblacken" title="Emblacken" /> Black&nbsp;Moons
 		</p>
 		<p>For added legibility, a black sky background has been added to the moon suit.  Uncheck this option to use the unadulterated artwork in your next game.</p>
 	</div>
@@ -128,7 +138,7 @@
 	<div>
 		<p style="white-space:nowrap;">
 			<input type="radio" name="level" value="larval">Larval Stage (Beetle)</input><br/>
-			<input type="radio" name="level" value="minor" checked>Minor Worker (Blind)</input><br/>
+			<input type="radio" name="level" value="minor">Minor Worker (Blind)</input><br/>
 			<input type="radio" name="level" value="major">Major Worker (Beetle)</input><br/>
 			<input type="radio" name="level" value="queen">Queen (Beetle)</input><br/>
 			<input type="radio" name="level" value="blindMajor">Blind Major Worker</input><br/>
@@ -136,6 +146,18 @@
 			<!-- input type="radio" name="level" value="double">Double Myrmex (Blind)</input -->
 		</p>
 		<p>Your next game can be made harder with the addition of six Pawns (the Major Worker levels) or six Pawns and six Courts (the Queen levels).  The game can be made easier by dealing the tableau face up and visible as in the Beetle variant of Spider; this is the default for the Larval Stage, the Major Worker level, and the Queen level.  <!-- (Double Myrmex is an experimental version using four decks.) --></p>
+	</div>
+
+	<div>
+		<p style="text-align:right;white-space:nowrap;">
+			<input type="checkbox" id="unsnooker" title="Show used Pawns and Courts (in levels that involve them)" /> Show used Pawns/Courts</p>
+		<p>You Major Worker or Queen level games can be made slightly easier by displaying the Pawns and Courts that have already been put into your chambers.  (It is possible to use the "wrong" Pawns and Courts in some chambers, making it impossible to fill the remaining chambers; this setting will not stop you from doing so, but it may help you to avoid the situation.)</p>
+	</div>
+
+	<div>
+		<p style="text-align:right;white-space:nowrap;">
+			<input type="checkbox" id="checkEmpties" title="Fill empty tableau spaces" /> Fill empty tableau spaces</p>
+			<p>You games may be made slightly harder with the restriction that you cannot deal to the tableau unless all empty tableau spaces (<em>a.k.a.</em>, piles) already have cards in them.  (It is always legal to move a card to an empty space.)  Of course you can follow this rule without actually checking the box.</p>
 	</div>
 
 	<button type="button" class="close button">Close</button>
