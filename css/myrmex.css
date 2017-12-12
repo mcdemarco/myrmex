@@ -81,6 +81,7 @@ div#titleRight {
    teeny size: 62x87
    remix card size (Adaman): 124x174
    embiggened size (hypothetical): 186x261 (currently has original sizes in it for debugging)
+   unsnookered size: 93x130.5
    card source file size: 372x522 
 */
 
@@ -119,9 +120,15 @@ div#titleRight {
     background-size: 62px 87px;
 }
 
+.unsnoo .chamber, .unsnoo .subchamber {
+    background-size: 93px 130.5px;
+}
+
 .subchamber {
     height:100%;
-    margin-left:11px;
+    margin-left:15px;
+    border-left:1px solid #432;
+    border-radius:5px 0 0 0;
     overflow:hidden;
 }
 
@@ -248,13 +255,6 @@ div#titleRight {
 }
 
 .magnify .suit1, .magnify .suit2, .magnify .suit3 {
-    margin-top: 10px;
-    width:25px;
-    height:25px;
-    border-radius:10px;
-}
-
-.chamber .pawnused {
     margin-top: 10px;
     width:25px;
     height:25px;

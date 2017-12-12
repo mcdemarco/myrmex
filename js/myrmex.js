@@ -20,7 +20,7 @@ var myrmex = {};
 	var debugging = true;
 	var debugLevel = 2; //Turn up to 2 or off on release.
 	var undoAllowed = true;
-	var version = "1.3h";
+	var version = "1.3k";
 
 //init
 //data
@@ -546,11 +546,11 @@ context.cards = (function () {
 		//Put the ace suit on the foundation.
 		$("#" + spaceID).addClass(suit);
 
-		if (aceRow > 10) {
-			pawn = deck[tablArray[tablIndex][2]].Name;
-			court = deck[tablArray[tablIndex][1]].Name;
-		} else if (aceRow == 10) {
-			pawn = deck[tablArray[tablIndex][1]].Name;
+		if (aceRow - crownRow > 10) {
+			pawn = deck[tablArray[tablIndex][aceRow-8]].Name;
+			court = deck[tablArray[tablIndex][aceRow-9]].Name;
+		} else if (aceRow - crownRow == 10) {
+			pawn = deck[tablArray[tablIndex][aceRow-9]].Name;
 		}
 		context.data.nextChamber(suit,pawn,court);
 		
@@ -1084,15 +1084,19 @@ context.ui = (function () {
 	}
 
 	function setChamber(c) {
-		$("#chamber" + c).addClass(chamberArray[c].suit);
+		var jqChamber = $("#chamber" + c);
+		var chamberObj = chamberArray[c];
+		var appendix;
+		jqChamber.addClass(chamberObj.suit);
+
 		//Don't need to context.settings.get('unsnooker') here because classes.
-		if (chamberArray[c].pawn) {
-			$("#subsubchamber" + c).addClass(chamberArray[c].pawn);
-			if (chamberArray[c].court) {
-				$("#subchamber" + c).addClass(chamberArray[c].court);
-			} 
-			$("#acesubchamber" + c).addClass(chamberArray[c].suit);
-		}
+		if (chamberObj.pawn)
+			appendix = "<div class='subchamber " + chamberObj.pawn + "'><div class='subchamber " + chamberObj.suit + "'></div></div>";
+		if (chamberObj.court)
+			appendix = "<div class='subchamber " + chamberObj.court + "'>" + appendix + "</div>";
+
+		//Safe to append undefined.
+		jqChamber.append(appendix);
 	}
 
 	function shifter(event) {
