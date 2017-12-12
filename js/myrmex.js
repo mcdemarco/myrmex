@@ -20,7 +20,7 @@ var myrmex = {};
 	var debugging = true;
 	var debugLevel = 2; //Turn up to 2 or off on release.
 	var undoAllowed = true;
-	var version = "1.3k";
+	var version = "1.3l";
 
 //init
 //data
@@ -953,8 +953,7 @@ context.ui = (function () {
 
 	function clearChambers() {
 		chamberArray = [];
-		$(".chamber").removeClass("Knots Leaves Moons Suns Waves Wyrms");
-		$(".subchamber").removeClass("theBORDERLAND theHARVEST theLIGHTKEEPER theWATCHMAN theCONSUL theISLAND theRITE theWINDOW").removeClass("Knots Leaves Moons Suns Waves Wyrms");
+		$(".chamber").removeClass("Knots Leaves Moons Suns Waves Wyrms").empty();
 	}
 
 	function displayTimer(total_seconds) {
