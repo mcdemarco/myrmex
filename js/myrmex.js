@@ -20,7 +20,7 @@ var myrmex = {};
 	var debugging = true;
 	var debugLevel = 2; //Turn up to 2 or off on release.
 	var undoAllowed = true;
-	var version = "1.3l";
+	var version = "1.3m";
 
 //init
 //data
@@ -486,8 +486,8 @@ context.cards = (function () {
  				$(card.selector).css({"top":11,"left":0});
  				$(".magnify " + card.selector).css({"top":11,"left":0});
  			} else {
- 				$(card.selector).css({"top":22,"left":0,"z-index":(shift + 1)});
- 				$(".magnify " + card.selector).css({"top":44,"left":0,"z-index":(shift + 1)});
+ 				$(card.selector).css({"top":22,"left":0,"z-index":"auto"});
+ 				$(".magnify " + card.selector).css({"top":44,"left":0,"z-index":"auto"});
  			}
 
 			//stackCard(card,prevCard);
@@ -896,10 +896,12 @@ context.settings = (function () {
 		context.deal.restore();
 		//Set draggables:
 		context.cards.refreshAll();
-		//Restore any completed chambers.
-		context.ui.restoreChambers();
 		//Restore the dealer.
 		context.ui.pushDealer();
+		//Restore any completed chambers.
+		var won = context.ui.restoreChambers();
+		if (won)
+			context.ui.win(1);
 	}
 
 	function fixChambers(currentArray) {
@@ -1041,6 +1043,8 @@ context.ui = (function () {
 				elapsed_seconds = parseInt(atTimes[0],10) * 3600 + parseInt(atTimes[1],10) * 60 + parseInt(atTimes[2],10);
 			else
 				elapsed_seconds = parseInt(atTimes[0],10) * 60 + parseInt(atTimes[1],10);
+			//Set timer to get accurate win time when opening a won game.
+			$('#timer').text(displayTimer(elapsed_seconds));
 		}
 		timer = setInterval(function() {
 			elapsed_seconds = elapsed_seconds + 1;
@@ -1080,6 +1084,10 @@ context.ui = (function () {
 		for (var c = 0; c < chamberArray.length; c++) {
 			setChamber(c);
 		}
+		if (chamberArray.length == 6) 
+			return true;
+		else
+			return false;
 	}
 
 	function setChamber(c) {
@@ -1210,5 +1218,8 @@ context.debug = (function () {
 
 })(myrmex);
 
+
+//TODO:
+//add the one known losing state.
 
 /* eof */

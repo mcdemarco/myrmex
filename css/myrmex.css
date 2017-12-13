@@ -506,9 +506,10 @@ p.callout {
     color:white;
     font-weight:normal;
     font-size:12pt;
-    margin:0;
-    padding: 5%;
+    margin:1%;
+    padding:5%;
     z-index:51;
+    border-radius:10px;
 }
 
 #settingsPanel div {
@@ -516,10 +517,17 @@ p.callout {
     display:table-row;
 }
 
-#settingsPanel div p {
+#settingsPanel div p, #settingsPanel div table {
     display:table-cell;
     text-align:left;
     padding:10px 5px 30px 5px;
+}
+
+#settingsPanel div table th {
+    text-align:center;
+}
+#settingsPanel div table td {
+    white-space:nowrap;
 }
 
 #settingsPanel div p:first-child {
