@@ -20,7 +20,7 @@ var myrmex = {};
 	var debugging = true;
 	var debugLevel = 2; //Turn up to 2 or off on release.
 	var undoAllowed = true;
-	var version = "1.3m";
+	var version = "1.3n";
 
 //init
 //data
@@ -77,6 +77,7 @@ context.init = (function () {
 			context.debug.log("Shuffling...",1);
 			decktet.shuffle.deck(deck);
 			//For testing chamber filling, switch to a sorted deck.
+			//(Queen works better than major worker for this.)
 			//decktet.shuffle.sort(deck,true);
 		} else {
 			context.debug.log("Not shuffling...",1);
@@ -547,8 +548,8 @@ context.cards = (function () {
 		$("#" + spaceID).addClass(suit);
 
 		if (aceRow - crownRow > 10) {
-			pawn = deck[tablArray[tablIndex][aceRow-8]].Name;
-			court = deck[tablArray[tablIndex][aceRow-9]].Name;
+			pawn = deck[tablArray[tablIndex][aceRow-9]].Name;
+			court = deck[tablArray[tablIndex][aceRow-10]].Name;
 		} else if (aceRow - crownRow == 10) {
 			pawn = deck[tablArray[tablIndex][aceRow-9]].Name;
 		}
