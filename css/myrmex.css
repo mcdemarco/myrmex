@@ -558,6 +558,11 @@ a:visited {
     width:40px;
 }
 
+img.symbol {
+    height: 15px;
+    border-radius:3px;
+}
+
 /* homegrown animations */
 
 @keyframes fade-in {
@@ -571,3 +576,4 @@ a:visited {
 .fadeOut {
     animation: fade-in reverse 2s
 }
+

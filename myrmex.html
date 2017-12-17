@@ -83,26 +83,31 @@
 
         </div>
 
-
-    <div id="whatsthestory" class="panel">
-            <p class="callout">An ant colony is a place of feverish activity, where workers endlessly toil for the greater good of the superorganism. You are a worker ant, constantly moving detritus and foodstuffs from chamber to chamber. The problem is that other workers are bringing in more goods faster than you can sort out the old stuff! At the end of the day, the best that you can hope for is a chance to do it all over again tomorrow.</p>
-
-            <h2>How to Play</h2>
-            <p>Cards are ranked Ace, 2. 3, 4, 5, 6, 7, 8, 9, (Pawn, (Court,)) Crown, ascending.  (Pawns and Courts are optional and don't appear in the base game.)  You can move any single top card onto a card of the next higher rank or into an empty tableau space.  You can also move any set of cards in descending rank order onto a card of the next higher rank or into an empty tableau space, provided that the cards you are moving all share a common suit.  When you have assembled a descending sequence from Crown to Ace which shares a single suit, you have completed one-sixth of your sorting task!  The completed stack is automatically moved to one of the six empty chambers at the top of the play area.</p>
-						<p>Cards are moved by dragging and dropping.  Illegal moves are not permitted; the cards will bounce back to place when dropped onto an illegal position.  When you uncover a face-down card in a tableau stack (in a game level with face-down cards) by successfully moving the card(s) on top of it away, the face-down card will be flipped automatically.</p>
-						<p>At any time you may deal eight more face-up cards (fewer on the last deal) to the tops of the eight tableau piles by clicking on the small face-down card pile at the top of the play area.  In most browsers, your game will be saved automatically, so you can return to it later even when offline.</p>
-
-						<h3>Winning and Losing</h3>
-						<p>Filling no chambers is a total loss, filling 1 to 5 chambers is a partial win, and filling all six chambers is a true victory.  There is no official point at which you have lost; you can always start over with the New Game button, or replay the same game (deal) with the Replay button.  You can switch to an easier or some harder variants in the Settings; this won't affect your current game.  (Other, more cosmetic, settings take effect immediately.)</p>
-
-        <button type="button" class="close button">Close</button>
-    </div>
-
     <div id="gameOver" class="panel">
         <h2>Victory!</h2>
 				<p>You filled all the chambers in <span id="minutes"></span> minutes, <span id="meaning"></span>.</p>
         <p>You may now enter the Queen’s chamber and start mucking it out.</p>
         <button type="button" id="gameOverCloseButton" class="close button">Close</button>
+    </div>
+
+    <div id="whatsthestory" class="panel">
+            <p class="callout">An ant colony is a place of feverish activity, where workers endlessly toil for the greater good of the superorganism. You are a worker ant, constantly moving detritus and foodstuffs from chamber to chamber. The problem is that other workers are bringing in more goods faster than you can sort out the old stuff! At the end of the day, the best that you can hope for is a chance to do it all over again tomorrow.</p>
+
+						<h3>About the Decktet</h3>
+						<p>The Decktet is an alternative deck of cards with six suits (named Moons <img class="symbol" src="cards/moons_black.png" alt="suit symbol for moons"/>, Suns <img class="symbol" src="cards/suns.png" alt="suit symbol for suns"/>, Waves <img class="symbol" src="cards/waves.png" alt="suit symbol for waves"/>, Leaves <img class="symbol" src="cards/leaves.png" alt="suit symbol for leaves"/>, Wyrms <img class="symbol" src="cards/wyrms.png" alt="suit symbol for wyrms"/>, and Knots <img class="symbol" src="cards/knots.png" alt="suit symbol for knots"/>), ten to twelve ranks, multiple suits on most cards, plus several other intriguing features not used while playing Myrmex.  In the Decktet, cards are ranked Ace, 2. 3, 4, 5, 6, 7, 8, 9, (Pawn, (Court,)) Crown, ascending.  Numbered cards have two suits each.  Aces have a single, round suit marker <img class="symbol" src="cards/wyrms.png" alt="suit symbol for wyrms"/> in the center and corners, and Crowns <img class="symbol" src="cards/crown.png" alt="crown symbol"/> also have only one suit.  Pawns <img class="symbol" src="cards/pawn.png" alt="pawn symbol"/> and Courts <img class="symbol" src="cards/court.png" alt="court symbol"/> are optional triple-suited cards from the Extended Decktet which are used at higher levels of Myrmex but not in the base game.  The suit distribution follows no particular pattern.</p>
+						<p>A double Decktet is two copies of the Decktet shuffled together; for Myrmex, some duplicate cards are removed from the double Decktet and some are kept, resulting in six cards of each rank.</p>
+
+            <h3>How to Play</h3>
+						<p>Myrmex is a Spider-like solitaire game for a double Decktet.  The goal of Myrmex, like that of many solitaire games, is to assemble descending sequences from Crown to Ace, one for each suit.  A completed sequence is (automatically) moved to one of the six empty chambers at the top of the play area.  As in Spider, Myrmex starts with a partially-filled tableau of eight piles, plus a draw pile containing the rest of the deck.  Face-up cards are fanned downward in the usual solitaire fashion, so the available cards are the uppermost in the stacking of the column, though they are lower down on your screen.</p>
+            <p>You can move any single uppermost card from one tableau onto a card of the next higher rank in another tableau, or into an empty tableau space.  You can also move any (uppermost) set of cards in descending rank order onto a card of the next higher rank or into an empty tableau space, provided that the cards you are moving all share a common suit.  (The target card does <em>not</em> have to share the suit, leading to most of the difficult decisions in Myrmex.)  When you have assembled a descending sequence from Crown to Ace which shares a single suit, you have completed one-sixth of your sorting task!</p>
+						<p>Cards are moved by dragging and dropping.  Illegal moves are not permitted; illegal sequences cannot be dragged, and draggable card(s) will bounce back to their original place when dropped onto an illegal position.  When you uncover a face-down card in a tableau stack by successfully moving the card(s) on top of it away (in a game level with face-down cards), the face-down card will be flipped automatically.</p>
+						<p>At any time you may deal eight more face-up cards (fewer on the last deal) to the uppermost position of the eight tableau piles by clicking on the small, face-down deck pile at the top of the play area.</p>
+						<p>In most browsers, your game will be saved automatically so you can return to it later (even when offline).  There is an undo button, but it only undoes one move.  You can also scroll around the screen, and may need to on small devices.</p>
+
+						<h3>Winning and Losing</h3>
+						<p>Filling no chambers is a total loss, filling 1 to 5 chambers is a partial win, and filling all six chambers is a true victory.  There is no official point at which you have lost; you can always start over with the New Game button, or replay the same game (deal) with the Replay button.  You can switch to an easier or some harder variants in the Settings; this won't affect your current game.  (Other, more cosmetic, settings take effect immediately.)</p>
+
+        <button type="button" class="close button">Close</button>
     </div>
 
     <div id="settingsPanel" class="panel">
@@ -172,7 +177,7 @@
             <p>Please visit the <a href="http://www.decktet.com/">Decktet web site</a> to find out more about the Decktet and to get your own deck.  (Note that a double deck is required to play Myrmex.)</p>
             <p>Myrmex was created by Greg James and is quite similar to the solitaire game of Spider for a regular deck of cards.  It requires most of two Decktet decks.  The official rules are available <a href="http://decktet.wikidot.com/game:myrmex">at the Decktet Wiki</a>, and some background about the variants can be found <a href="http://www.boardgamegeek.com/forum/1076224/myrmex/strategy">at BoardGameGeek</a>.  <!-- The undocumented, experimental Double Myrmex variant is by M.C. DeMarco.--></p>
             <p id="versionP">This implementation of Myrmex is by M.C. DeMarco, using some code from Felbrigg Herriot's electronic web version of Adaman (another Decktet solitaire game), and is released under a Creative Commons Attribution NonCommercial ShareAlike 3.0 License.  The code is available <a href="https://github.com/mcdemarco/myrmex">at Github</a>.  This is version</p>
-						<p>You may also want to try <a href="https://mcdemarco.github.io/adaman/">Adaman</a>.</p>
+						<p>You may also want to try <a href="https://mcdemarco.github.io/adaman/">Adaman</a> or <a href="http://mcdemarco.net/games/decktet/cascades/">Cascades</a>.</p>
 						<button type="button" class="close button">Close</button>
     </div>
 

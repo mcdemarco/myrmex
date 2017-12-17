@@ -8,11 +8,11 @@ var myrmex = {};
 (function(context) { 
 
 	var defaultSettings = {speed: 300,
-						   magnification: false,
-						   blackmoons: true,
-						   unsnooker: false,
-						   checkEmpties: false,
-						   level: 'minor'};
+												 magnification: false,
+												 blackmoons: true,
+												 unsnooker: false,
+												 checkEmpties: false,
+												 level: 'minor'};
 	var speed;
 	var tablArray = [];
 	var chamberArray = [];
@@ -949,7 +949,6 @@ context.ui = (function () {
 	var timer;
 
 	function alerter(msg) {
-		//TODO: replace with something nice, if we're actually using this.
 		alert(msg);
 	}
 
@@ -1202,13 +1201,13 @@ context.debug = (function () {
 	
 	function log(message,level) {
 		/* Log levels 
-		 -2: obsolete
-		 -1: chatty
+		-2: obsolete
+		-1: chatty
 		 0: basic code path
 		 1: current details
 		 2: current concerns
 		 3: real errors
-		 */
+		*/
 		if (!debugging || !level || level < debugLevel) return;
 		var timestamp = new Date();
 		console.log(timestamp.toLocaleTimeString() + ": " + message);
@@ -1221,5 +1220,6 @@ context.debug = (function () {
 
 //TODO:
 //add the one known losing state.
+//replace context.ui.alerter with something nicer
 
 /* eof */
