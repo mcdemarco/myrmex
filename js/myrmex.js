@@ -20,7 +20,7 @@ var myrmex = {};
 	var debugging = true;
 	var debugLevel = 2; //Turn up to 2 or off on release.
 	var undoAllowed = true;
-	var version = "1.3n";
+	var version = "1.3o";
 
 //init
 //data
@@ -136,8 +136,7 @@ context.data = (function () {
 			}
 		}
 
-		//Only shuffle the once.
-		//myrmexDeck = decktet.shuffle.deck(myrmexDeck);
+		myrmexDeck = decktet.shuffle.deck(myrmexDeck);
 		for (var i = 0; i < myrmexDeck.length; i++) {
 			myrmexDeck[i].Location = 'drawDeckLocation';
 			myrmexDeck[i].divID = myrmexDeck[i].Name.replace(/\s+/g, '') + myrmexDeck[i].DeckNo;
