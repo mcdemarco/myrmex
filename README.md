@@ -24,3 +24,4 @@ Undo only undoes one move; undoing again will re-do.  Undo will not undo a deal.
 * [Myrmex at the Decktet Wiki](http://decktet.wikidot.com/game:myrmex)
 * [Myrmex at BGG](https://www.boardgamegeek.com/boardgame/105292/myrmex)
 * My implementation of [Adaman](https://mcdemarco.github.io/adaman/)
+* My implementation of [Cascades](https://mcdemarco.net/games/decktet/cascades/)

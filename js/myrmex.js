@@ -20,7 +20,7 @@ var myrmex = {};
 	var debugging = true;
 	var debugLevel = 2; //Turn up to 2 or off on release.
 	var undoAllowed = true;
-	var version = "1.3o";
+	var version = "1.3";
 
 //init
 //data
