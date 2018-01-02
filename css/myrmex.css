@@ -81,6 +81,7 @@ div#titleRight {
    teeny size: 62x87
    remix card size (Adaman): 124x174
    embiggened size (hypothetical): 186x261 (currently has original sizes in it for debugging)
+   unsnookered size: 93x130.5
    card source file size: 372x522 
 */
 
@@ -115,8 +116,20 @@ div#titleRight {
     background-size: 62px 87px;
 }
 
-.chamber {
+.chamber, .subchamber {
     background-size: 62px 87px;
+}
+
+.unsnoo .chamber, .unsnoo .subchamber {
+    background-size: 93px 130.5px;
+}
+
+.subchamber {
+    height:100%;
+    margin-left:15px;
+    border-left:1px solid #432;
+    border-radius:5px 0 0 0;
+    overflow:hidden;
 }
 
 .cardspace {
@@ -281,6 +294,9 @@ img.realBack {
     background-image: url('../cards/1_ace_knots.png');
 }
 .chamber.Moons {
+    background-image: url('../cards/1_ace_moons.png');
+}
+.blackmoo .chamber.Moons {
     background-image: url('../cards/1_ace_moons_black.png');
 }
 .chamber.Leaves {
@@ -295,6 +311,89 @@ img.realBack {
 .chamber.Wyrms {
     background-image: url('../cards/1_ace_wyrms.png');
 }
+
+.unsnoo .subchamber.Knots {
+    background-image: url('../cards/1_ace_knots.png');
+}
+.unsnoo .subchamber.Moons {
+    background-image: url('../cards/1_ace_moons.png');
+}
+.unsnoo.blackmoo .subchamber.Moons {
+    background-image: url('../cards/1_ace_moons_black.png');
+}
+.unsnoo .subchamber.Leaves {
+    background-image: url('../cards/1_ace_leaves.png');
+}
+.unsnoo .subchamber.Suns {
+    background-image: url('../cards/1_ace_suns.png');
+}
+.unsnoo .subchamber.Waves {
+    background-image: url('../cards/1_ace_waves.png');
+}
+.unsnoo .subchamber.Wyrms {
+    background-image: url('../cards/1_ace_wyrms.png');
+}
+
+.unsnoo .chamber.Knots {
+    background-image: url('../cards/crown_knots.png');
+}
+.unsnoo .chamber.Moons {
+    background-image: url('../cards/crown_moons.png');
+}
+.unsnoo.blackmoo .chamber.Moons {
+    background-image: url('../cards/crown_moons_black.png');
+}
+.unsnoo .chamber.Leaves {
+    background-image: url('../cards/crown_leaves.png');
+}
+.unsnoo .chamber.Suns {
+    background-image: url('../cards/crown_suns.png');
+}
+.unsnoo .chamber.Waves {
+    background-image: url('../cards/crown_waves.png');
+}
+.unsnoo .chamber.Wyrms {
+    background-image: url('../cards/crown_wyrms.png');
+}
+
+.unsnoo .subchamber.theBORDERLAND {
+    background-image: url('../cards/pawn_borderland.png');
+}
+.unsnoo .subchamber.theHARVEST {
+    background-image: url('../cards/pawn_harvest.png');
+}
+.unsnoo.blackmoo .subchamber.theHARVEST {
+    background-image: url('../cards/pawn_harvest_black.png');
+}
+.unsnoo .subchamber.theLIGHTKEEPER {
+    background-image: url('../cards/pawn_light_keeper.png');
+}
+.unsnoo .subchamber.theWATCHMAN {
+    background-image: url('../cards/pawn_watchman.png');
+}
+.unsnoo.blackmoo .subchamber.theWATCHMAN {
+    background-image: url('../cards/pawn_watchman_black.png');
+}
+
+.unsnoo .subchamber.theCONSUL {
+    background-image: url('../cards/11_court_consul.png');
+}
+.unsnoo.blackmoo .subchamber.theCONSUL {
+    background-image: url('../cards/11_court_consul_black.png');
+}
+.unsnoo .subchamber.theISLAND {
+    background-image: url('../cards/11_court_island.png');
+}
+.unsnoo .subchamber.theRITE {
+    background-image: url('../cards/11_court_rite.png');
+}
+.unsnoo.blackmoo .subchamber.theRITE {
+    background-image: url('../cards/11_court_rite_black.png');
+}
+.unsnoo .subchamber.theWINDOW {
+    background-image: url('../cards/11_court_window.png');
+}
+
 
 /* font */
 
@@ -407,9 +506,10 @@ p.callout {
     color:white;
     font-weight:normal;
     font-size:12pt;
-    margin:0;
-    padding: 5%;
+    margin:1%;
+    padding:5%;
     z-index:51;
+    border-radius:10px;
 }
 
 #settingsPanel div {
@@ -417,10 +517,17 @@ p.callout {
     display:table-row;
 }
 
-#settingsPanel div p {
+#settingsPanel div p, #settingsPanel div table {
     display:table-cell;
     text-align:left;
     padding:10px 5px 30px 5px;
+}
+
+#settingsPanel div table th {
+    text-align:center;
+}
+#settingsPanel div table td {
+    white-space:nowrap;
 }
 
 #settingsPanel div p:first-child {
@@ -451,6 +558,11 @@ a:visited {
     width:40px;
 }
 
+img.symbol {
+    height: 15px;
+    border-radius:3px;
+}
+
 /* homegrown animations */
 
 @keyframes fade-in {
@@ -464,3 +576,4 @@ a:visited {
 .fadeOut {
     animation: fade-in reverse 2s
 }
+

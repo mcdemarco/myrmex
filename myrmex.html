@@ -8,7 +8,7 @@
 	<meta name="mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-title" content="Myrmex">
-	<meta name="apple-mobile-web-app-status-bar-style" content="black"/><!-- black-translucent"/> -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
 	<!-- no viewport means scale full size to phone viewport (didn't work) -->
 	<meta name="viewport" content="width=1130,user-scalable=no">
 
@@ -43,7 +43,6 @@
 			<div>
 				<button type="button" class="button" id="startButton" title="Start a new game">New</button>
 				<button type="button" class="button" id="replayButton" title="Replay the last deal">Replay</button>
-				<button type="button" class="button" id="loadButton" title="Load a saved game">Resume</button>
 			</div>
 		</div>
 		<div id="deckrow">
@@ -53,6 +52,7 @@
 			<div class="teeny cardspace chamber" id="chamber3"></div>
 			<div class="teeny cardspace chamber" id="chamber4"></div>
 			<div class="teeny cardspace chamber" id="chamber5"></div>
+
 			<div class="teeny cardspace" id="drawDeckLocation"></div>
 		</div>
 		<div id="titleRight">
@@ -64,7 +64,6 @@
 			<div>
 				<button type="button" class="button" id="undoButton" title="Undo last move" disabled>Undo</button> &nbsp;
 				<span id="timer">00:00</span> &nbsp;
-				<button type="button" class="button" id="saveButton" title="Save current game">Save</button>
 			</div>
 		</div>
 	</div>
@@ -72,36 +71,43 @@
         <div id="playarea">
 
             <div id="tableauRow" class="gamerow">
-                <div class="cardspace" id="tableau0"></div>
-                <div class="cardspace" id="tableau1"></div>
-                <div class="cardspace" id="tableau2"></div>
-                <div class="cardspace" id="tableau3"></div>
-                <div class="cardspace" id="tableau4"></div>
-                <div class="cardspace" id="tableau5"></div>
-                <div class="cardspace" id="tableau6"></div>
-                <div class="cardspace" id="tableau7"></div>
+                <div class="cardspace" id="tableau0" data-tableau="0"></div>
+                <div class="cardspace" id="tableau1" data-tableau="1"></div>
+                <div class="cardspace" id="tableau2" data-tableau="2"></div>
+                <div class="cardspace" id="tableau3" data-tableau="3"></div>
+                <div class="cardspace" id="tableau4" data-tableau="4"></div>
+                <div class="cardspace" id="tableau5" data-tableau="5"></div>
+                <div class="cardspace" id="tableau6" data-tableau="6"></div>
+                <div class="cardspace" id="tableau7" data-tableau="7"></div>
             </div>
 
         </div>
-
-
-    <div id="whatsthestory" class="panel">
-            <p class="callout">An ant colony is a place of feverish activity, where workers endlessly toil for the greater good of the superorganism. You are a worker ant, constantly moving detritus and foodstuffs from chamber to chamber. The problem is that other workers are bringing in more goods faster than you can sort out the old stuff! At the end of the day, the best that you can hope for is a chance to do it all over again tomorrow.</p>
-
-            <h2>How to Play</h2>
-            <p>Cards are ranked Ace, 2. 3, 4, 5, 6, 7, 8, 9, (Pawn, (Court,)) Crown, ascending.  (Pawns and Courts are optional and don't appear in the base game.)  You can move any single top card onto a card of the next higher rank or into an empty tableau space.  You can also move any set of cards in descending rank order onto a card of the next higher rank or into an empty tableau space, provided that the cards you are moving all share a common suit.  When you have assembled a descending sequence from Crown to Ace which shares a single suit, you have completed one-sixth of your sorting task!  The stack is automatically moved to one of the six chambers at the top of the play area.</p>
-	    <p>Cards are moved by dragging; illegal moves are not permitted.  (The cards bounce back.)  When you uncover a face-down card in a tableau stack, it will be flipped automatically.  (Some game levels have no face-down cards.)  At any time you may deal eight more cards (four on the last deal) to the tops of the eight tableau piles by clicking on the tiny face-down card at the top center of the screen.  To see the suits of cards that are hidden by other cards, click on the (visible) top of the card.  Click again to neaten.</p>
-
-	    <h3>Winning and Losing</h3>
-	    <p>Filling no chambers is a total loss, filling 1 to 5 chambers is a partial win, and filling all six chambers is a true victory.  There is no official point at which you have lost; you can always start over with the New Game button, or replay the same game (deal) with the Replay button.  You can switch to an easier or some harder variants in the Settings.</p>
-        <button type="button" class="close button">Close</button>
-    </div>
 
     <div id="gameOver" class="panel">
         <h2>Victory!</h2>
 				<p>You filled all the chambers in <span id="minutes"></span> minutes, <span id="meaning"></span>.</p>
         <p>You may now enter the Queen’s chamber and start mucking it out.</p>
         <button type="button" id="gameOverCloseButton" class="close button">Close</button>
+    </div>
+
+    <div id="whatsthestory" class="panel">
+            <p class="callout">An ant colony is a place of feverish activity, where workers endlessly toil for the greater good of the superorganism. You are a worker ant, constantly moving detritus and foodstuffs from chamber to chamber. The problem is that other workers are bringing in more goods faster than you can sort out the old stuff! At the end of the day, the best that you can hope for is a chance to do it all over again tomorrow.</p>
+
+						<h3>About the Decktet</h3>
+						<p>The Decktet is an alternative deck of cards with six suits (named Moons <img class="symbol" src="cards/moons_black.png" alt="suit symbol for moons"/>, Suns <img class="symbol" src="cards/suns.png" alt="suit symbol for suns"/>, Waves <img class="symbol" src="cards/waves.png" alt="suit symbol for waves"/>, Leaves <img class="symbol" src="cards/leaves.png" alt="suit symbol for leaves"/>, Wyrms <img class="symbol" src="cards/wyrms.png" alt="suit symbol for wyrms"/>, and Knots <img class="symbol" src="cards/knots.png" alt="suit symbol for knots"/>), ten to twelve ranks, multiple suits on most cards, plus several other intriguing features not used while playing Myrmex.  In the Decktet, cards are ranked Ace, 2. 3, 4, 5, 6, 7, 8, 9, (Pawn, (Court,)) Crown, ascending.  Numbered cards have two suits each.  Aces have a single, round suit marker <img class="symbol" src="cards/wyrms.png" alt="suit symbol for wyrms"/> in the center and corners, and Crowns <img class="symbol" src="cards/crown.png" alt="crown symbol"/> also have only one suit.  Pawns <img class="symbol" src="cards/pawn.png" alt="pawn symbol"/> and Courts <img class="symbol" src="cards/court.png" alt="court symbol"/> are optional triple-suited cards from the Extended Decktet which are used at higher levels of Myrmex but not in the base game.  The suit distribution follows no particular pattern.</p>
+						<p>A double Decktet is two copies of the Decktet shuffled together; for Myrmex, some duplicate cards are removed from the double Decktet and some are kept, resulting in six cards of each rank.</p>
+
+            <h3>How to Play</h3>
+						<p>Myrmex is a Spider-like solitaire game for a double Decktet.  The goal of Myrmex, like that of many solitaire games, is to assemble descending sequences from Crown to Ace, one for each suit.  A completed sequence is (automatically) moved to one of the six empty chambers at the top of the play area.  As in Spider, Myrmex starts with a partially-filled tableau of eight piles, plus a draw pile containing the rest of the deck.  Face-up cards are fanned downward in the usual solitaire fashion, so the available cards are the uppermost in the stacking of the column, though they are lower down on your screen.</p>
+            <p>You can move any single uppermost card from one tableau onto a card of the next higher rank in another tableau, or into an empty tableau space.  You can also move any (uppermost) set of cards in descending rank order onto a card of the next higher rank or into an empty tableau space, provided that the cards you are moving all share a common suit.  (The target card does <em>not</em> have to share the suit, leading to most of the difficult decisions in Myrmex.)  When you have assembled a descending sequence from Crown to Ace which shares a single suit, you have completed one-sixth of your sorting task!</p>
+						<p>Cards are moved by dragging and dropping.  Illegal moves are not permitted; illegal sequences cannot be dragged, and draggable card(s) will bounce back to their original place when dropped onto an illegal position.  When you uncover a face-down card in a tableau stack by successfully moving the card(s) on top of it away (in a game level with face-down cards), the face-down card will be flipped automatically.</p>
+						<p>At any time you may deal eight more face-up cards (fewer on the last deal) to the uppermost position of the eight tableau piles by clicking on the small, face-down deck pile at the top of the play area.</p>
+						<p>In most browsers, your game will be saved automatically so you can return to it later (even when offline).  There is an undo button, but it only undoes one move.  You can also scroll around the screen, and may need to on small devices.</p>
+
+						<h3>Winning and Losing</h3>
+						<p>Filling no chambers is a total loss, filling 1 to 5 chambers is a partial win, and filling all six chambers is a true victory.  There is no official point at which you have lost; you can always start over with the New Game button, or replay the same game (deal) with the Replay button.  You can switch to an easier or some harder variants in the Settings; this won't affect your current game.  (Other, more cosmetic, settings take effect immediately.)</p>
+
+        <button type="button" class="close button">Close</button>
     </div>
 
     <div id="settingsPanel" class="panel">
@@ -122,23 +128,46 @@
 
 	<div>
 		<p style="text-align:right;white-space:nowrap;">
-			<input type="checkbox" id="emblacken" title="Emblacken" checked /> Black&nbsp;Moons
+			<input type="checkbox" id="emblacken" title="Emblacken" /> Black&nbsp;Moons
 		</p>
 		<p>For added legibility, a black sky background has been added to the moon suit.  Uncheck this option to use the unadulterated artwork in your next game.</p>
 	</div>
 
 	<div>
-		<p style="white-space:nowrap;">
-			<input type="radio" name="level" value="larval">Larval Stage (Beetle)</input><br/>
-			<input type="radio" name="level" value="minor" checked>Minor Worker (Blind)</input><br/>
-			<input type="radio" name="level" value="major">Major Worker (Beetle)</input><br/>
-			<input type="radio" name="level" value="queen">Queen (Beetle)</input><br/>
-			<input type="radio" name="level" value="blindMajor">Blind Major Worker</input><br/>
-			<input type="radio" name="level" value="blindQueen">Blind Queen</input><br/>
+		<table style="text-align:left">
+			<tr>
+				<th>Beetle</th>
+				<th>Blind</th>
+			</tr>
+			<tr>
+				<td><input type="radio" name="level" value="larval">Larval Stage</input></td>
+				<td><input type="radio" name="level" value="minor">Minor Worker</input></td>
+			</tr>
+			<tr>
+				<td><input type="radio" name="level" value="major">Major Worker</input></td>
+				<td><input type="radio" name="level" value="blindMajor">Blind Major Worker</input></td>
+			</tr>
+			<tr>
+				<td><input type="radio" name="level" value="queen">Queen</input></td>
+				<td><input type="radio" name="level" value="blindQueen">Blind Queen</input></td>
+			</tr>
 			<!-- input type="radio" name="level" value="double">Double Myrmex (Blind)</input -->
-		</p>
+		</table>
 		<p>Your next game can be made harder with the addition of six Pawns (the Major Worker levels) or six Pawns and six Courts (the Queen levels).  The game can be made easier by dealing the tableau face up and visible as in the Beetle variant of Spider; this is the default for the Larval Stage, the Major Worker level, and the Queen level.  <!-- (Double Myrmex is an experimental version using four decks.) --></p>
 	</div>
+
+	<div>
+		<p style="text-align:right;white-space:nowrap;">
+			<input type="checkbox" id="unsnooker" title="Show used Pawns and Courts (in levels that involve them)" /> Show used Pawns/Courts</p>
+		<p>Your Major Worker or Queen level games can be made slightly easier by displaying the Pawns and Courts that have already been put into your chambers.  (Using the "wrong" Pawns and/or Courts in some chambers can make it impossible to fill the remaining chambers; this setting will not stop you from doing so, but it may help you avoid the situation.)</p>
+	</div>
+
+	<div>
+		<p style="text-align:right;white-space:nowrap;">
+			<input type="checkbox" id="checkEmpties" title="Fill empty tableau spaces" /> Fill empty tableau spaces</p>
+			<p>Your games may be made slightly harder with the restriction that you cannot deal to the tableau unless all empty tableau spaces (<em>a.k.a.</em> piles) already have cards in them.  (It is legal to move any card to an empty space.)  Of course you can follow this rule without actually checking the box.</p>
+	</div>
+
 	<button type="button" class="close button">Close</button>
     </div>
 
@@ -146,9 +175,9 @@
             <h2>Credits</h2>
             <p>The Decktet Card system was created by P.D. Magnus. The card images and card backs shown here are released under a Creative Commons License by P.D. Magnus.  The optional black moons are a cosmetic change by M.C. DeMarco to increase legibility on small screens.  The handwriting font is Fortune Letters, also by P.D. Magnus.  The background texture is "Skulls" by Adam, from <a href="http://subtlepatterns.com/skulls/">Subtle Patterns</a>.</p>
             <p>Please visit the <a href="http://www.decktet.com/">Decktet web site</a> to find out more about the Decktet and to get your own deck.  (Note that a double deck is required to play Myrmex.)</p>
-            <p>Myrmex was created by Greg James and is quite similar to the solitaire game of Spider for a regular deck of cards.  It requires most of two Decktet decks.  The official rules are available <a href="http://decktet.wikidot.com/game:myrmex">at the Decktet Wiki</a>, and some background about the variants can be found <a href="http://www.boardgamegeek.com/forum/1076224/myrmex/strategy">at BoardGameGeek</a>.  The undocumented, experimental Double Myrmex variant is by M.C. DeMarco.</p>
+            <p>Myrmex was created by Greg James and is quite similar to the solitaire game of Spider for a regular deck of cards.  It requires most of two Decktet decks.  The official rules are available <a href="http://decktet.wikidot.com/game:myrmex">at the Decktet Wiki</a>, and some background about the variants can be found <a href="http://www.boardgamegeek.com/forum/1076224/myrmex/strategy">at BoardGameGeek</a>.  <!-- The undocumented, experimental Double Myrmex variant is by M.C. DeMarco.--></p>
             <p id="versionP">This implementation of Myrmex is by M.C. DeMarco, using some code from Felbrigg Herriot's electronic web version of Adaman (another Decktet solitaire game), and is released under a Creative Commons Attribution NonCommercial ShareAlike 3.0 License.  The code is available <a href="https://github.com/mcdemarco/myrmex">at Github</a>.  This is version</p>
-						<p>You may also want to try <a href="https://mcdemarco.github.io/adaman/">Adaman</a>.</p>
+						<p>You may also want to try <a href="https://mcdemarco.github.io/adaman/">Adaman</a> or <a href="http://mcdemarco.net/games/decktet/cascades/">Cascades</a>.</p>
 						<button type="button" class="close button">Close</button>
     </div>
 

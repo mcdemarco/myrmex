@@ -1,6 +1,6 @@
 CACHE MANIFEST
-# v1.2 # 2017-12-02
-# myrmex.html is the file that calls the manifest.
+# v1.3 # 2018-01-01
+# myrmex.html is the file that calls this manifest.
 
 CACHE:
 js/jquery-latest.min.js

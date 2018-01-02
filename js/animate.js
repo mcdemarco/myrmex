@@ -5,7 +5,7 @@ $.fn.extend({
 		//We're no longer respecting the delay, if we ever were,
 		//but if it's 0 or not there it means no animation was intended.
 		
-		console.log("animating " + $(this).prop("id"));
+		//console.log("animating " + $(this).prop("id"));
     var animationEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
 		if (animationName == "fadeIn") {
 			if (!delay)
