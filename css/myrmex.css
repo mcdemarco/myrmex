@@ -127,9 +127,12 @@ div#titleRight {
 .subchamber {
     height:100%;
     margin-left:15px;
-    border-left:1px solid #432;
     border-radius:5px 0 0 0;
     overflow:hidden;
+}
+
+.unsnoo .subchamber {
+    border-left:1px solid #432;
 }
 
 .cardspace {
