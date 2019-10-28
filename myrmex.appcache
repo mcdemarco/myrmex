@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# v1.3 # 2018-02-22
+# v1.3.2 # 2019-10-28
 # myrmex.html is the file that calls this manifest.
 
 CACHE:
@@ -57,6 +57,8 @@ cards/9_merchant.png
 cards/9_pact.png
 cards/9_pact_black.png
 cards/back.png
+cards/court.png
+cards/crown.png
 cards/crown_knots.png
 cards/crown_leaves.png
 cards/crown_moons.png
@@ -69,6 +71,7 @@ cards/knots.png
 cards/leaves.png
 cards/moons.png
 cards/moons_black.png
+cards/pawn.png
 cards/pawn_borderland.png
 cards/pawn_harvest.png
 cards/pawn_harvest_black.png

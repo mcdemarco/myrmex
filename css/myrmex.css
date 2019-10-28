@@ -189,7 +189,6 @@ div#titleRight {
 }
 
 .cardspace {
-    /* border:thin solid #170; */
     background-color:rgba(64,115,52,0.4);/*17,119,0,0.4); */
 }
 
@@ -201,15 +200,8 @@ div#titleRight {
     box-shadow: 0 1px 0 #432, 1px 1px 0 #432, -1px 1px 0 #432, 1px -1px 0 #432;
 }
 
-/*
-.card > img.realBack {
-    border:thin solid #432;
-}
-*/
-
 .card img.realBack {
     border-radius:6px;
-/*    border:thin solid #432; */
 }
 
 .card {
@@ -225,6 +217,7 @@ div#titleRight {
     user-select: none;
     -webkit-user-drag: none;
     user-drag: none;
+    touch-action: none;
 }
 
 .aceAdjust {

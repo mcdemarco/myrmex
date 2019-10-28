@@ -1,5 +1,5 @@
 /**
- * interact.js v1.2.6
+ * interact.js v1.2.8
  *
  * Copyright (c) 2012-2015 Taye Adeyemi <dev@taye.me>
  * Open source under the MIT License.
@@ -417,7 +417,7 @@
                             }
                         };
 
-                        ret = element[addEvent](on + type, wrapped, Boolean(useCapture));
+                        ret = element[addEvent](on + type, wrapped, {useCapture: Boolean(useCapture), passive: false});
 
                         if (listenerIndex === -1) {
                             listeners.supplied.push(listener);
@@ -429,7 +429,7 @@
                         }
                     }
                     else {
-                        ret = element[addEvent](type, listener, useCapture || false);
+                        ret = element[addEvent](type, listener, {useCapture: useCapture || false, passive: false});
                     }
                     target.events[type].push(listener);
 
@@ -469,13 +469,13 @@
 
                     if (listener === 'all') {
                         for (i = 0; i < len; i++) {
-                            remove(element, type, target.events[type][i], Boolean(useCapture));
+                            remove(element, type, target.events[type][i], {useCapture: Boolean(useCapture), passive: false});
                         }
                         return;
                     } else {
                         for (i = 0; i < len; i++) {
                             if (target.events[type][i] === listener) {
-                                element[removeEvent](on + type, wrapped, useCapture || false);
+                                element[removeEvent](on + type, wrapped, {useCapture: useCapture || false, passive: false});
                                 target.events[type].splice(i, 1);
 
                                 if (useAttachEvent && listeners) {
@@ -5046,7 +5046,7 @@
 
             if (isArray(eventType)) {
                 for (i = 0; i < eventType.length; i++) {
-                    this.on(eventType[i], listener, useCapture);
+                    this.on(eventType[i], listener, {useCapture: useCapture, passive: false});
                 }
 
                 return this;
@@ -5422,7 +5422,7 @@
         }
         // If non InteractEvent type, addEventListener to document
         else {
-            events.add(document, type, listener, useCapture);
+            events.add(document, type, listener, {useCapture: useCapture, passive: false});
         }
 
         return interact;
