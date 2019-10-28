@@ -37,6 +37,10 @@ body {
     margin: 0 auto;
     height: 100%;
     overflow: auto;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    user-drag: none;
 }
 
 /* removed flex from header */
@@ -47,6 +51,10 @@ div#header {
     display:table;
     width:1110px;
     padding:10px 20px;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    user-drag: none;
 }
 
 div#header > div {
@@ -206,6 +214,12 @@ div#titleRight {
 
 .card {
     background-size:124px 174px;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    user-drag: none;
+    touch-action: none;
+    -webkit-touch-callout: none;
 }
 
 .card.ui-draggable-dragging {
@@ -218,6 +232,7 @@ div#titleRight {
     -webkit-user-drag: none;
     user-drag: none;
     touch-action: none;
+    -webkit-touch-callout: none;
 }
 
 .aceAdjust {
