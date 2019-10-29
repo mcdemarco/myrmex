@@ -17,10 +17,10 @@ var myrmex = {};
 	var tablArray = [];
 	var chamberArray = [];
 	var deck;
-	var debugging = true;
+	var debugging = false;
 	var debugLevel = 2; //Turn up to 2 or off on release.
 	var undoAllowed = true;
-	var version = "1.3";
+	var version = "1.3.3";
 
 //init
 //data
@@ -412,11 +412,14 @@ context.cards = (function () {
 																				 onend: dragMoveCleanup
 																				});
 
-		function dragMoveListener (event) {
+		function dragMoveListener(event) {
+			// keep the dragged position in the data-x/data-y attributes
 			var target = event.target,
-					// keep the dragged position in the data-x/data-y attributes
-					x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
-					y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+					x = (parseFloat(target.getAttribute('data-x'),10) || 0) + event.dx,
+					y = (parseFloat(target.getAttribute('data-y'),10) || 0) + event.dy;
+
+			var oldx = parseFloat(target.getAttribute('data-x'),10);
+			var oldy = parseFloat(target.getAttribute('data-y'),10);
 			
 			// translate the element
 			target.style.webkitTransform = target.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
@@ -424,6 +427,8 @@ context.cards = (function () {
 			// update the posiion attributes
 			target.setAttribute('data-x', x);
 			target.setAttribute('data-y', y);
+
+//			console.log(event.target.id + ", old:" + oldx + " " + oldy + ", new: " + x + " " + y + ", dxy: " + event.dx + " " + event.dy + ", location: " + event.pageX + " " + event.pageY);
 
 			//Need to hackishly pop the card above later cards because of interact.js issue #237.
 			var tableauId = $(target).closest(".cardspace").data("tableau");
@@ -433,9 +438,9 @@ context.cards = (function () {
 			$(target).css("zIndex",1000);
 		}
 
-		function dragMoveCleanup (event) {
+		function dragMoveCleanup(event) {
 			var target = event.target;
-			target.style.webkitTransform = target.style.transform = 'none';
+			target.style.webkitTransform = target.style.transform = '';
 			target.setAttribute('data-x', 0);
 			target.setAttribute('data-y', 0);
 			$(".card").css("zIndex","auto");
@@ -983,6 +988,9 @@ context.ui = (function () {
 	}
 
 	function init() {
+		//Init interact.js.
+		//interact.dynamicDrop(true); //totally broken
+
 		//Init buttons.
 			
 		// set up the click events for the panels
@@ -1144,10 +1152,10 @@ context.ui = (function () {
 		clearInterval(timer);
 		//Add time and meaning.
 		var yourTime = $("#timer").text().split(":");
-		if (yourTime.length == 3)
-			yourTime = yourTime[1];
-		else
-			yourTime = yourTime[0];
+		if (yourTime.length == 3) //[hrs,mins,secs]
+			yourTime = parseInt(yourTime[0]) * 60 + parseInt(yourTime[1]);
+		else //[mins,secs]
+			yourTime = parseInt(yourTime[0]);
 		var yourSpeed;
 		if (yourTime < 15) yourSpeed = "an easy win";
 		else if (yourTime < 25) yourSpeed = "a sweaty victory";

@@ -20,6 +20,16 @@ p::selection {
     background:#C3FEB5;
 }
 
+#playarea, div#header,
+.card, .card img {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -khtml-user-select: none;
+    user-select: none;
+}
+
 /* layout: width is 1110px */
 
 html, body {
@@ -37,6 +47,7 @@ body {
     margin: 0 auto;
     height: 100%;
     overflow: auto;
+    scrollbar-width:none;
 }
 
 /* removed flex from header */
@@ -127,9 +138,12 @@ div#titleRight {
 .subchamber {
     height:100%;
     margin-left:15px;
-    border-left:1px solid #432;
     border-radius:5px 0 0 0;
     overflow:hidden;
+}
+
+.unsnoo .subchamber {
+    border-left:1px solid #432;
 }
 
 .cardspace {
@@ -186,7 +200,6 @@ div#titleRight {
 }
 
 .cardspace {
-    /* border:thin solid #170; */
     background-color:rgba(64,115,52,0.4);/*17,119,0,0.4); */
 }
 
@@ -198,15 +211,8 @@ div#titleRight {
     box-shadow: 0 1px 0 #432, 1px 1px 0 #432, -1px 1px 0 #432, 1px -1px 0 #432;
 }
 
-/*
-.card > img.realBack {
-    border:thin solid #432;
-}
-*/
-
 .card img.realBack {
     border-radius:6px;
-/*    border:thin solid #432; */
 }
 
 .card {
@@ -217,11 +223,10 @@ div#titleRight {
     box-shadow: 5px 5px 15px 1px rgba(0,0,0,0.75);
 }
 
-.card img {
-    -webkit-user-select: none;
-    user-select: none;
+.card, .card img {
     -webkit-user-drag: none;
     user-drag: none;
+    touch-action: none;
 }
 
 .aceAdjust {
