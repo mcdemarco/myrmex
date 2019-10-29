@@ -20,6 +20,16 @@ p::selection {
     background:#C3FEB5;
 }
 
+#playarea, div#header,
+.card, .card img {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -khtml-user-select: none;
+    user-select: none;
+}
+
 /* layout: width is 1110px */
 
 html, body {
@@ -38,10 +48,6 @@ body {
     height: 100%;
     overflow: auto;
     scrollbar-width:none;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-user-drag: none;
-    user-drag: none;
 }
 
 /* removed flex from header */
@@ -52,10 +58,6 @@ div#header {
     display:table;
     width:1110px;
     padding:10px 20px;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-user-drag: none;
-    user-drag: none;
 }
 
 div#header > div {
@@ -215,25 +217,16 @@ div#titleRight {
 
 .card {
     background-size:124px 174px;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-user-drag: none;
-    user-drag: none;
-    touch-action: none;
-    -webkit-touch-callout: none;
 }
 
 .card.ui-draggable-dragging {
     box-shadow: 5px 5px 15px 1px rgba(0,0,0,0.75);
 }
 
-.card img {
-    -webkit-user-select: none;
-    user-select: none;
+.card, .card img {
     -webkit-user-drag: none;
     user-drag: none;
     touch-action: none;
-    -webkit-touch-callout: none;
 }
 
 .aceAdjust {
