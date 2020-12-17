@@ -20,7 +20,7 @@ p::selection {
     background:#C3FEB5;
 }
 
-#playarea, div#header,
+body, #playarea, div#header,
 .card, .card img {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
