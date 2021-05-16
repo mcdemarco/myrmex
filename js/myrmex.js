@@ -20,7 +20,7 @@ var myrmex = {};
 	var debugging = false;
 	var debugLevel = 2; //Turn up to 2 or off on release.
 	var undoAllowed = true;
-	var version = "1.3.5";
+	var version = "1.3.5a";
 
 //init
 //data
@@ -437,6 +437,7 @@ context.cards = (function () {
 			}
 			$(target).css("zIndex",1000);
 			event.stopPropagation();
+			event.preventDefault();
 		}
 
 		function dragMoveCleanup(event) {
