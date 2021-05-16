@@ -16,16 +16,15 @@ Myrmex is a Decktet version of Spider, which I wanted to be able to play even wh
 
 ## Additional Features
 
-Full rules are available under "Rules." Besides save, restore, undo and replay (mentioned above), the following features can be set or changed in the settings:
+Full rules are available under "Rules." Besides variants, save, restore, undo and replay (mentioned above), the following features can be set or changed in the settings:
 
-* All variants of Myrmex supported.
 * Enlarge the cards for tiny screens.
 * "Black Moons" make Moons easier to distinguish from Knots.
 * An anti-snooker setting shows you which courts and pawns you've already put into chambers.
 
 ## Bugs
 
-Undo only undoes one move.  (Undoing again will re-do.)  Undo will not undo a deal.
+Undo only undoes one move.  (Undoing again will re-do.)  Undo will not undo a deal, but killing the tab/window and reopening it may undo a deal.
 
 ## Links
 

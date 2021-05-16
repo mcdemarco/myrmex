@@ -20,7 +20,7 @@ var myrmex = {};
 	var debugging = false;
 	var debugLevel = 2; //Turn up to 2 or off on release.
 	var undoAllowed = true;
-	var version = "1.3.4";
+	var version = "1.3.5";
 
 //init
 //data
@@ -436,6 +436,7 @@ context.cards = (function () {
 				$("#tableau" + t + " .card").css("zIndex",1);
 			}
 			$(target).css("zIndex",1000);
+			event.stopPropagation();
 		}
 
 		function dragMoveCleanup(event) {
@@ -1021,7 +1022,7 @@ context.ui = (function () {
 		//Init dealer.
 		$("#drawDeckLocation").click(function () {
 			//Add back in later as an option.
-			if (context.settings.get('checkEmpties') && context.data.areEmptyTableauSpaces()) {
+			if (context.settings.get('checkEmpties') && context.data.areEmptyTableauSpaces() && context.deal.getIndexOfTopCardOnDrawDeck() >= 0) {
 				alerter("You must fill all empty tableau spaces before dealing.");
 			} else {
 				context.ui.popDealer();
@@ -1030,7 +1031,7 @@ context.ui = (function () {
 					context.cards.refreshAll();
 				}
 			}
-		});	
+		});
 	}
 
 	function initDealer() {
