@@ -24,7 +24,7 @@ Full rules are available under "Rules." Besides variants, save, restore, undo an
 
 ## Bugs
 
-Undo only undoes one move.  (Undoing again will re-do.)  Undo will not undo a deal.
+Undo only undoes one move.  (Undoing again will re-do.)  Undo will not undo a deal, but killing the tab/window and reopening it may undo a deal.
 
 ## Links
 
