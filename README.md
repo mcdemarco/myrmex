@@ -10,6 +10,8 @@ The JavaScript implementation is partly based on an implementation of Adaman by 
 
 Games are automatically saved and restored; to start a new game press the New button.  To restart the same game without shuffling, press the Replay button.
 
+There is no build process; just open `myrmex.html`.
+
 ## Why?
 
 Myrmex is a Decktet version of Spider, which I wanted to be able to play even when there isn't room to spread out my double Decktet deck.
