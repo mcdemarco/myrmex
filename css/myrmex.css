@@ -418,6 +418,8 @@ body {
 button {
     font-family: 'Fortune Letters', Futura, Geneva, sans-serif;
     padding-top: 5px;
+    /* deal with gross iOS user agent stylesheet color */
+    color: #251;
 }
 
 #settingsPanel div p:first-child {
